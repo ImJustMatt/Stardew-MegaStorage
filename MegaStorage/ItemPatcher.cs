@@ -29,9 +29,10 @@ namespace MegaStorage
             if (!(addedItem is CustomChest customChest))
                 return;
 
-            MegaStorageMod.ModMonitor.VerboseLog("OnInventoryChanged: converting");
             var index = Game1.player.Items.IndexOf(addedItem);
-            Game1.player.Items[index] = customChest.ToObject();
+            MegaStorageMod.ModMonitor.VerboseLog($"OnInventoryChanged: converting at {index}");
+            if (index > -1)
+                Game1.player.Items[index] = customChest.ToObject();
         }
 
         private static void OnChestInventoryChanged(object sender, ChestInventoryChangedEventArgs e)
@@ -44,9 +45,10 @@ namespace MegaStorage
             if (!(addedItem is CustomChest customChest))
                 return;
 
-            MegaStorageMod.ModMonitor.VerboseLog("OnChestInventoryChanged: converting");
             var index = e.Chest.items.IndexOf(addedItem);
-            e.Chest.items[index] = customChest.ToObject();
+            MegaStorageMod.ModMonitor.VerboseLog($"OnChestInventoryChanged: converting at {index}");
+            if (index > -1)
+                e.Chest.items[index] = customChest.ToObject();
         }
 
         private static void OnDebrisListChanged(object sender, DebrisListChangedEventArgs e)
