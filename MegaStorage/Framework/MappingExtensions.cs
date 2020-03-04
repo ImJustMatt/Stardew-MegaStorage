@@ -11,7 +11,7 @@ namespace MegaStorage.Framework
     public static class MappingExtensions
     {
         public static Item ToObject(this Item item) =>
-            item is CustomChest chest
+            item is Chest chest
                 ? new SObject(chest.TileLocation, chest.ParentSheetIndex)
                 {
                     Stack = chest.Stack
@@ -20,7 +20,8 @@ namespace MegaStorage.Framework
 
         public static Item ToObject(this Item item, ChestType chestType) =>
             item is Chest chest
-                ? new SObject(chest.TileLocation, CustomChestFactory.CustomChestIds[chestType])
+                ? new SObject(chest.TileLocation,
+                    MegaStorageMod.JsonAssets.GetBigCraftableId(CustomChestFactory.CustomChests[chestType]))
                 {
                     Stack = chest.Stack
                 }
@@ -54,15 +55,15 @@ namespace MegaStorage.Framework
             // Try to match chest by id
             if (chestType == ChestType.InvalidChest)
             {
-                chestType = CustomChestFactory.CustomChestIds
-                    .FirstOrDefault(c => c.Value == item.ParentSheetIndex)
+                chestType = CustomChestFactory.CustomChests
+                    .FirstOrDefault(c => MegaStorageMod.JsonAssets.GetBigCraftableId(c.Value) == item.ParentSheetIndex)
                     .Key;
             }
 
             // Try to match chest by name
             if (chestType == ChestType.InvalidChest)
             {
-                chestType = CustomChestFactory.CustomChestNames
+                chestType = CustomChestFactory.CustomChests
                     .FirstOrDefault(c => c.Value.Equals(item.Name, StringComparison.InvariantCultureIgnoreCase))
                     .Key;
             }
