@@ -7,7 +7,6 @@ using StardewValley.Locations;
 using StardewValley.Objects;
 using StardewValley.Tools;
 using System;
-using System.IO;
 using System.Linq;
 
 namespace MegaStorage.Framework.Models
@@ -238,7 +237,7 @@ namespace MegaStorage.Framework.Models
                     Game1.pixelZoom,
                     SpriteEffects.None,
                     layerDepth);
-                
+
                 // Draw Lid
                 spriteBatch?.Draw(
                     Game1.bigCraftableSpriteSheet,
@@ -260,7 +259,7 @@ namespace MegaStorage.Framework.Models
                     32);
                 spriteBraceBottom.Y += 21;
                 spriteBraceBottom.Height = 11;
-                
+
                 // Draw Colorized Chest
                 spriteBatch?.Draw(
                     Game1.bigCraftableSpriteSheet,
@@ -272,11 +271,11 @@ namespace MegaStorage.Framework.Models
                     Game1.pixelZoom,
                     SpriteEffects.None,
                     layerDepth);
-                
+
                 // Draw Bottom-Half Braces
                 spriteBatch?.Draw(
                     Game1.bigCraftableSpriteSheet,
-                    Game1.GlobalToLocal(Game1.viewport, globalPosition + new Vector2(0,Game1.tileSize + 20)),
+                    Game1.GlobalToLocal(Game1.viewport, globalPosition + new Vector2(0, Game1.tileSize + 20)),
                     spriteBraceBottom,
                     Color.White * alpha,
                     0.0f,
@@ -284,7 +283,7 @@ namespace MegaStorage.Framework.Models
                     Game1.pixelZoom,
                     SpriteEffects.None,
                     layerDepth + 2E-05f);
-                
+
                 // Draw Top-Half Braces
                 spriteBatch?.Draw(
                     Game1.bigCraftableSpriteSheet,
@@ -296,7 +295,7 @@ namespace MegaStorage.Framework.Models
                     Game1.pixelZoom,
                     SpriteEffects.None,
                     layerDepth + 2E-05f);
-                
+
                 // Draw Colorized Lid
                 spriteBatch?.Draw(
                     Game1.bigCraftableSpriteSheet,
@@ -322,7 +321,7 @@ namespace MegaStorage.Framework.Models
                     Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, ParentSheetIndex, 16, 32),
                     color * transparency,
                     0.0f,
-                    new Vector2(8f, 16f), 
+                    new Vector2(8f, 16f),
                     4f * (scaleSize < 0.2f ? scaleSize : scaleSize / 2f),
                     SpriteEffects.None,
                     layerDepth);
