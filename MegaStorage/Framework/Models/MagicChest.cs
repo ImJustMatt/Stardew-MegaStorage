@@ -9,9 +9,7 @@ namespace MegaStorage.Framework.Models
         public override Item getOne() => new MagicChest(Vector2.Zero);
         public MagicChest() : this(Vector2.Zero) { }
         public MagicChest(Vector2 tileLocation)
-            : base(
-                ChestType.MagicChest,
-                tileLocation)
+            : base(ChestType.MagicChest, tileLocation)
         {
             name = "Magic Chest";
         }

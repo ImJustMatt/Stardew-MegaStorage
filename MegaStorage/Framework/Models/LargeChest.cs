@@ -9,9 +9,7 @@ namespace MegaStorage.Framework.Models
         public override Item getOne() => new LargeChest(Vector2.Zero);
         public LargeChest() : this(Vector2.Zero) { }
         public LargeChest(Vector2 tileLocation)
-            : base(
-                ChestType.LargeChest,
-                tileLocation)
+            : base(ChestType.LargeChest, tileLocation)
         {
             name = "Large Chest";
         }
