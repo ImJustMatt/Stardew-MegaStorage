@@ -53,15 +53,19 @@ namespace MegaStorage.Framework
 
             // Try to match chest by id
             if (chestType == ChestType.InvalidChest)
+            {
                 chestType = CustomChestFactory.CustomChestIds
                     .FirstOrDefault(c => c.Value == item.ParentSheetIndex)
                     .Key;
+            }
 
             // Try to match chest by name
             if (chestType == ChestType.InvalidChest)
+            {
                 chestType = CustomChestFactory.CustomChestNames
                     .FirstOrDefault(c => c.Value.Equals(item.Name, StringComparison.InvariantCultureIgnoreCase))
                     .Key;
+            }
 
             // No valid chest found
             if (chestType == ChestType.InvalidChest)
