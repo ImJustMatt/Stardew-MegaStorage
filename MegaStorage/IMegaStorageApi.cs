@@ -8,7 +8,8 @@ namespace MegaStorage
 {
     public interface IMegaStorageApi
     {
-        event EventHandler<ICustomChestEventArgs> VisibleItemsRefreshed;
+        event EventHandler<ICustomChestEventArgs> BeforeVisibleItemsRefreshed;
+        event EventHandler<ICustomChestEventArgs> AfterVisibleItemsRefreshed;
         event EventHandler<ICustomChestEventArgs> ColorPickerToggleButtonClicked;
         event EventHandler<ICustomChestEventArgs> BeforeFillStacksButtonClicked;
         event EventHandler<ICustomChestEventArgs> AfterFillStacksButtonClicked;
@@ -20,23 +21,22 @@ namespace MegaStorage
         event EventHandler<ICustomChestEventArgs> AfterOkButtonClicked;
         event EventHandler<ICustomChestEventArgs> BeforeTrashCanClicked;
         event EventHandler<ICustomChestEventArgs> AfterTrashCanClicked;
-        event EventHandler<ICustomChestEventArgs> BeforeCategoryChanged;
-        event EventHandler<ICustomChestEventArgs> AfterCategoryChanged;
 
         /// <summary>Returns the Rectangle bounds of the ItemsToGrabMenu.</summary>
         Rectangle? GetItemsToGrabMenuBounds();
 
-        /// <summary>Returns the Rectangle bounds of the Inventory.</summary>
+        /// <summary>Returns the Rectangle bounds of the inventory.</summary>
         Rectangle? GetInventoryBounds();
         /// <summary>Returns the Vector2 dimensions of the ItemsToGrabMenu.</summary>
         Vector2? GetItemsToGrabMenuDimensions();
 
-        /// <summary>Returns the Vector2 dimensions of the Inventory.</summary>
+        /// <summary>Returns the Vector2 dimensions of the inventory.</summary>
         Vector2? GetInventoryDimensions();
+
         /// <summary>Returns the Vector2 position of the ItemsToGrabMenu.</summary>
         Vector2? GetItemsToGrabMenuPosition();
 
-        /// <summary>Returns the Vector2 position of the Inventory.</summary>
+        /// <summary>Returns the Vector2 position of the inventory.</summary>
         Vector2? GetInventoryPosition();
 
         /// <summary>Refreshes the visible contents of a chest.</summary>

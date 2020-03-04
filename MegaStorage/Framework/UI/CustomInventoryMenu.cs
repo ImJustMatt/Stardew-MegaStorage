@@ -230,6 +230,8 @@ namespace MegaStorage.Framework.UI
         *********/
         public void RefreshItems()
         {
+            if (_inventoryType == InventoryType.Chest)
+                MegaStorageApi.InvokeBeforeVisibleItemsRefreshed(_parentMenu, _parentMenu.CustomChestEventArgs);
             VisibleItems = (_selectedCategory?.Filter(actualInventory) ?? actualInventory)
                 .Skip(ItemsPerRow * _currentRow)
                 .ToList();
@@ -267,6 +269,8 @@ namespace MegaStorage.Framework.UI
                     rightNeighborImmutable = true
                 });
             }
+            if (_inventoryType == InventoryType.Chest)
+                MegaStorageApi.InvokeAfterVisibleItemsRefreshed(_parentMenu, _parentMenu.CustomChestEventArgs);
         }
     }
 }
