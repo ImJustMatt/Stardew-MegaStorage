@@ -18,18 +18,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="assets\LargeChest\BigCraftables\LargeChest\big-craftable.png" />
-    <None Remove="assets\MagicChest\BigCraftables\MagicChest\big-craftable.png" />
-    <None Remove="assets\SuperMagicChest\BigCraftables\SuperMagicChest\big-craftable.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="assets\LargeChest\BigCraftables\LargeChest\big-craftable.png" />
-    <Content Include="assets\MagicChest\BigCraftables\MagicChest\big-craftable.png" />
-    <Content Include="assets\SuperMagicChest\BigCraftables\SuperMagicChest\big-craftable.png" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -55,24 +43,6 @@
 
   <ItemGroup>
     <None Update="assets\AllTab.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="assets\LargeChest\LargeChest.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="assets\LargeChest\LargeChestBraces.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="assets\LargeChest\LargeChestBW.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="assets\MagicChest\MagicChest.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="assets\MagicChest\MagicChestBraces.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="assets\MagicChest\MagicChestBW.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
