@@ -15,7 +15,8 @@ namespace MegaStorage.Framework
         /*********
         ** Events
         *********/
-        public event EventHandler<ICustomChestEventArgs> VisibleItemsRefreshed;
+        public event EventHandler<ICustomChestEventArgs> BeforeVisibleItemsRefreshed;
+        public event EventHandler<ICustomChestEventArgs> AfterVisibleItemsRefreshed;
         public event EventHandler<ICustomChestEventArgs> ColorPickerToggleButtonClicked;
         public event EventHandler<ICustomChestEventArgs> BeforeFillStacksButtonClicked;
         public event EventHandler<ICustomChestEventArgs> AfterFillStacksButtonClicked;
@@ -27,8 +28,6 @@ namespace MegaStorage.Framework
         public event EventHandler<ICustomChestEventArgs> AfterOkButtonClicked;
         public event EventHandler<ICustomChestEventArgs> BeforeTrashCanClicked;
         public event EventHandler<ICustomChestEventArgs> AfterTrashCanClicked;
-        public event EventHandler<ICustomChestEventArgs> BeforeCategoryChanged;
-        public event EventHandler<ICustomChestEventArgs> AfterCategoryChanged;
 
         /*********
         ** Public methods
@@ -37,13 +36,13 @@ namespace MegaStorage.Framework
         {
             Instance = this;
         }
-        public Rectangle? GetItemsToGrabMenuBounds() => I?.GetItemsToGrabMenuBounds;
-        public Rectangle? GetInventoryBounds() => I?.GetInventoryBounds;
-        public Vector2? GetItemsToGrabMenuDimensions() => I?.GetItemsToGrabMenuDimensions;
-        public Vector2? GetInventoryDimensions() => I?.GetInventoryDimensions;
-        public Vector2? GetItemsToGrabMenuPosition() => I?.GetItemsToGrabMenuPosition;
-        public Vector2? GetInventoryPosition() => I?.GetInventoryPosition;
-        public void RefreshItems() => I?.RefreshItems();
+        public Rectangle? GetItemsToGrabMenuBounds() => I?.ItemsToGrabMenu.Bounds;
+        public Rectangle? GetInventoryBounds() => I?.inventory.Bounds;
+        public Vector2? GetItemsToGrabMenuDimensions() => I?.ItemsToGrabMenu.Dimensions;
+        public Vector2? GetInventoryDimensions() => I?.inventory.Dimensions;
+        public Vector2? GetItemsToGrabMenuPosition() => I?.ItemsToGrabMenu.Position;
+        public Vector2? GetInventoryPosition() => I?.inventory.Position;
+        public void RefreshItems() => I?.ItemsToGrabMenu.RefreshItems();
         public void ClickColorPickerToggleButton() => I?.ClickColorPickerToggleButton();
         public void ClickFillStacksButton() => I?.ClickFillStacksButton();
         public void ClickOrganizeButton() => I?.ClickOrganizeButton();
@@ -59,9 +58,13 @@ namespace MegaStorage.Framework
         private static CustomItemGrabMenu I =>
             (Game1.activeClickableMenu is CustomItemGrabMenu customItemGrabMenu) ? customItemGrabMenu : null;
 
-        internal static void InvokeVisibleItemsRefreshed(ItemGrabMenu itemGrabMenu,
+        internal static void InvokeBeforeVisibleItemsRefreshed(ItemGrabMenu itemGrabMenu,
             CustomChestEventArgs customChestEventArgs) =>
-            Instance.VisibleItemsRefreshed?.Invoke(itemGrabMenu, customChestEventArgs);
+            Instance.BeforeVisibleItemsRefreshed?.Invoke(itemGrabMenu, customChestEventArgs);
+
+        internal static void InvokeAfterVisibleItemsRefreshed(ItemGrabMenu itemGrabMenu,
+            CustomChestEventArgs customChestEventArgs) =>
+            Instance.AfterVisibleItemsRefreshed?.Invoke(itemGrabMenu, customChestEventArgs);
 
         internal static void InvokeColorPickerToggleButtonClicked(ItemGrabMenu itemGrabMenu,
             CustomChestEventArgs customChestEventArgs) =>
@@ -106,14 +109,6 @@ namespace MegaStorage.Framework
         internal static void InvokeAfterTrashCanClicked(ItemGrabMenu itemGrabMenu,
             CustomChestEventArgs customChestEventArgs) =>
             Instance.AfterTrashCanClicked?.Invoke(itemGrabMenu, customChestEventArgs);
-
-        internal static void InvokeBeforeCategoryChanged(ItemGrabMenu itemGrabMenu,
-            CustomChestEventArgs customChestEventArgs) =>
-            Instance.BeforeCategoryChanged?.Invoke(itemGrabMenu, customChestEventArgs);
-
-        internal static void InvokeAfterCategoryChanged(ItemGrabMenu itemGrabMenu,
-            CustomChestEventArgs customChestEventArgs) =>
-            Instance.AfterCategoryChanged?.Invoke(itemGrabMenu, customChestEventArgs);
     }
 
     public class CustomChestEventArgs : EventArgs, ICustomChestEventArgs

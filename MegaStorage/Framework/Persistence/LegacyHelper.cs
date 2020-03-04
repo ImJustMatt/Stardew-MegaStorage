@@ -97,7 +97,8 @@ namespace MegaStorage.Framework.Persistence
                 return;
             }
 
-            chest.ParentSheetIndex = CustomChestFactory.CustomChestIds[chestType];
+            chest.ParentSheetIndex =
+                MegaStorageMod.JsonAssets.GetBigCraftableId(CustomChestFactory.CustomChests[chestType]);
         }
 
         /// <summary>

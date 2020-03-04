@@ -38,11 +38,12 @@ namespace MegaStorage.Framework.Models
                 ChestType.LargeChest => ModConfig.Instance.LargeChest,
                 ChestType.MagicChest => ModConfig.Instance.MagicChest,
                 ChestType.SuperMagicChest => ModConfig.Instance.SuperMagicChest,
+                ChestType.InvalidChest => throw new InvalidOperationException("Invalid Chest Type"),
                 _ => throw new InvalidOperationException("Invalid Chest Type")
             };
 
             EnableCategories = config.EnableCategories;
-            ParentSheetIndex = CustomChestFactory.CustomChestIds[_chestType];
+            ParentSheetIndex = MegaStorageMod.JsonAssets.GetBigCraftableId(CustomChestFactory.CustomChests[_chestType]);
             startingLidFrame.Value = ParentSheetIndex + 1;
             _currentLidFrameReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<int>(this, "currentLidFrame");
         }
