@@ -97,6 +97,7 @@ namespace MegaStorage.Framework.UI
             allClickableComponents = new List<ClickableComponent>();
             playRightClickSound = true;
             allowRightClick = true;
+            canExitOnKey = true;
 
             _poofReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<TemporaryAnimatedSprite>(this, "poof");
             _behaviorFunction = MegaStorageMod.Instance.Helper.Reflection.GetField<behaviorOnItemSelect>(this, "behaviorFunction");
