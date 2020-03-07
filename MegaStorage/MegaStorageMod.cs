@@ -79,17 +79,22 @@ namespace MegaStorage
         private static void OnMenuChanged(object sender, MenuChangedEventArgs e)
         {
             ModMonitor.VerboseLog("New menu: " + e.NewMenu?.GetType());
-            if (e.NewMenu is CustomItemGrabMenu customItemGrabMenu)
+            switch (e.NewMenu)
             {
-                ActiveItemGrabMenu = customItemGrabMenu;
-                return;
+                case CustomItemGrabMenu customItemGrabMenu:
+                    ActiveItemGrabMenu = customItemGrabMenu;
+                    return;
+                case ItemGrabMenu itemGrabMenu:
+                    if (itemGrabMenu.context is CustomChest customChest)
+                    {
+                        ActiveItemGrabMenu = customChest.CreateItemGrabMenu(!ActiveItemGrabMenu.ActiveChest.Equals(customChest));
+                        Game1.activeClickableMenu = ActiveItemGrabMenu;
+                    }
+                    break;
+                case null:
+                    ActiveItemGrabMenu = null;
+                    break;
             }
-
-            if (!(e.NewMenu is ItemGrabMenu itemGrabMenu) || !(itemGrabMenu.context is CustomChest customChest))
-                return;
-
-            ActiveItemGrabMenu = customChest.CreateItemGrabMenu();
-            Game1.activeClickableMenu = ActiveItemGrabMenu;
         }
 
         private static void OnWindowResized(object sender, WindowResizedEventArgs e)

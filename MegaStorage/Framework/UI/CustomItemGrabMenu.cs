@@ -10,6 +10,7 @@ using StardewValley.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework.Input;
 using SObject = StardewValley.Object;
 
 namespace MegaStorage.Framework.UI
@@ -41,13 +42,13 @@ namespace MegaStorage.Framework.UI
         internal CustomChest ActiveChest { get; private set; }
         internal readonly CustomChest ActualChest;
         internal CustomClickableTextureComponent StarButton;
-
         internal new CustomInventoryMenu ItemsToGrabMenu { get; private set; }
 
 #pragma warning disable IDE1006 // Naming Styles
         // ReSharper disable once InconsistentNaming
         internal new CustomInventoryMenu inventory { get; private set; }
 #pragma warning restore IDE1006 // Naming Styles
+        internal bool ShowRealInventory { get; private set; }
 
         // Offsets to ItemsToGrabMenu and inventory
         private static readonly Vector2 Offset = new Vector2(-44, -68);
@@ -73,7 +74,7 @@ namespace MegaStorage.Framework.UI
         /*********
         ** Public methods
         *********/
-        public CustomItemGrabMenu(CustomChest actualChest)
+        public CustomItemGrabMenu(CustomChest actualChest, bool showRealInventory = false)
             : base(CommonHelper.NonNull(actualChest).items, actualChest)
         {
             initialize(
@@ -86,10 +87,19 @@ namespace MegaStorage.Framework.UI
             if (xPositionOnScreen < 0)
                 xPositionOnScreen = 0;
 
+            var leftShiftState = MegaStorageMod.ModHelper.Input.GetState(SButton.LeftShift);
+            var rightShiftState = MegaStorageMod.ModHelper.Input.GetState(SButton.RightShift);
+            var shiftHeld = leftShiftState == SButtonState.Pressed
+                            || leftShiftState == SButtonState.Held
+                            || rightShiftState == SButtonState.Pressed
+                            || rightShiftState == SButtonState.Held;
+            ShowRealInventory = showRealInventory || shiftHeld;
+
             ActualChest = actualChest;
-            ActiveChest = !ActualChest.EnableRemoteStorage || StateManager.MainChest.Equals(ActualChest)
+            ActiveChest = !ActualChest.EnableRemoteStorage || ShowRealInventory
                 ? ActualChest
-                : StateManager.MainChest;
+                : StateManager.MainChest
+                ?? ActualChest;
             allClickableComponents = new List<ClickableComponent>();
             playRightClickSound = true;
             allowRightClick = true;
@@ -420,6 +430,32 @@ namespace MegaStorage.Framework.UI
             }
         }
 
+        public override void receiveKeyPress(Keys key)
+        {
+            if (Game1.options.snappyMenus && Game1.options.gamepadControls)
+                applyMovementKey(key);
+
+            if (Game1.options.doesInputListContain(Game1.options.menuButton, key))
+            {
+                if (areAllItemsTaken() && readyToClose())
+                {
+                    exitThisMenu();
+                    if (!(Game1.currentLocation.currentEvent is null)
+                        && Game1.currentLocation.currentEvent.CurrentCommand > 0)
+                        ++Game1.currentLocation.currentEvent.CurrentCommand;
+                }
+                else if (!(heldItem is null))
+                {
+                    Game1.setMousePosition(trashCan.bounds.Center);
+                }
+            }
+            else if (key == Keys.Delete && !(heldItem is null) && heldItem.canBeTrashed())
+            {
+                Utility.trashItem(heldItem);
+                heldItem = null;
+            }
+        }
+
         public override void performHoverAction(int x, int y)
         {
             hoveredItem = inventory.hover(x, y, heldItem) ?? ItemsToGrabMenu.hover(x, y, heldItem);
@@ -478,7 +514,7 @@ namespace MegaStorage.Framework.UI
 
         internal void RefreshItems()
         {
-            if (ActualChest.EnableRemoteStorage && !(ActiveChest is null) && !ActiveChest.Equals(StateManager.MainChest))
+            if (ActualChest.EnableRemoteStorage && !ShowRealInventory && !(ActiveChest is null) && !ActiveChest.Equals(StateManager.MainChest))
             {
                 // ReSync to Main Chest
                 ActiveChest.items.OnElementChanged -= Items_Changed;
@@ -589,7 +625,7 @@ namespace MegaStorage.Framework.UI
         /// <param name="clickableComponent">The star button that was clicked</param>
         internal void ClickStarButton(CustomClickableTextureComponent clickableComponent = null)
         {
-            if (!Context.IsMainPlayer)
+            if (!Context.IsMainPlayer || ActualChest.items.Count > 0 || ShowRealInventory)
                 return;
 
             MegaStorageApi.InvokeBeforeStarButtonClicked(this, CustomChestEventArgs);
@@ -931,7 +967,7 @@ namespace MegaStorage.Framework.UI
             allClickableComponents.Add(organizeButton);
 
             // Star
-            if (ActualChest.EnableRemoteStorage)
+            if (ActualChest.EnableRemoteStorage && !ShowRealInventory)
             {
                 StarButton = new CustomClickableTextureComponent(
                     "starButton",

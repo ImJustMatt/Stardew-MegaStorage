@@ -8,6 +8,7 @@ using StardewValley.Objects;
 using StardewValley.Tools;
 using System;
 using System.Linq;
+using StardewValley.Menus;
 
 namespace MegaStorage.Framework.Models
 {
@@ -28,7 +29,7 @@ namespace MegaStorage.Framework.Models
             set => _currentLidFrameReflected.SetValue(value);
         }
 
-        protected internal CustomItemGrabMenu CreateItemGrabMenu() => new CustomItemGrabMenu(this);
+        protected internal CustomItemGrabMenu CreateItemGrabMenu(bool showRealInventory = false) => new CustomItemGrabMenu(this, showRealInventory);
         protected CustomChest(ChestType chestType, Vector2 tileLocation) : base(true, tileLocation)
         {
             _chestType = chestType;
@@ -141,7 +142,7 @@ namespace MegaStorage.Framework.Models
 
             if (MegaStorageMod.ActiveItemGrabMenu is null)
                 Game1.activeClickableMenu = CreateItemGrabMenu();
-            MegaStorageMod.ActiveItemGrabMenu.heldItem = addedItem;
+            ((ItemGrabMenu) Game1.activeClickableMenu).heldItem = addedItem;
 
             var id = !(Game1.activeClickableMenu.currentlySnappedComponent is null)
                 ? Game1.activeClickableMenu.currentlySnappedComponent.myID : -1;
