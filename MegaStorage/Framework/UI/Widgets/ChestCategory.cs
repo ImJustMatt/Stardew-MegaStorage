@@ -1,5 +1,4 @@
-﻿using MegaStorage.Framework.Models;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using System;
@@ -13,21 +12,14 @@ namespace MegaStorage.Framework.UI.Widgets
         protected internal Func<Item, bool> BelongsToCategory;
 
         private const int SelectedOffset = 8;
-        private readonly IList<int> _includes;
-        private readonly IList<int> _excludes;
-
         public ChestCategory(
             string name,
             CustomInventoryMenu parentMenu,
             Vector2 offset,
             Texture2D texture,
-            Rectangle sourceRect,
-            StashConfig categoryConfig)
+            Rectangle sourceRect)
             : base(name, parentMenu, offset, texture, sourceRect, MegaStorageMod.ModHelper.Translation.Get($"category.{name}"))
-        {
-            _includes = categoryConfig.IncludesAsList;
-            _excludes = categoryConfig.ExcludesAsList;
-        }
+        { }
 
         public void Draw(SpriteBatch b, bool selected = false)
         {
