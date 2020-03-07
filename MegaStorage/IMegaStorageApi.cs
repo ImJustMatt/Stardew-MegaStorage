@@ -42,6 +42,9 @@ namespace MegaStorage
         /// <summary>Refreshes the visible contents of a chest.</summary>
         void RefreshItems();
 
+        /// <summary>Stashes items from player's inventory into chest.</summary>
+        void StashItems();
+
         /// <summary>Click the Color Picker Toggle button.</summary>
         void ClickColorPickerToggleButton();
 

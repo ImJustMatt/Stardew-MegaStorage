@@ -43,6 +43,18 @@ namespace MegaStorage.Framework
         public Vector2? GetItemsToGrabMenuPosition() => I?.ItemsToGrabMenu.Position;
         public Vector2? GetInventoryPosition() => I?.inventory.Position;
         public void RefreshItems() => I?.ItemsToGrabMenu.RefreshItems();
+        public void StashItems()
+        {
+            if (MegaStorageMod.ActiveItemGrabMenu is null)
+            {
+                MegaStorageMod.StashItems();
+            }
+            else
+            {
+                I?.StashItems();
+            }
+        }
+
         public void ClickColorPickerToggleButton() => I?.ClickColorPickerToggleButton();
         public void ClickFillStacksButton() => I?.ClickFillStacksButton();
         public void ClickOrganizeButton() => I?.ClickOrganizeButton();
