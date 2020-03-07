@@ -36,10 +36,5 @@ namespace MegaStorage.Framework.UI.Widgets
             draw(b);
         }
         public List<Item> Filter(IList<Item> items) => items.Where(BelongsToCategory).ToList();
-
-        public bool BelongsToCategoryDefault(Item i) =>
-            !(i is null)
-            && (_includes is null || _includes.Contains(i.Category) || _includes.Contains(i.ParentSheetIndex))
-            && (_excludes is null || !(_excludes.Contains(i.Category) || _excludes.Contains(i.ParentSheetIndex)));
     }
 }
