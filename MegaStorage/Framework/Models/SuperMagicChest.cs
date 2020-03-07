@@ -1,5 +1,4 @@
-﻿using MegaStorage.Framework.Persistence;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 
 namespace MegaStorage.Framework.Models
 {

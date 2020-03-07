@@ -1,8 +1,8 @@
-﻿using System;
+﻿using StardewModdingAPI;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using StardewModdingAPI;
 using SObject = StardewValley.Object;
 
 namespace MegaStorage.Framework.Models
@@ -32,7 +32,7 @@ namespace MegaStorage.Framework.Models
             : null;
     }
 
-    public class CustomCategoryConfig: StashConfig
+    public class CustomCategoryConfig : StashConfig
     {
         public string CategoryName { get; set; }
         public string Image { get; set; } = "";

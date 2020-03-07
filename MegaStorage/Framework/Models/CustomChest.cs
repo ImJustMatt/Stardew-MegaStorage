@@ -4,11 +4,11 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Locations;
+using StardewValley.Menus;
 using StardewValley.Objects;
 using StardewValley.Tools;
 using System;
 using System.Linq;
-using StardewValley.Menus;
 
 namespace MegaStorage.Framework.Models
 {
@@ -142,7 +142,7 @@ namespace MegaStorage.Framework.Models
 
             if (MegaStorageMod.ActiveItemGrabMenu is null)
                 Game1.activeClickableMenu = CreateItemGrabMenu();
-            ((ItemGrabMenu) Game1.activeClickableMenu).heldItem = addedItem;
+            ((ItemGrabMenu)Game1.activeClickableMenu).heldItem = addedItem;
 
             var id = !(Game1.activeClickableMenu.currentlySnappedComponent is null)
                 ? Game1.activeClickableMenu.currentlySnappedComponent.myID : -1;

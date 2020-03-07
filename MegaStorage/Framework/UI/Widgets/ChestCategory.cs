@@ -1,11 +1,10 @@
-﻿using System;
+﻿using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
+using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using MegaStorage.Framework.Models;
 
 namespace MegaStorage.Framework.UI.Widgets
 {
