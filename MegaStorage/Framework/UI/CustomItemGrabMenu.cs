@@ -10,7 +10,6 @@ using StardewValley.Menus;
 using StardewValley.Objects;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using SObject = StardewValley.Object;
 
@@ -28,17 +27,6 @@ namespace MegaStorage.Framework.UI
         *********/
         public const int MenuWidth = 840;
         public const int MenuHeight = 736;
-
-        public static readonly Dictionary<string, Rectangle> DefaultCategories = new Dictionary<string, Rectangle>()
-        {
-            {"All", Rectangle.Empty},
-            {"Crops", new Rectangle(640, 80, 16, 16)},
-            {"Seeds", new Rectangle(656, 64, 16, 16)},
-            {"Materials", new Rectangle(672, 64, 16, 16)},
-            {"Cooking", new Rectangle(688, 64, 16, 16)},
-            {"Fishing", new Rectangle(640, 64, 16, 16)},
-            {"Misc", new Rectangle(672, 80, 16, 16)}
-        };
 
         internal CustomChest ActiveChest { get; private set; }
         internal readonly CustomChest ActualChest;
@@ -457,18 +445,6 @@ namespace MegaStorage.Framework.UI
                 Utility.trashItem(heldItem);
                 heldItem = null;
             }
-            else
-            {
-                var stashKeyState = MegaStorageMod.ModHelper.Input.GetState(ModConfig.Instance.StashKey);
-                var stashButtonState = MegaStorageMod.ModHelper.Input.GetState(ModConfig.Instance.StashButton);
-                var stashPressed =
-                    stashKeyState == SButtonState.Pressed
-                    || stashButtonState == SButtonState.Pressed;
-                if (stashPressed)
-                {
-                    StashItems();
-                }
-            }
         }
 
         public override void performHoverAction(int x, int y)
@@ -552,14 +528,7 @@ namespace MegaStorage.Framework.UI
             var items = (!(ItemsToGrabMenu.SelectedCategory is null) &&
                          !ItemsToGrabMenu.SelectedCategory.name.Equals("All", StringComparison.InvariantCultureIgnoreCase))
                 ? ItemsToGrabMenu.SelectedCategory.Filter(Game1.player.Items)
-                : Game1.player.Items.Where(i =>
-                {
-                    var includes = ModConfig.Instance.StashItems.IncludesAsList;
-                    var excludes = ModConfig.Instance.StashItems.ExcludesAsList;
-                    return !(i is null)
-                        && (includes is null || includes.Contains(i.Category) || includes.Contains(i.ParentSheetIndex))
-                        && (excludes is null || !(excludes.Contains(i.Category) || excludes.Contains(i.ParentSheetIndex)));
-                });
+                : Game1.player.Items.Where(ModConfig.Instance.StashItems.BelongsTo);
 
             foreach (var item in items)
             {
@@ -1032,68 +1001,58 @@ namespace MegaStorage.Framework.UI
             for (var index = 0; index < Math.Min(7, ModConfig.Instance.Categories.Count); ++index)
             {
                 var categoryConfig = ModConfig.Instance.Categories.ElementAt(index);
-                DefaultCategories.TryGetValue(categoryConfig.CategoryName, out var defaultRect);
-
-                var texture = !(string.IsNullOrWhiteSpace(categoryConfig.Image))
-                    ? MegaStorageMod.Instance.Helper.Content.Load<Texture2D>(
-                        Path.Combine("assets", categoryConfig.Image))
-                    : Game1.mouseCursors;
-                var sourceRect = !(string.IsNullOrWhiteSpace(categoryConfig.Image))
-                    ? Rectangle.Empty
-                    : defaultRect;
 
                 var categoryCC = new ChestCategory(
                     categoryConfig.CategoryName,
                     ItemsToGrabMenu,
                     LeftOffset + new Vector2(0, index * 60),
-                    texture,
-                    sourceRect,
-                    categoryConfig);
-
-                categoryCC.BelongsToCategory = categoryConfig.CategoryName switch
+                    categoryConfig.Texture,
+                    categoryConfig.SourceRect)
                 {
-                    "All" => item => true,
-                    "Misc" => item =>
+                    myID = index + 239865,
+                    upNeighborID = index > 0 || ActualChest.EnableRemoteStorage ? index + 239864 : 4343,
+                    downNeighborID = index + 239866,
+                    rightNeighborID = index switch
                     {
-                        if (item is null || string.IsNullOrWhiteSpace(item.getCategoryName()))
-                            return true;
-                        if (item is SObject obj && !(obj.Type is null) &&
-                            obj.Type.Equals("Arch", StringComparison.InvariantCultureIgnoreCase))
+                        0 => 53910, // ItemsToGrabMenu.inventory Row 1 Col 1
+                        1 => 53922, // ItemsToGrabMenu.inventory Row 2 Col 1
+                        2 => 53934, // ItemsToGrabMenu.inventory Row 3 Col 1
+                        3 => 53946, // ItemsToGrabMenu.inventory Row 4 Col 1
+                        4 => 53946, // ItemsToGrabMenu.inventory Row 4 Col 1
+                        5 => 53958, // ItemsToGrabMenu.inventory Row 5 Col 1
+                        6 => 53970, // ItemsToGrabMenu.inventory Row 6 Col 1
+                        _ => 53970
+                    },
+                    BelongsToCategory = categoryConfig.CategoryName switch
+                    {
+                        "All" => item => true,
+                        "Misc" => item =>
                         {
-                            return true;
+                            if (item is null || string.IsNullOrWhiteSpace(item.getCategoryName()))
+                                return true;
+                            if (item is SObject obj && !(obj.Type is null) &&
+                                obj.Type.Equals("Arch", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                return true;
+                            }
+
+                            return item switch
+                            {
+                                Tool _ => true,
+                                Boots _ => true,
+                                Ring _ => true,
+                                Furniture _ => true,
+                                _ => categoryConfig.BelongsTo(item)
+                            };
                         }
-
-                        return item switch
-                        {
-                            Tool _ => true,
-                            Boots _ => true,
-                            Ring _ => true,
-                            Furniture _ => true,
-                            _ => categoryCC.BelongsToCategoryDefault(item)
-                        };
-                    }
-                    ,
-                    _ => item => categoryCC.BelongsToCategoryDefault(item)
+                        ,
+                        _ => categoryConfig.BelongsTo
+                    },
+                    DrawAction = DrawCategory,
+                    LeftClickAction = ClickCategoryButton,
+                    RightClickAction = RightClickCategoryButton,
+                    ScrollAction = ScrollCategory
                 };
-
-                categoryCC.myID = index + 239865;
-                categoryCC.upNeighborID = index > 0 || ActualChest.EnableRemoteStorage ? index + 239864 : 4343;
-                categoryCC.downNeighborID = index < DefaultCategories.Count - 1 ? index + 239866 : 1;
-                categoryCC.rightNeighborID = index switch
-                {
-                    0 => 53910, // ItemsToGrabMenu.inventory Row 1 Col 1
-                    1 => 53922, // ItemsToGrabMenu.inventory Row 2 Col 1
-                    2 => 53934, // ItemsToGrabMenu.inventory Row 3 Col 1
-                    3 => 53946, // ItemsToGrabMenu.inventory Row 4 Col 1
-                    4 => 53946, // ItemsToGrabMenu.inventory Row 4 Col 1
-                    5 => 53958, // ItemsToGrabMenu.inventory Row 5 Col 1
-                    6 => 53970, // ItemsToGrabMenu.inventory Row 6 Col 1
-                    _ => 53970
-                };
-                categoryCC.DrawAction = DrawCategory;
-                categoryCC.LeftClickAction = ClickCategoryButton;
-                categoryCC.RightClickAction = RightClickCategoryButton;
-                categoryCC.ScrollAction = ScrollCategory;
 
                 allClickableComponents.Add(categoryCC);
             }
