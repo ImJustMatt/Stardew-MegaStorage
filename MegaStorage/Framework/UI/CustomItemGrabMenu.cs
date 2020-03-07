@@ -1,5 +1,4 @@
-﻿using furyx639.Common;
-using MegaStorage.Framework.Models;
+﻿using MegaStorage.Framework.Models;
 using MegaStorage.Framework.Persistence;
 using MegaStorage.Framework.UI.Widgets;
 using Microsoft.Xna.Framework;

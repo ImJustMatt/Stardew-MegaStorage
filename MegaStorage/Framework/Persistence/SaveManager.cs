@@ -1,5 +1,4 @@
-﻿using furyx639.Common;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Objects;
 using System;

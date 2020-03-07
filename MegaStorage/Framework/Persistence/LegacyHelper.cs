@@ -1,5 +1,4 @@
-﻿using furyx639.Common;
-using MegaStorage.Framework.Models;
+﻿using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
