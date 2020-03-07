@@ -25,10 +25,10 @@ namespace MegaStorage.Framework.Persistence
                 if (_mainChest is null || _mainChest.items.Count == 0)
                 {
                     _mainChest = PlacedChests
-                        .Where(c => c.Value is SuperMagicChest)
-                        .OrderByDescending(c => c.Value.items.Count)
-                        .First()
-                        .Value;
+                        .Select(c => c.Value)
+                        .Where(c => c is SuperMagicChest)
+                        .OrderByDescending(c => c.items.Count)
+                        .FirstOrDefault();
                 }
 
                 return _mainChest;
