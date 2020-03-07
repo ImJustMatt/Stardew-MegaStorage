@@ -9,6 +9,7 @@ using StardewValley;
 using StardewValley.Menus;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace MegaStorage
 {
@@ -40,9 +41,29 @@ namespace MegaStorage
             ModHelper.Events.GameLoop.GameLaunched += OnGameLaunched;
             ModHelper.Events.Display.MenuChanged += OnMenuChanged;
             ModHelper.Events.Display.WindowResized += OnWindowResized;
+            ModHelper.Events.Input.ButtonPressed += OnButtonPressed;
         }
 
         public override object GetApi() => API ??= new MegaStorageApi();
+
+        internal static void StashItems()
+        {
+            var items = Game1.player.Items.Where(ModConfig.Instance.StashItems.BelongsTo);
+
+            foreach (var item in items)
+            {
+                if (item.Stack == 0)
+                    item.Stack = 1;
+
+                var addedItem = StateManager.MainChest.addItem(item);
+                if (addedItem is null)
+                    Game1.player.removeItemFromInventory(item);
+                else
+                    addedItem = Game1.player.addItemToInventory(addedItem);
+
+                StateManager.MainChest.clearNulls();
+            }
+        }
 
         /*********
         ** Private methods
@@ -104,6 +125,19 @@ namespace MegaStorage
             var oldBounds = new Rectangle(0, 0, e.OldSize.X, e.OldSize.Y);
             var newBounds = new Rectangle(0, 0, e.NewSize.X, e.NewSize.Y);
             customItemGrabMenu.gameWindowSizeChanged(oldBounds, newBounds);
+        }
+
+        private static void OnButtonPressed(object sender, ButtonPressedEventArgs e)
+        {
+            if (e.Button.Equals(ModConfig.Instance.StashKey)
+                || e.Button.Equals(ModConfig.Instance.StashButton))
+            {
+                ActiveItemGrabMenu?.StashItems();
+            }
+            else if (e.Button.Equals(ModConfig.Instance.StashAnywhereKey) && !(StateManager.MainChest is null))
+            {
+                StashItems();
+            }
         }
     }
 }
