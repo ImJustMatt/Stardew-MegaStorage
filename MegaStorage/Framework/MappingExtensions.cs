@@ -39,9 +39,8 @@ namespace MegaStorage.Framework
                 ParentSheetIndex = customChest.ParentSheetIndex
             };
 
-            chest.items.AddRange(customChest.items);
             chest.playerChoiceColor.Value = customChest.playerChoiceColor.Value;
-
+            chest.items.CopyFrom(customChest.items);
             MegaStorageMod.ConvenientChests?.CopyChestData(customChest, chest);
 
             return chest;
@@ -81,7 +80,7 @@ namespace MegaStorage.Framework
                 return customChest;
 
             customChest.TileLocation = chest.TileLocation;
-            customChest.items.AddRange(chest.items);
+            customChest.items.CopyFrom(chest.items);
             customChest.playerChoiceColor.Value = chest.playerChoiceColor.Value;
             MegaStorageMod.ConvenientChests?.CopyChestData(chest, customChest);
 
