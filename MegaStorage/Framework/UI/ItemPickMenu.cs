@@ -341,12 +341,25 @@ namespace MegaStorage.Framework.UI
                     this,
                     Padding + new Vector2(col, row + 2) * Game1.tileSize,
                     Game1.objectSpriteSheet,
-                    Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, 1));
+                    Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, 1))
+                {
+                    DrawAction = DrawItem
+                };
                 _itemSlots.Add(itemSlotCC);
                 allClickableComponents.Add(itemSlotCC);
             }
 
             CurrentCategory = 0;
+        }
+
+        private void DrawItem(SpriteBatch b, ClickableComponent clickableComponent)
+        {
+            if (!(clickableComponent is CustomClickableTextureComponent itemSlotCC))
+                return;
+            itemSlotCC.draw(
+                b,
+                Color.White * 0.5f,
+                0.865f);
         }
     }
 }
