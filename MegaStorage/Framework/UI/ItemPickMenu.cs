@@ -88,6 +88,7 @@ namespace MegaStorage.Framework.UI
 
                     var obj = _currentObjects[slot];
                     itemSlotCC.sourceRect = Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, obj.ParentSheetIndex, 16, 16);
+                    itemSlotCC.name = obj.ParentSheetIndex.ToString(CultureInfo.InvariantCulture);
                     itemSlotCC.hoverText = obj.DisplayName;
                     itemSlotCC.visible = true;
                 }
@@ -110,6 +111,7 @@ namespace MegaStorage.Framework.UI
         private int _currentCategory;
         private IList<SObject> _currentObjects;
         private readonly IList<IWidget> _itemSlots = new List<IWidget>();
+        private string _hoverText;
 
         /*********
         ** Public methods
@@ -158,6 +160,10 @@ namespace MegaStorage.Framework.UI
             {
                 clickableComponent.draw(b);
             }
+
+            // Hover Text
+            if (!string.IsNullOrWhiteSpace(_hoverText))
+                IClickableMenu.drawHoverText(b, _hoverText, Game1.smallFont);
 
             // Game Cursor
             Game1.mouseCursorTransparency = 1f;
@@ -209,6 +215,28 @@ namespace MegaStorage.Framework.UI
                     && !(widget.ScrollAction is null)))
             {
                 ((IWidget)clickableComponent).ScrollAction(direction, clickableComponent);
+            }
+        }
+
+        public override void performHoverAction(int x, int y)
+        {
+            _hoverText = null;
+
+            // Hover Text
+            foreach (var clickableComponent in allClickableComponents
+                .OfType<CustomClickableTextureComponent>()
+                .Where(c => !(c.hoverText is null) && c.containsPoint(x, y)))
+            {
+                _hoverText = clickableComponent.hoverText;
+            }
+
+            // Hover Widgets
+            foreach (var clickableComponent in allClickableComponents
+                .Where(c =>
+                    c is IWidget widget
+                    && !(widget.HoverAction is null)))
+            {
+                ((IWidget)clickableComponent).HoverAction(x, y, clickableComponent);
             }
         }
 
@@ -320,12 +348,5 @@ namespace MegaStorage.Framework.UI
 
             CurrentCategory = 0;
         }
-
-        //private void DrawItem(SpriteBatch b, ClickableComponent clickableComponent)
-        //{
-        //    if (!clickableComponent.visible || !(clickableComponent is ClickableTextureComponent clickableTextureComponent))
-        //        return;
-        //    clickableTextureComponent.draw(b, Color.White, 0.865f);
-        //}
     }
 }

@@ -243,7 +243,7 @@ namespace MegaStorage.Framework.UI
                 heldItem = ItemsToGrabMenu.leftClick(x, y, heldItem, false);
                 if (!(heldItem is null))
                 {
-                    behaviorOnItemGrab(heldItem, Game1.player);
+                    behaviorOnItemGrab?.Invoke(heldItem, Game1.player);
                     if (Game1.options.SnappyMenus)
                         snapCursorToCurrentSnappedComponent();
                 }
@@ -312,7 +312,7 @@ namespace MegaStorage.Framework.UI
             }
             else if (isWithinBounds(x, y))
             {
-                BehaviorFunction(heldItem, Game1.player);
+                BehaviorFunction?.Invoke(heldItem, Game1.player);
             }
 
             // Left Click Widgets
@@ -375,7 +375,7 @@ namespace MegaStorage.Framework.UI
                 heldItem = ItemsToGrabMenu.rightClick(x, y, heldItem, false);
                 if (!(heldItem is null))
                 {
-                    behaviorOnItemGrab(heldItem, Game1.player);
+                    behaviorOnItemGrab?.Invoke(heldItem, Game1.player);
                     if (Game1.options.SnappyMenus)
                         snapCursorToCurrentSnappedComponent();
                 }
@@ -444,7 +444,7 @@ namespace MegaStorage.Framework.UI
             }
             else if (isWithinBounds(x, y))
             {
-                BehaviorFunction(heldItem, Game1.player);
+                BehaviorFunction?.Invoke(heldItem, Game1.player);
             }
 
             // Right Click Widgets
@@ -480,7 +480,7 @@ namespace MegaStorage.Framework.UI
             foreach (var menu in AllMenus
                 .Where(m =>
                     m is ISubMenu subMenu
-                    && subMenu.MenuType.Equals(MenuType.BaseMenu)
+                    && subMenu.MenuType.Equals(MenuType.Overlay)
                     && subMenu.Visible))
             {
                 menu.receiveScrollWheelAction(direction);
@@ -490,23 +490,21 @@ namespace MegaStorage.Framework.UI
             // Scroll Other Menus
             foreach (var menu in AllMenus.Where(m => !(m is ISubMenu) && m.isWithinBounds(mouseX, mouseY)))
             {
-                switch (menu)
+                if (menu is DiscreteColorPicker)
                 {
-                    case DiscreteColorPicker discreteColorPicker:
-                        if (direction < 0 && chestColorPicker.colorSelection < chestColorPicker.totalColors - 1)
-                            chestColorPicker.colorSelection++;
-                        else if (direction > 0 && chestColorPicker.colorSelection > 0)
-                            chestColorPicker.colorSelection--;
-                        ((Chest)chestColorPicker.itemToDrawColored).playerChoiceColor.Value =
-                            chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
-                        ActualChest.playerChoiceColor.Value =
-                            chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
-                        break;
-                    default:
-                        menu.receiveScrollWheelAction(direction);
-                        break;
+                    if (direction < 0 && chestColorPicker.colorSelection < chestColorPicker.totalColors - 1)
+                        chestColorPicker.colorSelection++;
+                    else if (direction > 0 && chestColorPicker.colorSelection > 0)
+                        chestColorPicker.colorSelection--;
+                    ((Chest)chestColorPicker.itemToDrawColored).playerChoiceColor.Value =
+                        chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
+                    ActualChest.playerChoiceColor.Value =
+                        chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
                 }
-                menu.receiveScrollWheelAction(direction);
+                else
+                {
+                    menu.receiveScrollWheelAction(direction);
+                }
             }
 
             // Scroll Components
@@ -561,6 +559,23 @@ namespace MegaStorage.Framework.UI
 
         public override void performHoverAction(int x, int y)
         {
+            // Hover Overlay Menus
+            foreach (var menu in AllMenus
+                .Where(m =>
+                    m is ISubMenu subMenu
+                    && subMenu.MenuType.Equals(MenuType.Overlay)
+                    && subMenu.Visible))
+            {
+                menu.performHoverAction(x, y);
+                return;
+            }
+
+            // Hover Other Menus
+            foreach (var menu in AllMenus.Where(m => !(m is ISubMenu) && m.isWithinBounds(x, y)))
+            {
+                menu.performHoverAction(x, y);
+            }
+
             hoveredItem = inventory.hover(x, y, heldItem) ?? ItemsToGrabMenu.hover(x, y, heldItem);
             hoverText = inventory.hoverText ?? ItemsToGrabMenu.hoverText;
             hoverAmount = 0;
@@ -581,6 +596,17 @@ namespace MegaStorage.Framework.UI
                     && !(widget.HoverAction is null)))
             {
                 ((IWidget)clickableComponent).HoverAction(x, y, clickableComponent);
+            }
+
+            // Hover Base Menus
+            foreach (var menu in AllMenus
+                .Where(m =>
+                    m is ISubMenu subMenu
+                    && m.isWithinBounds(x, y)
+                    && subMenu.MenuType.Equals(MenuType.BaseMenu)
+                    && subMenu.Visible))
+            {
+                menu.performHoverAction(x, y);
             }
         }
 
