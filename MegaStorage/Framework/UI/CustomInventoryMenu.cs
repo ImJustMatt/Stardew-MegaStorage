@@ -10,12 +10,19 @@ using System.Linq;
 
 namespace MegaStorage.Framework.UI
 {
-    internal class CustomInventoryMenu : InventoryMenu
+    internal class CustomInventoryMenu : InventoryMenu, ISubMenu
     {
         /*********
         ** Fields
         *********/
-        public ChestCategory SelectedCategory
+        public IClickableMenu ParentMenu { get; }
+        public MenuType MenuType => MenuType.BaseMenu;
+        public Vector2 Offset { get; }
+        public Rectangle Bounds => new Rectangle(xPositionOnScreen, yPositionOnScreen, height, width);
+        public Vector2 Position => new Vector2(xPositionOnScreen, yPositionOnScreen);
+        public Vector2 Dimensions => new Vector2(width, height);
+        public bool Visible { get; set; } = true;
+        public ChestTab SelectedCategory
         {
             get => _selectedCategory;
             set
@@ -25,88 +32,46 @@ namespace MegaStorage.Framework.UI
             }
         }
 
+        // Padding for Items Grid
+        public static Vector2 Padding = new Vector2(56, 44);
         public int MaxItems =>
             _inventoryType == InventoryType.Player
                 ? Game1.player.MaxItems
-                : _parentMenu.ActiveChest?.Capacity
+                : CommonHelper.OfType<IClickableMenu, CustomItemGrabMenu>(ParentMenu).ActiveChest?.Capacity
                 ?? 0;
         public const int ItemsPerRow = 12;
-        public int MaxRows;
+        internal int MaxRows;
         public IList<Item> VisibleItems;
-        internal Rectangle Bounds => new Rectangle(xPositionOnScreen, yPositionOnScreen, height, width);
-        internal Vector2 Position => new Vector2(xPositionOnScreen, yPositionOnScreen);
-        internal Vector2 Dimensions => new Vector2(width, height);
-
-        private readonly CustomItemGrabMenu _parentMenu;
-        private readonly Vector2 _offset;
         private readonly InventoryType _inventoryType;
 
-        // Padding for Items Grid
-        private const int XPadding = 56;
-        private const int YPadding = 44;
-
-        private protected ClickableTextureComponent UpArrow;
-        private protected ClickableTextureComponent DownArrow;
-        private ChestCategory _selectedCategory;
+        private protected CustomClickableTextureComponent UpArrow;
+        private protected CustomClickableTextureComponent DownArrow;
+        private ChestTab _selectedCategory;
         private int _currentRow;
 
         /*********
         ** Public methods
         *********/
-        public CustomInventoryMenu(CustomItemGrabMenu parentMenu, Vector2 offset, InventoryType inventoryType)
+        public CustomInventoryMenu(IClickableMenu parentMenu, Vector2 offset, InventoryType inventoryType)
             : base(
                 parentMenu.xPositionOnScreen + (int)offset.X,
                 parentMenu.yPositionOnScreen + (int)offset.Y,
                 false,
-                inventoryType == InventoryType.Player ? Game1.player.Items : parentMenu.ActiveChest?.items,
+                inventoryType == InventoryType.Player ? Game1.player.Items : CommonHelper.OfType<IClickableMenu, CustomItemGrabMenu>(parentMenu).ActiveChest?.items,
                 InventoryMenu.highlightAllItems,
                 inventoryType == InventoryType.Player ? Math.Max(36, Game1.player.MaxItems) : 6 * ItemsPerRow,
                 inventoryType == InventoryType.Player ? Math.Max(36, Game1.player.MaxItems) / ItemsPerRow : 6)
         {
-            _parentMenu = parentMenu;
-            _offset = offset;
+            ParentMenu = parentMenu;
+            Offset = offset;
             _inventoryType = inventoryType;
 
-            width = (Game1.tileSize + horizontalGap) * ItemsPerRow + XPadding * 2;
-            height = (Game1.tileSize + verticalGap) * rows + YPadding * 2;
+            width = (Game1.tileSize + horizontalGap) * ItemsPerRow + (int)Padding.X * 2;
+            height = (Game1.tileSize + verticalGap) * rows + (int)Padding.Y * 2;
             showGrayedOutSlots = true;
 
-            // Up Arrow
-            UpArrow = new ClickableTextureComponent(
-                "upArrow",
-                new Rectangle(
-                    xPositionOnScreen + width - Game1.tileSize + 8,
-                    yPositionOnScreen + 36,
-                    Game1.tileSize, Game1.tileSize),
-                "",
-                "",
-                Game1.mouseCursors,
-                Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 12),
-                1f)
-            {
-                myID = 88,
-                downNeighborID = 89,
-                visible = _currentRow > 0
-            };
-
-            // Down Arrow
-            DownArrow = new ClickableTextureComponent(
-                "downArrow",
-                new Rectangle(
-                    xPositionOnScreen + width - Game1.tileSize + 8,
-                    yPositionOnScreen + height - Game1.tileSize - 36,
-                    Game1.tileSize, Game1.tileSize),
-                "",
-                "",
-                Game1.mouseCursors,
-                Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 11),
-                1f)
-            {
-                myID = 89,
-                upNeighborID = 88,
-                visible = _currentRow <= MaxRows - rows
-            };
-
+            allClickableComponents = new List<ClickableComponent>();
+            SetupWidgets();
             RefreshItems();
         }
 
@@ -120,9 +85,9 @@ namespace MegaStorage.Framework.UI
             {
                 var col = slot % ItemsPerRow;
                 var row = slot / ItemsPerRow;
-                var pos = new Vector2(
-                    xPositionOnScreen + col * (Game1.tileSize + horizontalGap) + XPadding,
-                    yPositionOnScreen + row * (Game1.tileSize + verticalGap) + YPadding);
+                var pos = Padding + Position + new Vector2(
+                    col * (Game1.tileSize + horizontalGap),
+                    row * (Game1.tileSize + verticalGap));
 
                 b.Draw(
                     Game1.menuTexture,
@@ -155,9 +120,9 @@ namespace MegaStorage.Framework.UI
             {
                 var col = slot % ItemsPerRow;
                 var row = slot / ItemsPerRow;
-                var pos = new Vector2(
-                    xPositionOnScreen + col * (Game1.tileSize + horizontalGap) + XPadding,
-                    yPositionOnScreen + row * (Game1.tileSize + verticalGap) + YPadding);
+                var pos = Padding + new Vector2(
+                    xPositionOnScreen + col * (Game1.tileSize + horizontalGap),
+                    yPositionOnScreen + row * (Game1.tileSize + verticalGap));
 
                 var currentItem = VisibleItems.ElementAt(slot);
                 if (currentItem is null || currentItem.Stack == 0)
@@ -173,21 +138,58 @@ namespace MegaStorage.Framework.UI
                     false);
             }
 
-            UpArrow.draw(b);
-            DownArrow.draw(b);
+            // Draw Widgets
+            foreach (var clickableComponent in allClickableComponents
+                .Where(c =>
+                    c is IWidget widget
+                    && !(widget.DrawAction is null)))
+            {
+                ((IWidget)clickableComponent).DrawAction(b, clickableComponent);
+            }
+
+            // Draw Components
+            foreach (var clickableComponent in allClickableComponents
+                .OfType<ClickableTextureComponent>()
+                .Where(c =>
+                    !(c is IWidget widget)
+                    || widget.DrawAction is null))
+            {
+                clickableComponent.draw(b);
+            }
         }
 
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
-            if (UpArrow.containsPoint(x, y))
-                ScrollUp();
-            if (DownArrow.containsPoint(x, y))
-                ScrollDown();
+            // Left Click Widgets
+            foreach (var clickableComponent in allClickableComponents
+                .Where(c =>
+                    c.containsPoint(x, y)
+                    && c is IWidget widget
+                    && !(widget.LeftClickAction is null)))
+            {
+                ((IWidget)clickableComponent).LeftClickAction(clickableComponent);
+            }
+        }
+
+        public override void receiveRightClick(int x, int y, bool playSound = true)
+        {
+            // Right Click Widgets
+            foreach (var clickableComponent in allClickableComponents
+                .Where(c =>
+                    c.containsPoint(x, y)
+                    && c is IWidget widget
+                    && !(widget.RightClickAction is null)))
+            {
+                ((IWidget)clickableComponent).RightClickAction(clickableComponent);
+            }
         }
 
         public override void receiveScrollWheelAction(int direction)
         {
-            MegaStorageMod.ModMonitor.VerboseLog("receiveScrollWheelAction");
+            var mouseX = Game1.getOldMouseX();
+            var mouseY = Game1.getOldMouseY();
+
+            // Scroll Items
             if (direction < 0)
             {
                 ScrollDown();
@@ -196,41 +198,51 @@ namespace MegaStorage.Framework.UI
             {
                 ScrollUp();
             }
+
+            // Scroll Components
+            foreach (var clickableComponent in allClickableComponents
+                .Where(c =>
+                    c.containsPoint(mouseX, mouseY)
+                    && c is IWidget widget
+                    && !(widget.ScrollAction is null)))
+            {
+                ((IWidget)clickableComponent).ScrollAction(direction, clickableComponent);
+            }
         }
 
-        public void GameWindowSizeChanged()
+        public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds)
         {
-            xPositionOnScreen = _parentMenu.xPositionOnScreen + (int)_offset.X;
-            yPositionOnScreen = _parentMenu.yPositionOnScreen + (int)_offset.Y;
-            UpArrow.bounds.X = xPositionOnScreen + width - Game1.tileSize + 8;
-            UpArrow.bounds.Y = yPositionOnScreen + 36;
-            DownArrow.bounds.X = xPositionOnScreen + width - Game1.tileSize + 8;
-            DownArrow.bounds.Y = yPositionOnScreen + height - Game1.tileSize - 36;
+            xPositionOnScreen = ParentMenu.xPositionOnScreen + (int)Offset.X;
+            yPositionOnScreen = ParentMenu.yPositionOnScreen + (int)Offset.Y;
+
+            // Scroll Widgets
+            foreach (var widget in allClickableComponents.OfType<IWidget>())
+            {
+                widget.GameWindowSizeChanged();
+            }
         }
 
-        public void ScrollDown()
+        public void ScrollDown(ClickableComponent clickableComponent = null)
         {
             if (_currentRow >= MaxRows - rows)
                 return;
-            _currentRow++;
+            ++_currentRow;
             RefreshItems();
         }
 
-        public void ScrollUp()
+        public void ScrollUp(ClickableComponent clickableComponent = null)
         {
             if (_currentRow <= 0)
                 return;
-            _currentRow--;
+            --_currentRow;
             RefreshItems();
         }
 
-        /*********
-        ** Private methods
-        *********/
         public void RefreshItems()
         {
+            var parentMenu = CommonHelper.OfType<IClickableMenu, CustomItemGrabMenu>(ParentMenu);
             if (_inventoryType == InventoryType.Chest)
-                MegaStorageApi.InvokeBeforeVisibleItemsRefreshed(_parentMenu, _parentMenu.CustomChestEventArgs);
+                MegaStorageApi.InvokeBeforeVisibleItemsRefreshed(parentMenu.CustomChestEventArgs);
             VisibleItems = (_selectedCategory?.Filter(actualInventory) ?? actualInventory)
                 .Skip(ItemsPerRow * _currentRow)
                 .ToList();
@@ -250,8 +262,8 @@ namespace MegaStorage.Framework.UI
 
                 inventory.Add(new ClickableComponent(
                     new Rectangle(
-                        xPositionOnScreen + col * (Game1.tileSize + horizontalGap) + XPadding,
-                        yPositionOnScreen + row * (Game1.tileSize + verticalGap) + YPadding,
+                        xPositionOnScreen + col * (Game1.tileSize + horizontalGap) + (int)Padding.X,
+                        yPositionOnScreen + row * (Game1.tileSize + verticalGap) + (int)Padding.Y,
                         Game1.tileSize,
                         Game1.tileSize),
                     index.ToString(CultureInfo.InvariantCulture))
@@ -269,7 +281,45 @@ namespace MegaStorage.Framework.UI
                 });
             }
             if (_inventoryType == InventoryType.Chest)
-                MegaStorageApi.InvokeAfterVisibleItemsRefreshed(_parentMenu, _parentMenu.CustomChestEventArgs);
+                MegaStorageApi.InvokeAfterVisibleItemsRefreshed(parentMenu.CustomChestEventArgs);
+        }
+
+        /*********
+        ** Private methods
+        *********/
+        private void SetupWidgets()
+        {
+            // Up Arrow
+            UpArrow = new CustomClickableTextureComponent(
+                "upArrow",
+                this,
+                new Vector2(width - Game1.tileSize + 8, 36),
+                Game1.mouseCursors,
+                Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 12),
+                scale: 1f)
+            {
+                myID = 88,
+                downNeighborID = 89,
+                visible = _currentRow > 0,
+                LeftClickAction = ScrollUp
+            };
+            allClickableComponents.Add(UpArrow);
+
+            // Down Arrow
+            DownArrow = new CustomClickableTextureComponent(
+                "downArrow",
+                this,
+                new Vector2(width - Game1.tileSize + 8, height - Game1.tileSize - 36),
+                Game1.mouseCursors,
+                Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 11),
+                scale: 1f)
+            {
+                myID = 89,
+                upNeighborID = 88,
+                visible = _currentRow <= MaxRows - rows,
+                LeftClickAction = ScrollDown
+            };
+            allClickableComponents.Add(DownArrow);
         }
     }
 }
