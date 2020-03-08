@@ -1,7 +1,6 @@
 ﻿using MegaStorage.Framework.UI;
 using Microsoft.Xna.Framework;
 using StardewValley;
-using StardewValley.Menus;
 using StardewValley.Objects;
 using System;
 using System.Collections.Generic;
@@ -70,57 +69,44 @@ namespace MegaStorage.Framework
         private static CustomItemGrabMenu I =>
             (Game1.activeClickableMenu is CustomItemGrabMenu customItemGrabMenu) ? customItemGrabMenu : null;
 
-        internal static void InvokeBeforeVisibleItemsRefreshed(ItemGrabMenu itemGrabMenu,
-            CustomChestEventArgs customChestEventArgs) =>
-            Instance.BeforeVisibleItemsRefreshed?.Invoke(itemGrabMenu, customChestEventArgs);
+        internal static void InvokeBeforeVisibleItemsRefreshed(CustomChestEventArgs customChestEventArgs) =>
+            Instance.BeforeVisibleItemsRefreshed?.Invoke(null, customChestEventArgs);
 
-        internal static void InvokeAfterVisibleItemsRefreshed(ItemGrabMenu itemGrabMenu,
-            CustomChestEventArgs customChestEventArgs) =>
-            Instance.AfterVisibleItemsRefreshed?.Invoke(itemGrabMenu, customChestEventArgs);
+        internal static void InvokeAfterVisibleItemsRefreshed(CustomChestEventArgs customChestEventArgs) =>
+            Instance.AfterVisibleItemsRefreshed?.Invoke(null, customChestEventArgs);
 
-        internal static void InvokeColorPickerToggleButtonClicked(ItemGrabMenu itemGrabMenu,
-            CustomChestEventArgs customChestEventArgs) =>
-            Instance.ColorPickerToggleButtonClicked?.Invoke(itemGrabMenu, customChestEventArgs);
+        internal static void InvokeColorPickerToggleButtonClicked(CustomChestEventArgs customChestEventArgs) =>
+            Instance.ColorPickerToggleButtonClicked?.Invoke(null, customChestEventArgs);
 
-        internal static void InvokeBeforeFillStacksButtonClicked(ItemGrabMenu itemGrabMenu,
-            CustomChestEventArgs customChestEventArgs) =>
-            Instance.BeforeFillStacksButtonClicked?.Invoke(itemGrabMenu, customChestEventArgs);
+        internal static void InvokeBeforeFillStacksButtonClicked(CustomChestEventArgs customChestEventArgs) =>
+            Instance.BeforeFillStacksButtonClicked?.Invoke(null, customChestEventArgs);
 
-        internal static void InvokeAfterFillStacksButtonClicked(ItemGrabMenu itemGrabMenu,
-            CustomChestEventArgs customChestEventArgs) =>
-            Instance.AfterFillStacksButtonClicked?.Invoke(itemGrabMenu, customChestEventArgs);
+        internal static void InvokeAfterFillStacksButtonClicked(CustomChestEventArgs customChestEventArgs) =>
+            Instance.AfterFillStacksButtonClicked?.Invoke(null, customChestEventArgs);
 
-        internal static void InvokeBeforeOrganizeButtonClicked(ItemGrabMenu itemGrabMenu,
-            CustomChestEventArgs customChestEventArgs) =>
-            Instance.BeforeOrganizeButtonClicked?.Invoke(itemGrabMenu, customChestEventArgs);
+        internal static void InvokeBeforeOrganizeButtonClicked(CustomChestEventArgs customChestEventArgs) =>
+            Instance.BeforeOrganizeButtonClicked?.Invoke(null, customChestEventArgs);
 
-        internal static void InvokeAfterOrganizeButtonClicked(ItemGrabMenu itemGrabMenu,
-            CustomChestEventArgs customChestEventArgs) =>
-            Instance.AfterOrganizeButtonClicked?.Invoke(itemGrabMenu, customChestEventArgs);
+        internal static void InvokeAfterOrganizeButtonClicked(CustomChestEventArgs customChestEventArgs) =>
+            Instance.AfterOrganizeButtonClicked?.Invoke(null, customChestEventArgs);
 
-        internal static void InvokeBeforeStarButtonClicked(ItemGrabMenu itemGrabMenu,
-            CustomChestEventArgs customChestEventArgs) =>
-            Instance.BeforeStarButtonClicked?.Invoke(itemGrabMenu, customChestEventArgs);
+        internal static void InvokeBeforeStarButtonClicked(CustomChestEventArgs customChestEventArgs) =>
+            Instance.BeforeStarButtonClicked?.Invoke(null, customChestEventArgs);
 
-        internal static void InvokeAfterStarButtonClicked(ItemGrabMenu itemGrabMenu,
-            CustomChestEventArgs customChestEventArgs) =>
-            Instance.AfterStarButtonClicked?.Invoke(itemGrabMenu, customChestEventArgs);
+        internal static void InvokeAfterStarButtonClicked(CustomChestEventArgs customChestEventArgs) =>
+            Instance.AfterStarButtonClicked?.Invoke(null, customChestEventArgs);
 
-        internal static void InvokeBeforeOkButtonClicked(ItemGrabMenu itemGrabMenu,
-            CustomChestEventArgs customChestEventArgs) =>
-            Instance.BeforeOkButtonClicked?.Invoke(itemGrabMenu, customChestEventArgs);
+        internal static void InvokeBeforeOkButtonClicked(CustomChestEventArgs customChestEventArgs) =>
+            Instance.BeforeOkButtonClicked?.Invoke(null, customChestEventArgs);
 
-        internal static void InvokeAfterOkButtonClicked(ItemGrabMenu itemGrabMenu,
-            CustomChestEventArgs customChestEventArgs) =>
-            Instance.AfterOkButtonClicked?.Invoke(itemGrabMenu, customChestEventArgs);
+        internal static void InvokeAfterOkButtonClicked(CustomChestEventArgs customChestEventArgs) =>
+            Instance.AfterOkButtonClicked?.Invoke(null, customChestEventArgs);
 
-        internal static void InvokeBeforeTrashCanClicked(ItemGrabMenu itemGrabMenu,
-            CustomChestEventArgs customChestEventArgs) =>
-            Instance.BeforeTrashCanClicked?.Invoke(itemGrabMenu, customChestEventArgs);
+        internal static void InvokeBeforeTrashCanClicked(CustomChestEventArgs customChestEventArgs) =>
+            Instance.BeforeTrashCanClicked?.Invoke(null, customChestEventArgs);
 
-        internal static void InvokeAfterTrashCanClicked(ItemGrabMenu itemGrabMenu,
-            CustomChestEventArgs customChestEventArgs) =>
-            Instance.AfterTrashCanClicked?.Invoke(itemGrabMenu, customChestEventArgs);
+        internal static void InvokeAfterTrashCanClicked(CustomChestEventArgs customChestEventArgs) =>
+            Instance.AfterTrashCanClicked?.Invoke(null, customChestEventArgs);
     }
 
     public class CustomChestEventArgs : EventArgs, ICustomChestEventArgs
