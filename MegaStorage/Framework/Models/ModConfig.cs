@@ -35,9 +35,9 @@ namespace MegaStorage.Framework.Models
                 .ToList()
             : null;
         internal bool BelongsTo(Item item) =>
-            !(item is null)
-            && (IncludesAsList is null || IncludesAsList.Contains(item.Category) || IncludesAsList.Contains(item.ParentSheetIndex))
-            && (ExcludesAsList is null || !(ExcludesAsList.Contains(item.Category) || ExcludesAsList.Contains(item.ParentSheetIndex)));
+            (item is SObject obj)
+            && (IncludesAsList is null || IncludesAsList.Contains(obj.Category) || IncludesAsList.Contains(obj.ParentSheetIndex))
+            && (ExcludesAsList is null || !(ExcludesAsList.Contains(obj.Category) || ExcludesAsList.Contains(obj.ParentSheetIndex)));
     }
 
     public class CustomCategoryConfig : StashConfig
