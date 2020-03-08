@@ -165,11 +165,15 @@ namespace MegaStorage
         public static T NonNull<T>(T obj)
         {
             if (obj == null)
-            {
                 throw new ArgumentNullException(nameof(obj));
-            }
-
             return obj;
+        }
+
+        public static TU OfType<T, TU>(T obj)
+        {
+            if (!(obj is TU u))
+                throw new ArgumentException("Bad Argument");
+            return u;
         }
     }
 }
