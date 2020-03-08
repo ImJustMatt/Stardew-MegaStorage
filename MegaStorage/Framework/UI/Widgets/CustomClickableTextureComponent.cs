@@ -6,21 +6,24 @@ using System;
 
 namespace MegaStorage.Framework.UI.Widgets
 {
-    internal class CustomClickableTextureComponent : ClickableTextureComponent
+    internal class CustomClickableTextureComponent : ClickableTextureComponent, IWidget
     {
         // Custom actions for widgets
-        public Action<SpriteBatch, CustomClickableTextureComponent> DrawAction;
-        public Action<CustomClickableTextureComponent> LeftClickAction;
-        public Action<CustomClickableTextureComponent> RightClickAction;
-        public Action<int, CustomClickableTextureComponent> ScrollAction;
-        public Action<int, int, CustomClickableTextureComponent> HoverAction;
+        public Action<SpriteBatch, ClickableComponent> DrawAction { get; set; }
+        public Action<ClickableComponent> LeftClickAction { get; set; }
+        public Action<ClickableComponent> RightClickAction { get; set; }
+        public Action<int, ClickableComponent> ScrollAction { get; set; }
+        public Action<int, int, ClickableComponent> HoverAction { get; set; }
 
-        protected CustomInventoryMenu ParentMenu;
-        protected Vector2 Offset;
+        // Relative Positioning
+        public IClickableMenu ParentMenu { get; set; }
+        public Vector2 Offset { get; set; }
+        public Vector2 Position => new Vector2(bounds.X, bounds.Y);
+        public Vector2 Dimensions => new Vector2(bounds.Width, bounds.Height);
 
         public CustomClickableTextureComponent(
             string name,
-            CustomInventoryMenu parentMenu,
+            IClickableMenu parentMenu,
             Vector2 offset,
             Texture2D texture,
             Rectangle sourceRect,
