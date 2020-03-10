@@ -1,7 +1,12 @@
 ﻿using System;
 
-namespace MegaStorage
+namespace MegaStorage.API
 {
+    internal static class SaveAnywhere
+    {
+        public static ISaveAnywhereApi API { get; set; }
+    }
+
     public interface ISaveAnywhereApi
     {
         /*********

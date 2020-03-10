@@ -9,21 +9,49 @@ using System.Globalization;
 using System.Linq;
 using SObject = StardewValley.Object;
 
-namespace MegaStorage.Framework.UI
+namespace MegaStorage.Framework.UI.Menus
 {
-    internal class ItemPickMenu : IClickableMenu, ISubMenu
+    internal class ItemPickMenu : IClickableMenu, IMenu
     {
         /*********
         ** Fields
         *********/
-        public IClickableMenu ParentMenu { get; }
-        public MenuType MenuType => MenuType.Overlay;
-        public Vector2 Offset { get; }
-        public Rectangle Bounds => new Rectangle(xPositionOnScreen, yPositionOnScreen, height, width);
-        public Vector2 Position => new Vector2(xPositionOnScreen, yPositionOnScreen);
-        public Vector2 Dimensions => new Vector2(width, height);
-        public bool Visible { get; set; }
+        public const int ItemsPerRow = 11;
+        public static Vector2 Padding = new Vector2(56, 44);
 
+        public IMenu ParentMenu { get; }
+        public Vector2 Offset { get; set; }
+        public Rectangle Bounds
+        {
+            get => new Rectangle(xPositionOnScreen, yPositionOnScreen, width, height);
+            set
+            {
+                xPositionOnScreen = value.X;
+                yPositionOnScreen = value.Y;
+                width = value.Width;
+                height = value.Height;
+            }
+        }
+        public Vector2 Position
+        {
+            get => new Vector2(xPositionOnScreen, yPositionOnScreen);
+            set
+            {
+                xPositionOnScreen = (int)value.X;
+                yPositionOnScreen = (int)value.Y;
+            }
+        }
+        public Vector2 Dimensions
+        {
+            get => new Vector2(width, height);
+            set
+            {
+                width = (int)value.X;
+                height = (int)value.Y;
+            }
+        }
+        public bool Visible { get; set; }
+        public IList<IMenu> SubMenus { get; } = new List<IMenu>();
         public ChestTab SelectedChestTab
         {
             get => _selectedTab;
@@ -96,15 +124,13 @@ namespace MegaStorage.Framework.UI
         }
 
         // Padding for Items Grid
-        public static Vector2 Padding = new Vector2(56, 44);
-        public const int ItemsPerRow = 11;
         public const int MaxRows = 7;
 
         private protected static readonly List<SObject> AllObjects = new List<SObject>();
         private protected static readonly List<string> AllCategories = new List<string>();
         private protected Label ChestTabName;
-        private protected CustomClickableTextureComponent LeftArrow;
-        private protected CustomClickableTextureComponent RightArrow;
+        private protected ClickableTexture LeftArrow;
+        private protected ClickableTexture RightArrow;
         private protected Checkbox CategoryCheckbox;
         private protected Label CategoryName;
         private ChestTab _selectedTab;
@@ -116,22 +142,23 @@ namespace MegaStorage.Framework.UI
         /*********
         ** Public methods
         *********/
-        public ItemPickMenu(IClickableMenu parentMenu, Vector2 offset)
+        public ItemPickMenu(IMenu parentMenu, Vector2 offset)
         {
-            ParentMenu = parentMenu;
-            var customItemGrabMenu = CommonHelper.OfType<IClickableMenu, CustomItemGrabMenu>(ParentMenu);
+            var customItemGrabMenu = CommonHelper.OfType<IMenu, InterfaceHost>(parentMenu);
             var itemsToGrabMenu = customItemGrabMenu.ItemsToGrabMenu;
             var inventory = customItemGrabMenu.inventory;
-            Offset = offset + Padding / 2;
+
+            ParentMenu = parentMenu;
+            Offset = offset;
             width = itemsToGrabMenu.width - (int)Padding.X;
             height = inventory.yPositionOnScreen -
                      itemsToGrabMenu.yPositionOnScreen +
                      inventory.height -
                      (int)Padding.Y;
-            xPositionOnScreen = ParentMenu.xPositionOnScreen + (int)Offset.X;
-            yPositionOnScreen = ParentMenu.yPositionOnScreen + (int)Offset.Y;
-
             allClickableComponents = new List<ClickableComponent>();
+
+            Position = ParentMenu.Position + Offset;
+
             SetupWidgets();
         }
 
@@ -142,24 +169,7 @@ namespace MegaStorage.Framework.UI
             // Draw Dialogue Box
             CommonHelper.DrawDialogueBox(b, xPositionOnScreen, yPositionOnScreen, width, height);
 
-            // Draw Widgets
-            foreach (var clickableComponent in allClickableComponents
-                .Where(c =>
-                    c is IWidget widget
-                    && !(widget.DrawAction is null)))
-            {
-                ((IWidget)clickableComponent).DrawAction(b, clickableComponent);
-            }
-
-            // Draw Components
-            foreach (var clickableComponent in allClickableComponents
-                .OfType<ClickableTextureComponent>()
-                .Where(c =>
-                    !(c is IWidget widget)
-                    || widget.DrawAction is null))
-            {
-                clickableComponent.draw(b);
-            }
+            this.Draw(b);
 
             // Hover Text
             if (!string.IsNullOrWhiteSpace(_hoverText))
@@ -170,105 +180,32 @@ namespace MegaStorage.Framework.UI
             drawMouse(b);
         }
 
+        public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds) =>
+            this.GameWindowSizeChanged(oldBounds, newBounds);
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
-            if (!Visible)
-                return;
-
-            // Left Click Widgets
-            foreach (var clickableComponent in allClickableComponents
-                .Where(c =>
-                    c.containsPoint(x, y)
-                    && c is IWidget widget
-                    && !(widget.LeftClickAction is null)))
-            {
-                ((IWidget)clickableComponent).LeftClickAction(clickableComponent);
-            }
+            this.ReceiveLeftClick(x, y, playSound);
 
             if (!isWithinBounds(x, y))
                 Visible = false;
         }
-
-        public override void receiveRightClick(int x, int y, bool playSound = true)
-        {
-            // Right Click Widgets
-            foreach (var clickableComponent in allClickableComponents
-                .Where(c =>
-                    c.containsPoint(x, y)
-                    && c is IWidget widget
-                    && !(widget.RightClickAction is null)))
-            {
-                ((IWidget)clickableComponent).RightClickAction(clickableComponent);
-            }
-        }
-
-        public override void receiveScrollWheelAction(int direction)
-        {
-            var mouseX = Game1.getOldMouseX();
-            var mouseY = Game1.getOldMouseY();
-
-            // Scroll Components
-            foreach (var clickableComponent in allClickableComponents
-                .Where(c =>
-                    c.containsPoint(mouseX, mouseY)
-                    && c is IWidget widget
-                    && !(widget.ScrollAction is null)))
-            {
-                ((IWidget)clickableComponent).ScrollAction(direction, clickableComponent);
-            }
-        }
-
+        public override void receiveRightClick(int x, int y, bool playSound = true) =>
+            this.ReceiveRightClick(x, y, playSound);
+        public override void receiveScrollWheelAction(int direction) =>
+            this.ReceiveScrollWheelAction(direction);
         public override void performHoverAction(int x, int y)
         {
             _hoverText = null;
 
             // Hover Text
             foreach (var clickableComponent in allClickableComponents
-                .OfType<CustomClickableTextureComponent>()
+                .OfType<ClickableTexture>()
                 .Where(c => !(c.hoverText is null) && c.containsPoint(x, y)))
             {
                 _hoverText = clickableComponent.hoverText;
             }
 
-            // Hover Widgets
-            foreach (var clickableComponent in allClickableComponents
-                .Where(c =>
-                    c is IWidget widget
-                    && !(widget.HoverAction is null)))
-            {
-                ((IWidget)clickableComponent).HoverAction(x, y, clickableComponent);
-            }
-        }
-
-        public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds)
-        {
-            xPositionOnScreen = ParentMenu.xPositionOnScreen + (int)Offset.X;
-            yPositionOnScreen = ParentMenu.yPositionOnScreen + (int)Offset.Y;
-
-            // Scroll Widgets
-            foreach (var widget in allClickableComponents.OfType<IWidget>())
-            {
-                widget.GameWindowSizeChanged();
-            }
-        }
-
-        private void PrevPage(ClickableComponent clickableComponent = null)
-        {
-            if (CurrentCategory <= 0)
-                return;
-            --CurrentCategory;
-            CategoryName.label = Categories[CurrentCategory];
-            LeftArrow.visible = CurrentCategory > 0;
-            RightArrow.visible = CurrentCategory < Categories.Count - 1;
-        }
-        private void NextPage(ClickableComponent clickableComponent = null)
-        {
-            if (CurrentCategory >= Categories.Count - 1)
-                return;
-            ++CurrentCategory;
-            CategoryName.label = Categories[CurrentCategory];
-            LeftArrow.visible = CurrentCategory > 0;
-            RightArrow.visible = CurrentCategory < Categories.Count - 1;
+            this.PerformHoverAction(x, y);
         }
 
         /*********
@@ -280,7 +217,7 @@ namespace MegaStorage.Framework.UI
             ChestTabName = new Label(
                 "chestTabName",
                 this,
-                CustomInventoryMenu.Padding,
+                InventoryMenu.Padding,
                 SelectedChestTab?.name,
                 width - (int)Padding.X * 2,
                 Game1.tileSize,
@@ -288,7 +225,7 @@ namespace MegaStorage.Framework.UI
             allClickableComponents.Add(ChestTabName);
 
             // Left Arrow
-            LeftArrow = new CustomClickableTextureComponent(
+            LeftArrow = new ClickableTexture(
                 "leftArrow",
                 this,
                 Padding * new Vector2(1, 1) +
@@ -303,7 +240,7 @@ namespace MegaStorage.Framework.UI
             allClickableComponents.Add(LeftArrow);
 
             // Right Arrow
-            RightArrow = new CustomClickableTextureComponent(
+            RightArrow = new ClickableTexture(
                 "rightArrow",
                 this,
                 Padding * new Vector2(-1, 1) +
@@ -336,7 +273,7 @@ namespace MegaStorage.Framework.UI
             {
                 var col = slot % ItemsPerRow;
                 var row = slot / ItemsPerRow;
-                var itemSlotCC = new CustomClickableTextureComponent(
+                var itemSlotCC = new ClickableTexture(
                     slot.ToString(CultureInfo.InvariantCulture),
                     this,
                     Padding + new Vector2(col, row + 2) * Game1.tileSize,
@@ -352,14 +289,33 @@ namespace MegaStorage.Framework.UI
             CurrentCategory = 0;
         }
 
-        private void DrawItem(SpriteBatch b, ClickableComponent clickableComponent)
+        private static void DrawItem(SpriteBatch b, IWidget widget)
         {
-            if (!(clickableComponent is CustomClickableTextureComponent itemSlotCC))
+            if (!(widget is ClickableTexture cc))
                 return;
-            itemSlotCC.draw(
+            cc.draw(
                 b,
                 Color.White * 0.5f,
                 0.865f);
+        }
+
+        private void PrevPage(IWidget widget)
+        {
+            if (CurrentCategory <= 0)
+                return;
+            --CurrentCategory;
+            CategoryName.label = Categories[CurrentCategory];
+            LeftArrow.visible = CurrentCategory > 0;
+            RightArrow.visible = CurrentCategory < Categories.Count - 1;
+        }
+        private void NextPage(IWidget widget)
+        {
+            if (CurrentCategory >= Categories.Count - 1)
+                return;
+            ++CurrentCategory;
+            CategoryName.label = Categories[CurrentCategory];
+            LeftArrow.visible = CurrentCategory > 0;
+            RightArrow.visible = CurrentCategory < Categories.Count - 1;
         }
     }
 }

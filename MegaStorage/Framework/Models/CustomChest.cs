@@ -1,6 +1,8 @@
-﻿using MegaStorage.Framework.UI;
+﻿using MegaStorage.API;
+using MegaStorage.Framework.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using PyTK.CustomElementHandler;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Locations;
@@ -8,18 +10,15 @@ using StardewValley.Menus;
 using StardewValley.Objects;
 using StardewValley.Tools;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace MegaStorage.Framework.Models
 {
-    public abstract class CustomChest : Chest
+    internal class CustomChest : Chest, ICustomObject
     {
-        private readonly ChestType _chestType;
-
-        // Custom Chest Features
-        public abstract int Capacity { get; }
-        public bool EnableCategories { get; }
-        public bool EnableRemoteStorage { get; protected set; }
+        protected internal ChestData ChestData { get; set; }
 
         // State
         private readonly IReflectedField<int> _currentLidFrameReflected;
@@ -28,26 +27,26 @@ namespace MegaStorage.Framework.Models
             get => _currentLidFrameReflected.GetValue();
             set => _currentLidFrameReflected.SetValue(value);
         }
-
-        protected internal CustomItemGrabMenu CreateItemGrabMenu(bool showRealInventory = false) => new CustomItemGrabMenu(this, showRealInventory);
-        protected CustomChest(ChestType chestType, Vector2 tileLocation) : base(true, tileLocation)
+        /*********
+        ** Public methods
+        *********/
+        internal InterfaceHost CreateItemGrabMenu() => new InterfaceHost(this);
+        internal CustomChest(ChestData chestData, Vector2 tileLocation)
+            : base(
+                chestData.ParentSheetIndex,
+                tileLocation,
+                chestData.ParentSheetIndex + 1,
+                5)
         {
-            _chestType = chestType;
-
-            var config = chestType switch
-            {
-                ChestType.LargeChest => ModConfig.Instance.LargeChest,
-                ChestType.MagicChest => ModConfig.Instance.MagicChest,
-                ChestType.SuperMagicChest => ModConfig.Instance.SuperMagicChest,
-                ChestType.InvalidChest => throw new InvalidOperationException("Invalid Chest Type"),
-                _ => throw new InvalidOperationException("Invalid Chest Type")
-            };
-
-            EnableCategories = config.EnableCategories;
-            ParentSheetIndex = MegaStorageMod.JsonAssets.GetBigCraftableId(CustomChestFactory.CustomChests[_chestType]);
-            startingLidFrame.Value = ParentSheetIndex + 1;
-            _currentLidFrameReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<int>(this, "currentLidFrame");
+            ChestData = chestData;
+            Name = chestData.Name;
+            type.Value = "Crafting";
+            playerChest.Value = true;
+            bigCraftable.Value = true;
+            canBeSetDown.Value = true;
+            _currentLidFrameReflected = MegaStorageMod.Helper.Reflection.GetField<int>(this, "currentLidFrame");
         }
+        public override Item getOne() => this;
 
         public override Item addItem(Item itemToAdd)
         {
@@ -65,7 +64,7 @@ namespace MegaStorage.Framework.Models
                     return null;
             }
 
-            if (items.Count >= Capacity)
+            if (items.Count >= ChestData.Capacity)
                 return itemToAdd;
 
             items.Add(itemToAdd);
@@ -158,17 +157,28 @@ namespace MegaStorage.Framework.Models
             if (location is null)
                 return false;
 
-            var objectKey = new Vector2(x / 64f, y / 64f);
+            var tile = new Vector2(x / (float)Game1.tileSize, y / (float)Game1.tileSize);
             health = 10;
             owner.Value = who?.UniqueMultiplayerID ?? Game1.player.UniqueMultiplayerID;
-            if (location.objects.ContainsKey(objectKey) || location is MineShaft)
+
+            if (location.objects.ContainsKey(tile) || location is MineShaft)
             {
                 Game1.showRedMessage(Game1.content.LoadString("Strings\\StringsFromCSFiles:Object.cs.13053"));
                 return false;
             }
             shakeTimer = 50;
-            var newCustomChest = CustomChestFactory.Create(_chestType, objectKey);
-            location.objects.Add(objectKey, newCustomChest);
+
+            var customChest = new CustomChest(ChestData, tile)
+            {
+                Name = Name,
+                ParentSheetIndex = ParentSheetIndex
+            };
+
+            customChest.items.CopyFrom(items);
+            customChest.playerChoiceColor.Value = playerChoiceColor.Value;
+            ConvenientChests.CopyChestData(this, customChest);
+
+            location.objects.Add(tile, customChest);
             location.playSound("axe");
             return true;
         }
@@ -364,5 +374,58 @@ namespace MegaStorage.Framework.Models
             shakeTimer > 0
                 ? new Vector2(Game1.random.Next(minValue, maxValue), 0)
                 : Vector2.Zero;
+
+        public object getReplacement()
+        {
+            var chest = new Chest(playerChest.Value, TileLocation)
+            {
+                name = name,
+                Stack = Stack,
+                ParentSheetIndex = ParentSheetIndex
+            };
+
+            chest.playerChoiceColor.Value = playerChoiceColor.Value;
+            chest.items.CopyFrom(items);
+            ConvenientChests.CopyChestData(this, chest);
+
+            return chest;
+        }
+
+        public Dictionary<string, string> getAdditionalSaveData() => ChestData.ToSaveData();
+
+        public void rebuild(Dictionary<string, string> saveData, object item)
+        {
+            if (!(item is Chest chest) || saveData is null)
+                return;
+
+            ChestData = ChestData.FromSaveData(saveData);
+            Name = chest.Name;
+            Stack = chest.Stack;
+            ParentSheetIndex = chest.ParentSheetIndex;
+
+            items.CopyFrom(chest.items);
+            playerChoiceColor.Value = chest.playerChoiceColor.Value;
+            ConvenientChests.CopyChestData(chest, this);
+        }
+
+        public ICustomObject recreate(Dictionary<string, string> saveData, object item)
+        {
+            if (!(item is Chest chest) || saveData is null)
+                throw new InvalidOperationException("Cannot create CustomChest");
+
+            var chestData = ChestData.FromSaveData(saveData);
+            var customChest = new CustomChest(chestData, chest.TileLocation)
+            {
+                Name = chest.Name,
+                Stack = chest.Stack,
+                ParentSheetIndex = chest.ParentSheetIndex
+            };
+
+            customChest.items.CopyFrom(chest.items);
+            customChest.playerChoiceColor.Value = chest.playerChoiceColor.Value;
+            ConvenientChests.CopyChestData(chest, customChest);
+
+            return customChest;
+        }
     }
 }

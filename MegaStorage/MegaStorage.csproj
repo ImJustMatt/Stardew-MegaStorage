@@ -38,7 +38,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="3.1.0" />
+    <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="3.1.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Platonymous.PyTK" Version="1.12.40">
+      <ExcludeAssets></ExcludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

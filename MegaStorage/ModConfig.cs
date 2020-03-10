@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using MegaStorage.Framework.UI.Menus;
+using MegaStorage.Framework.UI.Widgets;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
@@ -9,14 +11,8 @@ using System.IO;
 using System.Linq;
 using SObject = StardewValley.Object;
 
-namespace MegaStorage.Framework.Models
+namespace MegaStorage
 {
-    public class CustomChestConfig
-    {
-        public bool EnableChest { get; set; }
-        public bool EnableCategories { get; set; }
-    }
-
     public class StashConfig
     {
         public string Includes { get; set; } = "";
@@ -40,9 +36,13 @@ namespace MegaStorage.Framework.Models
             && (ExcludesAsList is null || !(ExcludesAsList.Contains(obj.Category) || ExcludesAsList.Contains(obj.ParentSheetIndex)));
     }
 
-    public class CustomCategoryConfig : StashConfig
+    public class ChestTabConfig : StashConfig
     {
-        internal static readonly Dictionary<string, Rectangle> DefaultCategories = new Dictionary<string, Rectangle>()
+        /*********
+        ** Fields
+        *********/
+        internal static readonly Vector2 Offset = new Vector2(-48, 24);
+        internal static readonly Dictionary<string, Rectangle> DefaultChestTabs = new Dictionary<string, Rectangle>()
         {
             {"All", Rectangle.Empty},
             {"Crops", new Rectangle(640, 80, 16, 16)},
@@ -52,55 +52,49 @@ namespace MegaStorage.Framework.Models
             {"Fishing", new Rectangle(640, 64, 16, 16)},
             {"Misc", new Rectangle(672, 80, 16, 16)}
         };
-
-        public string CategoryName { get; set; }
+        public string Name { get; set; }
         public string Image { get; set; } = "";
         internal Texture2D Texture => !string.IsNullOrWhiteSpace(Image)
-            ? MegaStorageMod.Instance.Helper.Content.Load<Texture2D>(Path.Combine("assets", Image))
+            ? MegaStorageMod.Helper.Content.Load<Texture2D>(Path.Combine("assets", Image))
             : Game1.mouseCursors;
         internal Rectangle SourceRect =>
             string.IsNullOrWhiteSpace(Image)
-            && DefaultCategories.TryGetValue(CategoryName, out var sourceRect)
+            && DefaultChestTabs.TryGetValue(Name, out var sourceRect)
                 ? sourceRect
                 : Rectangle.Empty;
+
+        /*********
+        ** Public methods
+        *********/
+        internal ChestTab ChestTab(IMenu parentMenu, int index) => new ChestTab(
+            Name,
+            parentMenu,
+            Offset + new Vector2(0, index * 60),
+            Texture,
+            SourceRect);
+
     }
 
     public class ModConfig
     {
-        public CustomChestConfig LargeChest { get; set; } = new CustomChestConfig
-        {
-            EnableChest = true,
-            EnableCategories = false
-        };
-        public CustomChestConfig MagicChest { get; set; } = new CustomChestConfig
-        {
-            EnableChest = true,
-            EnableCategories = true
-        };
-        public CustomChestConfig SuperMagicChest { get; set; } = new CustomChestConfig
-        {
-            EnableChest = true,
-            EnableCategories = true
-        };
-
         public SButton StashKey { get; set; } = SButton.Q;
         public SButton StashAnywhereKey { get; set; } = SButton.Z;
         public SButton StashButton { get; set; } = SButton.RightStick;
 
-        public IList<CustomCategoryConfig> Categories { get; set; } =
-            new List<CustomCategoryConfig>(7)
+        public IList<ChestTabConfig> ChestTabs { get; set; } =
+            new List<ChestTabConfig>(7)
             {
                 {
-                    new CustomCategoryConfig()
+                    new ChestTabConfig()
                     {
-                        CategoryName = "All",
+                        Name = "All",
                         Image = "AllTab.png"
                     }
                 },
                 {
-                    new CustomCategoryConfig()
+                    new ChestTabConfig()
                     {
-                        CategoryName = "Crops",
+                        Name = "Crops",
                         Includes =
                             SObject.GreensCategory + " " +
                             SObject.flowersCategory + " " +
@@ -109,18 +103,18 @@ namespace MegaStorage.Framework.Models
                     }
                 },
                 {
-                    new CustomCategoryConfig()
+                    new ChestTabConfig()
                     {
-                        CategoryName = "Seeds",
+                        Name = "Seeds",
                         Includes =
                             SObject.SeedsCategory + " " +
                             SObject.fertilizerCategory
                     }
                 },
                 {
-                    new CustomCategoryConfig()
+                    new ChestTabConfig()
                     {
-                        CategoryName = "Materials",
+                        Name = "Materials",
                         Includes =
                             SObject.metalResources + " " +
                             SObject.buildingResources + " " +
@@ -131,9 +125,9 @@ namespace MegaStorage.Framework.Models
                     }
                 },
                 {
-                    new CustomCategoryConfig()
+                    new ChestTabConfig()
                     {
-                        CategoryName = "Cooking",
+                        Name = "Cooking",
                         Includes =
                             SObject.ingredientsCategory + " " +
                             SObject.CookingCategory + " " +
@@ -146,9 +140,9 @@ namespace MegaStorage.Framework.Models
                     }
                 },
                 {
-                    new CustomCategoryConfig()
+                    new ChestTabConfig()
                     {
-                        CategoryName = "Fishing",
+                        Name = "Fishing",
                         Includes =
                             SObject.FishCategory + " " +
                             SObject.baitCategory + " " +
@@ -156,9 +150,9 @@ namespace MegaStorage.Framework.Models
                     }
                 },
                 {
-                    new CustomCategoryConfig()
+                    new ChestTabConfig()
                     {
-                        CategoryName = "Misc",
+                        Name = "Misc",
                         Includes =
                             SObject.furnitureCategory + " " +
                             SObject.junkCategory

@@ -9,9 +9,14 @@
 	"UpdateKeys": [ "Nexus:4089" ],
 	"Dependencies": [
 		{
-			"UniqueID":  "spacechase0.JsonAssets",
-			"MinimumVersion":  "1.6.2",
-			"IsRequired":  true
+			"UniqueID": "spacechase0.JsonAssets",
+			"MinimumVersion": "1.6.2",
+			"IsRequired": true
+		},
+		{
+			"UniqueID": "Platonymous.Toolkit",
+			"MinimumVersion": "1.13.2",
+			"IsRequired": true 
 		},
 		{
 			"UniqueID": "aEnigma.ConvenientChests",

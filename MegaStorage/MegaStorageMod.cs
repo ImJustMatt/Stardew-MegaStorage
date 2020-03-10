@@ -1,6 +1,6 @@
-﻿using MegaStorage.Framework;
+﻿using MegaStorage.API;
+using MegaStorage.Framework;
 using MegaStorage.Framework.Models;
-using MegaStorage.Framework.Persistence;
 using MegaStorage.Framework.UI;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
@@ -8,6 +8,7 @@ using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -15,36 +16,32 @@ namespace MegaStorage
 {
     public class MegaStorageMod : Mod
     {
-        internal static MegaStorageMod Instance { get; private set; }
-        internal static IMegaStorageApi API { get; private set; }
-        internal static IModHelper ModHelper { get; private set; }
-        internal static IMonitor ModMonitor { get; private set; }
-        internal static IConvenientChestsApi ConvenientChests { get; private set; }
-        internal static IJsonAssetsApi JsonAssets { get; private set; }
-        internal static CustomItemGrabMenu ActiveItemGrabMenu { get; private set; }
+        internal new static IModHelper Helper;
+        internal static InterfaceHost ActiveItemGrabMenu { get; set; }
+        internal static CustomChest MainChest { get; set; }
+        internal static IList<ChestData> CustomChests = new List<ChestData>();
 
         /*********
         ** Public methods
         *********/
         public override void Entry(IModHelper modHelper)
         {
-            // Make Instance, ModHelper, and ModMonitor static for use in other classes
-            Instance = this;
-            ModHelper = modHelper ?? throw new ArgumentNullException(nameof(modHelper));
-            ModMonitor = Monitor;
-            API = new MegaStorageApi();
+            // Make Instance, ModHelper, and Log static for use in other classes
+            Log.Monitor = Monitor;
+            Helper = CommonHelper.NonNull(modHelper);
 
-            ModMonitor.VerboseLog("Entry of MegaStorageMod");
+            Helper.ReadConfig<ModConfig>();
+            MegaStorageAPI.Instance = new MegaStorageAPI();
 
-            ModHelper.ReadConfig<ModConfig>();
-
-            ModHelper.Events.GameLoop.GameLaunched += OnGameLaunched;
-            ModHelper.Events.Display.MenuChanged += OnMenuChanged;
-            ModHelper.Events.Display.WindowResized += OnWindowResized;
-            ModHelper.Events.Input.ButtonPressed += OnButtonPressed;
+            // Events
+            Helper.Events.GameLoop.GameLaunched += OnGameLaunched;
+            Helper.Events.World.ObjectListChanged += OnObjectListChanged;
+            Helper.Events.Display.MenuChanged += OnMenuChanged;
+            Helper.Events.Display.WindowResized += OnWindowResized;
+            Helper.Events.Input.ButtonPressed += OnButtonPressed;
         }
 
-        public override object GetApi() => API ??= new MegaStorageApi();
+        public override object GetApi() => MegaStorageAPI.Instance;
 
         internal static void StashItems()
         {
@@ -55,60 +52,96 @@ namespace MegaStorage
                 if (item.Stack == 0)
                     item.Stack = 1;
 
-                var addedItem = StateManager.MainChest.addItem(item);
+                var addedItem = MegaStorageMod.MainChest.addItem(item);
                 if (addedItem is null)
                     Game1.player.removeItemFromInventory(item);
                 else
                     addedItem = Game1.player.addItemToInventory(addedItem);
 
-                StateManager.MainChest.clearNulls();
+                MegaStorageMod.MainChest.clearNulls();
             }
         }
 
         /*********
         ** Private methods
         *********/
-        private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
+        private static void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
-            JsonAssets = ModHelper.ModRegistry.GetApi<IJsonAssetsApi>("spacechase0.JsonAssets");
-            if (JsonAssets is null)
+            // Load APIs
+            ConvenientChests.API = Helper.ModRegistry.GetApi<IConvenientChestsApi>("aEnigma.ConvenientChests");
+            JsonAssets.API = Helper.ModRegistry.GetApi<IJsonAssetsApi>("spacechase0.JsonAssets");
+            SaveAnywhere.API = Helper.ModRegistry.GetApi<ISaveAnywhereApi>("Omegasis.SaveAnywhere");
+
+            if (JsonAssets.API is null)
             {
-                Monitor.Log("JsonAssets is needed to load Mega Storage chests", LogLevel.Error);
+                Log.Error("JsonAssets is needed to load Mega Storage chests");
                 return;
             }
 
-            ConvenientChests = ModHelper.ModRegistry.GetApi<IConvenientChestsApi>("aEnigma.ConvenientChests");
-            if (!(ConvenientChests is null))
-            {
-                ModConfig.Instance.LargeChest.EnableCategories = false;
-                ModConfig.Instance.MagicChest.EnableCategories = false;
-                ModConfig.Instance.SuperMagicChest.EnableChest = false;
-            }
+            JsonAssets.LoadAssets(Path.Combine(Helper.DirectoryPath, "assets"));
+            JsonAssets.API.IdsAssigned += OnIdsAssigned;
+        }
 
-            if (ModConfig.Instance.LargeChest.EnableChest)
-                JsonAssets.LoadAssets(Path.Combine(ModHelper.DirectoryPath, "assets", "LargeChest"));
-            if (ModConfig.Instance.MagicChest.EnableChest)
-                JsonAssets.LoadAssets(Path.Combine(ModHelper.DirectoryPath, "assets", "MagicChest"));
-            if (ModConfig.Instance.SuperMagicChest.EnableChest)
-                JsonAssets.LoadAssets(Path.Combine(ModHelper.DirectoryPath, "assets", "SuperMagicChest"));
+        private static void OnIdsAssigned(object sender, EventArgs e)
+        {
+            // Large Chest
+            CustomChests.Add(
+                new ChestData(
+                    JsonAssets.GetBigCraftableId("Large Chest"),
+                    "LargeChest",
+                    72,
+                    false,
+                    false));
 
-            ItemPatcher.Start();
-            SaveManager.Start();
-            StateManager.Start();
+            // Magic Chest
+            CustomChests.Add(
+                new ChestData(JsonAssets.GetBigCraftableId("Magic Chest"),
+                    "Magic Chest",
+                    int.MaxValue,
+                    true,
+                    false));
+
+            // Super Magic Chest
+            CustomChests.Add(
+                new ChestData(
+                    JsonAssets.GetBigCraftableId("Super Magic Chest"),
+                    "Super Magic Chest",
+                    int.MaxValue,
+                    true,
+                    true));
+        }
+
+        private static void OnObjectListChanged(object sender, ObjectListChangedEventArgs e)
+        {
+            Log.Verbose("OnObjectListChanged");
+
+            if (e.Added.Count() != 1)
+                return;
+
+            var itemPosition = e.Added.Single();
+            var pos = itemPosition.Key;
+            var item = itemPosition.Value;
+
+            if (item is CustomChest || CustomChests.All(c => c.ParentSheetIndex != item.ParentSheetIndex))
+                return;
+
+            Log.Verbose("OnObjectListChanged: converting");
+            var customChest = item.ToCustomChest(pos);
+            e.Location.objects[pos] = customChest;
         }
 
         private static void OnMenuChanged(object sender, MenuChangedEventArgs e)
         {
-            ModMonitor.VerboseLog("New menu: " + e.NewMenu?.GetType());
+            Log.Verbose("New menu: " + e.NewMenu?.GetType());
             switch (e.NewMenu)
             {
-                case CustomItemGrabMenu customItemGrabMenu:
+                case InterfaceHost customItemGrabMenu:
                     ActiveItemGrabMenu = customItemGrabMenu;
                     return;
                 case ItemGrabMenu itemGrabMenu:
                     if (itemGrabMenu.context is CustomChest customChest)
                     {
-                        ActiveItemGrabMenu = customChest.CreateItemGrabMenu(!ActiveItemGrabMenu.ActiveChest.Equals(customChest));
+                        ActiveItemGrabMenu = customChest.CreateItemGrabMenu();
                         Game1.activeClickableMenu = ActiveItemGrabMenu;
                     }
                     break;
@@ -120,7 +153,7 @@ namespace MegaStorage
 
         private static void OnWindowResized(object sender, WindowResizedEventArgs e)
         {
-            if (!(Game1.activeClickableMenu is CustomItemGrabMenu customItemGrabMenu))
+            if (!(Game1.activeClickableMenu is InterfaceHost customItemGrabMenu))
                 return;
             var oldBounds = new Rectangle(0, 0, e.OldSize.X, e.OldSize.Y);
             var newBounds = new Rectangle(0, 0, e.NewSize.X, e.NewSize.Y);
@@ -132,9 +165,9 @@ namespace MegaStorage
             if (e.Button.Equals(ModConfig.Instance.StashKey)
                 || e.Button.Equals(ModConfig.Instance.StashButton))
             {
-                ActiveItemGrabMenu?.StashItems();
+                //ActiveItemGrabMenu?.StashItems();
             }
-            else if (e.Button.Equals(ModConfig.Instance.StashAnywhereKey) && !(StateManager.MainChest is null))
+            else if (e.Button.Equals(ModConfig.Instance.StashAnywhereKey) && !(MegaStorageMod.MainChest is null))
             {
                 StashItems();
             }

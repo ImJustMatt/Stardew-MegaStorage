@@ -1,21 +1,22 @@
-﻿using Microsoft.Xna.Framework;
+﻿using MegaStorage.Framework.UI.Menus;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using StardewValley.Menus;
 using System;
 
 namespace MegaStorage.Framework.UI.Widgets
 {
     internal interface IWidget
     {
-        Action<SpriteBatch, ClickableComponent> DrawAction { get; set; }
-        Action<ClickableComponent> LeftClickAction { get; set; }
-        Action<ClickableComponent> RightClickAction { get; set; }
-        Action<int, ClickableComponent> ScrollAction { get; set; }
-        Action<int, int, ClickableComponent> HoverAction { get; set; }
-        IClickableMenu ParentMenu { get; }
+        IMenu ParentMenu { get; }
         Vector2 Offset { get; }
+        Rectangle Bounds { get; }
         Vector2 Position { get; }
         Vector2 Dimensions { get; }
         void GameWindowSizeChanged();
+        Action<SpriteBatch, IWidget> DrawAction { get; set; }
+        Action<IWidget> LeftClickAction { get; set; }
+        Action<IWidget> RightClickAction { get; set; }
+        Action<int, IWidget> ScrollAction { get; set; }
+        Action<int, int, IWidget> HoverAction { get; set; }
     }
 }

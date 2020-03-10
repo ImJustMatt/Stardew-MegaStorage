@@ -5,10 +5,13 @@
     <HasSharedItems>true</HasSharedItems>
     <SharedGUID>ce7dfa71-d249-4157-9830-139bfe4a4606</SharedGUID>
   </PropertyGroup>
-  <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>furyx639.Common</Import_RootNamespace>
-  </PropertyGroup>
+  <PropertyGroup Label="Configuration" />
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)API\ConvenientChests.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)API\IMegaStorageApi.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)API\JsonAssets.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)API\SaveAnywhere.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CommonHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Log.cs" />
   </ItemGroup>
 </Project>

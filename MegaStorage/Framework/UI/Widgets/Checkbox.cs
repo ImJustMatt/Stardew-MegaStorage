@@ -1,10 +1,11 @@
-﻿using Microsoft.Xna.Framework;
+﻿using MegaStorage.Framework.UI.Menus;
+using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Menus;
 
 namespace MegaStorage.Framework.UI.Widgets
 {
-    internal class Checkbox : CustomClickableTextureComponent
+    internal class Checkbox : ClickableTexture
     {
         /*********
         ** Fields
@@ -16,7 +17,7 @@ namespace MegaStorage.Framework.UI.Widgets
         *********/
         public Checkbox(
             string name,
-            IClickableMenu parentMenu,
+            IMenu parentMenu,
             Vector2 offset)
             : base(name, parentMenu, offset, Game1.mouseCursors, OptionsCheckbox.sourceRectUnchecked)
         {
@@ -26,7 +27,7 @@ namespace MegaStorage.Framework.UI.Widgets
         /*********
         ** Private methods
         *********/
-        private void LeftClick(ClickableComponent clickableComponent = null)
+        private void LeftClick(IWidget widget)
         {
             IsChecked = !IsChecked;
             sourceRect = IsChecked

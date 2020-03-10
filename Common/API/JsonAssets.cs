@@ -4,8 +4,14 @@ using StardewValley;
 using System;
 using System.Collections.Generic;
 
-namespace MegaStorage
+namespace MegaStorage.API
 {
+    internal static class JsonAssets
+    {
+        public static IJsonAssetsApi API { get; set; }
+        public static void LoadAssets(string name) => API?.LoadAssets(name);
+        public static int GetBigCraftableId(string name) => API?.GetBigCraftableId(name) ?? -1;
+    }
     public interface IJsonAssetsApi
     {
         void LoadAssets(string path);

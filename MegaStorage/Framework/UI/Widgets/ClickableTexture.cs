@@ -4,18 +4,10 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
 using System;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace MegaStorage.Framework.UI.Widgets
 {
-    public enum Align
-    {
-        Left = 0,
-        Center = 1,
-        Right = 2
-    }
-
-    internal class Label : ClickableComponent, IWidget
+    internal class ClickableTexture : ClickableTextureComponent, IWidget
     {
         /*********
         ** Fields
@@ -38,7 +30,7 @@ namespace MegaStorage.Framework.UI.Widgets
         }
         public Vector2 Dimensions
         {
-            get => Font.MeasureString(label);
+            get => new Vector2(bounds.Width, bounds.Height);
             set
             {
                 bounds.Width = (int)value.X;
@@ -52,34 +44,30 @@ namespace MegaStorage.Framework.UI.Widgets
         public Action<int, IWidget> ScrollAction { get; set; }
         public Action<int, int, IWidget> HoverAction { get; set; }
 
-        public readonly SpriteFont Font;
-        public readonly Align Align;
+        public int HoverNumber;
 
         /*********
         ** Public methods
         *********/
-        public Label(
+        public ClickableTexture(
             string name,
             IMenu parentMenu,
             Vector2 offset,
-            string label,
-            int width = 0,
-            int height = 0,
-            Align align = Align.Left,
-            SpriteFont font = null)
-            : base(new Rectangle((int)(parentMenu.Position.X + offset.X),
-                        (int)(parentMenu.Position.Y + offset.Y),
-                        width,
-                        height),
-                    name,
-                    label)
+            Texture2D texture,
+            Rectangle sourceRect,
+            string hoverText = "",
+            int width = Game1.tileSize,
+            int height = Game1.tileSize,
+            float scale = Game1.pixelZoom)
+            : base(name,
+                new Rectangle((int)(parentMenu.Position.X + offset.X),
+                    (int)(parentMenu.Position.Y + offset.Y),
+                    width,
+                    height),
+                "", hoverText, texture, sourceRect, scale)
         {
             ParentMenu = parentMenu;
             Offset = offset;
-            Font = font ?? Game1.dialogueFont;
-            Align = align;
-
-            DrawAction = Draw;
         }
 
         public void GameWindowSizeChanged() =>
@@ -88,20 +76,5 @@ namespace MegaStorage.Framework.UI.Widgets
         /*********
         ** Private methods
         *********/
-        private void Draw(SpriteBatch b, IWidget widget)
-        {
-            Utility.drawTextWithShadow(
-                b,
-                label,
-                Game1.dialogueFont,
-                Position + Align switch
-                {
-                    Align.Left => Vector2.Zero,
-                    Align.Center => new Vector2((bounds.Width - Dimensions.X) / 2, 0),
-                    Align.Right => new Vector2(bounds.Width - Dimensions.X, 0),
-                    _ => Vector2.Zero
-                },
-                Game1.textColor);
-        }
     }
 }
