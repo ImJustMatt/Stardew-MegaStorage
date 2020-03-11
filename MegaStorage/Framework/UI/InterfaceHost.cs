@@ -7,6 +7,7 @@ using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
 using StardewValley.Objects;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -22,6 +23,9 @@ namespace MegaStorage.Framework.UI
         *********/
         public const int MenuWidth = 840;
         public const int MenuHeight = 736;
+        public static readonly Vector2 ChestInventoryMenuOffset = new Vector2(-44, -68);
+        public static readonly Vector2 ChestColorPickerOffset = new Vector2(32, -72);
+        public static readonly Vector2 RightWidgetsOffset = new Vector2(24, -32);
 
         public IMenu ParentMenu { get; } = null;
         public Vector2 Offset { get; set; } = -new Vector2(MenuWidth, MenuHeight) / 2f;
@@ -41,8 +45,8 @@ namespace MegaStorage.Framework.UI
             get => new Vector2(xPositionOnScreen, yPositionOnScreen);
             set
             {
-                xPositionOnScreen = (int)value.X;
-                yPositionOnScreen = (int)value.Y;
+                xPositionOnScreen = Math.Max(0, (int)value.X);
+                yPositionOnScreen = Math.Max(spaceToClearTopBorder, (int)value.Y);
             }
         }
         public Vector2 Dimensions
@@ -56,14 +60,15 @@ namespace MegaStorage.Framework.UI
         }
 
         public bool Visible { get; set; } = true;
+        public IList<IMenu> SubMenus { get; } = new List<IMenu>();
+        public IList<IMenu> Overlays { get; } = new List<IMenu>();
+        public Item HoverItem { get; set; }
+        public string HoverText { get; set; }
+        public int HoverAmount { get; set; }
 
         internal new ChestInventoryMenu ItemsToGrabMenu { get; private set; }
         internal new PlayerInventoryMenu inventory { get; private set; }
         internal ItemPickMenu ItemPickMenu { get; private set; }
-
-        private static readonly Vector2 ChestInventoryMenuOffset = new Vector2(-44, -68);
-        private static readonly Vector2 ChestColorPickerOffset = new Vector2(32, -72);
-        private static readonly Vector2 RightWidgetsOffset = new Vector2(24, -32);
 
         private TemporaryAnimatedSprite Poof
         {
@@ -79,21 +84,14 @@ namespace MegaStorage.Framework.UI
         }
         private readonly IReflectedField<behaviorOnItemSelect> _behaviorFunction;
 
-        public IList<IMenu> SubMenus { get; } = new List<IMenu>();
-        public IList<IMenu> Overlays { get; } = new List<IMenu>();
-
         /*********
         ** Public methods
         *********/
         public InterfaceHost(CustomChest customChest)
             : base(CommonHelper.NonNull(customChest).items, customChest)
         {
-            // Setup Position
-            initialize(
-                (Game1.viewport.Width - MenuWidth) / 2,
-                (Game1.viewport.Height - MenuHeight) / 2,
-                MenuWidth,
-                MenuHeight);
+            Position = Offset + (new Vector2(Game1.viewport.Width, Game1.viewport.Height) / 2);
+            Dimensions = new Vector2(MenuWidth, MenuHeight);
 
             // Setup Properties
             allClickableComponents = new List<ClickableComponent>();
@@ -114,50 +112,6 @@ namespace MegaStorage.Framework.UI
                 b.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * 0.5f);
 
             this.Draw(b);
-
-            // Draw Overlays
-            foreach (var menu in Overlays
-                .Where(m => m.Visible)
-                .OfType<IClickableMenu>())
-            {
-                menu.draw(b);
-                return;
-            }
-
-            // Hover Text
-            if (!(hoveredItem is null))
-            {
-                // Hover Item
-                IClickableMenu.drawToolTip(
-                    b,
-                    hoveredItem.getDescription(),
-                    hoveredItem.DisplayName,
-                    hoveredItem,
-                    !(heldItem is null));
-            }
-            else if (!(hoverText is null) && hoverAmount > 0)
-            {
-                // Hover Text w/Amount
-                IClickableMenu.drawToolTip(
-                    b,
-                    hoverText,
-                    "",
-                    null,
-                    true,
-                    moneyAmountToShowAtBottom: hoverAmount);
-            }
-            else if (!(hoverText is null))
-            {
-                // Hover Text
-                IClickableMenu.drawHoverText(b, hoverText, Game1.smallFont);
-            }
-
-            // Held Item
-            heldItem?.drawInMenu(b, new Vector2(Game1.getOldMouseX() + 8, Game1.getOldMouseY() + 8), 1f);
-
-            // Game Cursor
-            Game1.mouseCursorTransparency = 1f;
-            drawMouse(b);
         }
 
         public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds)
@@ -177,7 +131,7 @@ namespace MegaStorage.Framework.UI
 
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
-            var customChest = CommonHelper.OfType<object, CustomChest>(context);
+            var customChest = CommonHelper.OfType<CustomChest>(context);
 
             // Left Click Overlays
             foreach (var menu in Overlays
@@ -198,7 +152,7 @@ namespace MegaStorage.Framework.UI
 
         public override void receiveRightClick(int x, int y, bool playSound = true)
         {
-            var customChest = CommonHelper.OfType<object, CustomChest>(context);
+            var customChest = CommonHelper.OfType<CustomChest>(context);
 
             // Right Click Overlays
             foreach (var menu in Overlays
@@ -219,7 +173,7 @@ namespace MegaStorage.Framework.UI
 
         public override void receiveScrollWheelAction(int direction)
         {
-            var customChest = CommonHelper.OfType<object, CustomChest>(context);
+            var customChest = CommonHelper.OfType<CustomChest>(context);
             var x = Game1.getOldMouseX();
             var y = Game1.getOldMouseY();
 

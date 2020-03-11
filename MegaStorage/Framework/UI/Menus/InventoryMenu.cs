@@ -1,11 +1,10 @@
-﻿using MegaStorage.Framework.UI.Widgets;
+﻿using MegaStorage.Framework.Models;
+using MegaStorage.Framework.UI.Widgets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Netcode;
 using StardewValley;
 using StardewValley.Menus;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 
 namespace MegaStorage.Framework.UI.Menus
@@ -16,7 +15,7 @@ namespace MegaStorage.Framework.UI.Menus
         ** Fields
         *********/
         public const int ItemsPerRow = 12;
-        public static Vector2 Padding = new Vector2(56, 44);
+        public static readonly Vector2 Padding = new Vector2(56, 44);
 
         public IMenu ParentMenu { get; }
         public Vector2 Offset { get; set; }
@@ -51,6 +50,13 @@ namespace MegaStorage.Framework.UI.Menus
         }
         public bool Visible { get; set; } = true;
         public IList<IMenu> SubMenus { get; } = new List<IMenu>();
+        public IList<IMenu> Overlays { get; } = new List<IMenu>();
+        public Item HoverItem { get; set; }
+        public string HoverText { get; set; }
+        public int HoverAmount { get; set; }
+        protected internal InterfaceHost ItemGrabMenu => CommonHelper.OfType<InterfaceHost>(ParentMenu);
+        protected internal CustomChest ActualChest =>
+            CommonHelper.OfType<CustomChest>(ItemGrabMenu.context);
 
         /*********
         ** Public methods
@@ -87,6 +93,17 @@ namespace MegaStorage.Framework.UI.Menus
                 Position + Padding,
                 Dimensions - Padding * 2);
 
+            if (showGrayedOutSlots)
+            {
+                for (var slot = Game1.player.MaxItems; slot < capacity; ++slot)
+                {
+                    var itemSlot = allClickableComponents
+                        .OfType<ItemSlot>()
+                        .Single(cc => cc.Slot == slot);
+                    itemSlot.DrawGrayedOut(b);
+                }
+            }
+
             this.Draw(b);
         }
 
@@ -111,18 +128,12 @@ namespace MegaStorage.Framework.UI.Menus
             {
                 var col = slot % ItemsPerRow;
                 var row = slot / ItemsPerRow;
-                var itemWidget = new ClickableTexture(
-                    slot.ToString(CultureInfo.InvariantCulture),
+                var itemSlot = new ItemSlot(
+                    slot,
                     this,
                     Padding + new Vector2(
                         col * (Game1.tileSize + horizontalGap),
-                        row * (Game1.tileSize + verticalGap)),
-                    Game1.menuTexture,
-                    Game1.getSourceRectForStandardTileSheet(Game1.menuTexture, 57),
-                    "",
-                    Game1.tileSize,
-                    Game1.tileSize,
-                    1f)
+                        row * (Game1.tileSize + verticalGap)))
                 {
                     myID = slot,
                     leftNeighborID = col != 0 ? slot - 1 : 107,
@@ -136,7 +147,7 @@ namespace MegaStorage.Framework.UI.Menus
                     rightNeighborImmutable = true
                 };
 
-                allClickableComponents.Add(itemWidget);
+                allClickableComponents.Add(itemSlot);
             }
         }
     }

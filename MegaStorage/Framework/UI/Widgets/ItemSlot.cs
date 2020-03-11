@@ -7,7 +7,7 @@ using System;
 
 namespace MegaStorage.Framework.UI.Widgets
 {
-    internal class ClickableTexture : ClickableTextureComponent, IWidget
+    internal class ItemSlot : ClickableComponent, IWidget
     {
         /*********
         ** Fields
@@ -43,29 +43,25 @@ namespace MegaStorage.Framework.UI.Widgets
         public Action<IWidget> RightClickAction { get; set; }
         public Action<int, IWidget> ScrollAction { get; set; }
         public Action<int, int, IWidget> HoverAction { get; set; }
-        public Color Color { get; set; } = Color.White;
-        public int HoverNumber { get; set; } = -1;
+        public int Slot { get; }
 
         /*********
         ** Public methods
         *********/
-        public ClickableTexture(
-            string name,
+        public ItemSlot(
+            int slot,
             IMenu parentMenu,
             Vector2 offset,
-            Texture2D texture,
-            Rectangle sourceRect,
-            string hoverText = "",
+            Item item = null,
             int width = Game1.tileSize,
-            int height = Game1.tileSize,
-            float scale = Game1.pixelZoom)
-            : base(name,
-                new Rectangle((int)(parentMenu.Position.X + offset.X),
+            int height = Game1.tileSize)
+            : base(new Rectangle((int)(parentMenu.Position.X + offset.X),
                     (int)(parentMenu.Position.Y + offset.Y),
                     width,
                     height),
-                "", hoverText, texture, sourceRect, scale)
+                item)
         {
+            Slot = slot;
             ParentMenu = parentMenu;
             Offset = offset;
             DrawAction = Draw;
@@ -74,12 +70,27 @@ namespace MegaStorage.Framework.UI.Widgets
         public void GameWindowSizeChanged() =>
             Position = ParentMenu.Position + Offset;
 
+        public void DrawGrayedOut(SpriteBatch b) =>
+            b.Draw(
+                Game1.menuTexture,
+                Position,
+                Game1.getSourceRectForStandardTileSheet(Game1.menuTexture, 57),
+                Color.White * 0.5f);
+
         /*********
         ** Private methods
         *********/
         private void Draw(SpriteBatch b, IWidget widget)
         {
-            draw(b, Color, 0.860000014305115f + bounds.Y / 20000f);
+            item?.drawInMenu(
+                b,
+                Position,
+                1f,
+                1f,
+                0.9f,
+                StackDrawType.Draw,
+                Color.White,
+                false);
         }
     }
 }

@@ -242,9 +242,9 @@ namespace MegaStorage
             return obj;
         }
 
-        public static TU OfType<T, TU>(T obj)
+        public static T OfType<T>(object obj)
         {
-            if (!(obj is TU u))
+            if (!(obj is T u))
                 throw new ArgumentException("Bad Argument");
             return u;
         }

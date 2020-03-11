@@ -3,9 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Netcode;
 using StardewValley;
-using StardewValley.Menus;
 using System;
-using System.Globalization;
 using System.Linq;
 
 namespace MegaStorage.Framework.UI.Menus
@@ -15,8 +13,8 @@ namespace MegaStorage.Framework.UI.Menus
         /*********
         ** Fields
         *********/
-        private static readonly Vector2 RightWidgetsOffset = new Vector2(24, -32);
-        private static readonly Vector2 BackpackIconOffset = new Vector2(-48, 96);
+        public static readonly Vector2 RightWidgetsOffset = new Vector2(24, -32);
+        public static readonly Vector2 BackpackIconOffset = new Vector2(-48, 96);
 
         /*********
         ** Public methods
@@ -29,6 +27,7 @@ namespace MegaStorage.Framework.UI.Menus
                 Math.Max(3, Game1.player.MaxItems / ItemsPerRow))
         {
             Game1.player.items.OnElementChanged += SyncItem;
+            showGrayedOutSlots = true;
             SetupWidgets();
             SyncItems();
         }
@@ -45,38 +44,13 @@ namespace MegaStorage.Framework.UI.Menus
         {
             for (var slot = 0; slot < capacity; ++slot)
             {
-                var itemWidget = allClickableComponents
-                    .OfType<ClickableTexture>()
-                    .Single(cc =>
-                        cc.name.Equals(slot.ToString(CultureInfo.InvariantCulture),
-                            StringComparison.InvariantCultureIgnoreCase));
+                var itemSlot = allClickableComponents
+                    .OfType<ItemSlot>()
+                    .Single(cc => cc.Slot == slot);
 
-                var currentItem = (slot < actualInventory.Count)
+                itemSlot.item = (slot < actualInventory.Count)
                     ? actualInventory.ElementAt(slot)
                     : null;
-
-                if (!(currentItem is null))
-                {
-                    itemWidget.hoverText = currentItem.DisplayName;
-                    itemWidget.HoverNumber = currentItem.Stack;
-                    itemWidget.texture = Game1.objectSpriteSheet;
-                    itemWidget.sourceRect = Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, currentItem.ParentSheetIndex, 16, 16);
-                    itemWidget.scale = Game1.pixelZoom;
-                    itemWidget.visible = true;
-                }
-                else if (slot < Game1.player.MaxItems)
-                {
-                    itemWidget.hoverText = "";
-                    itemWidget.HoverNumber = -1;
-                    itemWidget.texture = Game1.menuTexture;
-                    itemWidget.sourceRect = Game1.getSourceRectForStandardTileSheet(Game1.menuTexture, 57);
-                    itemWidget.scale = 1f;
-                    itemWidget.visible = false;
-                }
-                else
-                {
-                    itemWidget.visible = true;
-                }
             }
         }
 
@@ -85,11 +59,8 @@ namespace MegaStorage.Framework.UI.Menus
         *********/
         private void SetupWidgets()
         {
-            if (!(ParentMenu is ItemGrabMenu itemGrabMenu))
-                return;
-
             // OK Button
-            itemGrabMenu.okButton = new ClickableTexture(
+            ItemGrabMenu.okButton = new ClickableTexture(
                 "okButton",
                 this,
                 RightWidgetsOffset + new Vector2(width, 204),
@@ -103,43 +74,24 @@ namespace MegaStorage.Framework.UI.Menus
                 LeftClickAction = ClickOkButton,
                 HoverAction = CommonHelper.HoverZoom
             };
-            allClickableComponents.Add(itemGrabMenu.okButton);
+            allClickableComponents.Add(ItemGrabMenu.okButton);
 
             // Trash Can
-            itemGrabMenu.trashCan = new TrashCan(this, RightWidgetsOffset + new Vector2(width, 68));
-            allClickableComponents.Add(itemGrabMenu.trashCan);
+            ItemGrabMenu.trashCan = new TrashCan(this, RightWidgetsOffset + new Vector2(width, 68));
+            allClickableComponents.Add(ItemGrabMenu.trashCan);
         }
 
         private void SyncItem(NetList<Item, NetRef<Item>> list, int slot, Item oldValue, Item currentItem)
         {
-            var itemWidget = allClickableComponents
-                .OfType<ClickableTexture>()
-                .Single(cc =>
-                    cc.name.Equals(slot.ToString(CultureInfo.InvariantCulture),
-                        StringComparison.InvariantCultureIgnoreCase));
-
-            if (!(currentItem is null))
-            {
-                itemWidget.hoverText = currentItem.DisplayName;
-                itemWidget.HoverNumber = currentItem.Stack;
-                itemWidget.texture = Game1.objectSpriteSheet;
-                itemWidget.sourceRect = Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, currentItem.ParentSheetIndex, 16, 16);
-                itemWidget.scale = Game1.pixelZoom;
-            }
-            else
-            {
-                itemWidget.hoverText = "";
-                itemWidget.HoverNumber = -1;
-                itemWidget.texture = Game1.menuTexture;
-                itemWidget.sourceRect = Game1.getSourceRectForStandardTileSheet(Game1.menuTexture, 57);
-                itemWidget.scale = 1f;
-            }
+            var itemSlot = allClickableComponents
+                .OfType<ItemSlot>()
+                .Single(cc => cc.Slot == slot);
+            itemSlot.item = currentItem;
         }
 
         private void ClickOkButton(IWidget widget)
         {
-            var itemGrabMenu = CommonHelper.OfType<IMenu, ItemGrabMenu>(ParentMenu);
-            itemGrabMenu.exitThisMenu();
+            ItemGrabMenu.exitThisMenu();
             if (!(Game1.currentLocation.currentEvent is null))
                 ++Game1.currentLocation.currentEvent.CurrentCommand;
             Game1.playSound("bigDeSelect");

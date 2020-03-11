@@ -52,6 +52,10 @@ namespace MegaStorage.Framework.UI.Menus
         }
         public bool Visible { get; set; }
         public IList<IMenu> SubMenus { get; } = new List<IMenu>();
+        public IList<IMenu> Overlays { get; } = new List<IMenu>();
+        public Item HoverItem { get; set; }
+        public string HoverText { get; set; }
+        public int HoverAmount { get; set; }
         public ChestTab SelectedChestTab
         {
             get => _selectedTab;
@@ -137,16 +141,15 @@ namespace MegaStorage.Framework.UI.Menus
         private int _currentCategory;
         private IList<SObject> _currentObjects;
         private readonly IList<IWidget> _itemSlots = new List<IWidget>();
-        private string _hoverText;
+        protected internal InterfaceHost ItemGrabMenu => CommonHelper.OfType<InterfaceHost>(ParentMenu);
 
         /*********
         ** Public methods
         *********/
         public ItemPickMenu(IMenu parentMenu, Vector2 offset)
         {
-            var customItemGrabMenu = CommonHelper.OfType<IMenu, InterfaceHost>(parentMenu);
-            var itemsToGrabMenu = customItemGrabMenu.ItemsToGrabMenu;
-            var inventory = customItemGrabMenu.inventory;
+            var itemsToGrabMenu = ItemGrabMenu.ItemsToGrabMenu;
+            var inventory = ItemGrabMenu.inventory;
 
             ParentMenu = parentMenu;
             Offset = offset;
@@ -170,14 +173,6 @@ namespace MegaStorage.Framework.UI.Menus
             CommonHelper.DrawDialogueBox(b, xPositionOnScreen, yPositionOnScreen, width, height);
 
             this.Draw(b);
-
-            // Hover Text
-            if (!string.IsNullOrWhiteSpace(_hoverText))
-                IClickableMenu.drawHoverText(b, _hoverText, Game1.smallFont);
-
-            // Game Cursor
-            Game1.mouseCursorTransparency = 1f;
-            drawMouse(b);
         }
 
         public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds) =>
@@ -195,14 +190,14 @@ namespace MegaStorage.Framework.UI.Menus
             this.ReceiveScrollWheelAction(direction);
         public override void performHoverAction(int x, int y)
         {
-            _hoverText = null;
+            HoverText = null;
 
             // Hover Text
             foreach (var clickableComponent in allClickableComponents
                 .OfType<ClickableTexture>()
                 .Where(c => !(c.hoverText is null) && c.containsPoint(x, y)))
             {
-                _hoverText = clickableComponent.hoverText;
+                HoverText = clickableComponent.hoverText;
             }
 
             this.PerformHoverAction(x, y);

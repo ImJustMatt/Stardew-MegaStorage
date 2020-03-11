@@ -1,9 +1,9 @@
-﻿using System.Linq;
-using MegaStorage.API;
+﻿using MegaStorage.API;
 using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Objects;
+using System.Linq;
 
 namespace MegaStorage.Framework
 {
