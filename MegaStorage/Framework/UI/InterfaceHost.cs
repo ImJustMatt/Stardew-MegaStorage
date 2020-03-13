@@ -58,6 +58,7 @@ namespace MegaStorage.Framework.UI
         }
 
         public bool Visible { get; set; } = true;
+        public bool FadedBackground => !Game1.options.showMenuBackground;
         public IList<IMenu> SubMenus { get; } = new List<IMenu>();
         public IList<IMenu> Overlays { get; } = new List<IMenu>();
         public Item HoverItem { get; set; }
@@ -97,15 +98,10 @@ namespace MegaStorage.Framework.UI
 
         public override void draw(SpriteBatch b)
         {
-            // Background
-            if (!Game1.options.showMenuBackground)
-                b.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * 0.5f);
-
-            if (this.Draw(b))
-                return;
-
             // Chest color picker
             chestColorPicker.draw(b);
+
+            this.Draw(b);
         }
 
         public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds)

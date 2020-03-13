@@ -14,6 +14,9 @@ namespace MegaStorage.Framework.UI.Menus
             var done = false;
             var clickableMenu = CommonHelper.OfType<IClickableMenu>(menu);
 
+            if (menu.FadedBackground)
+                b.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * 0.5f);
+
             // Draw Menus
             foreach (var subMenu in menu.SubMenus.Where(m => m.Visible).OfType<IClickableMenu>())
             {
@@ -38,7 +41,6 @@ namespace MegaStorage.Framework.UI.Menus
             // Draw Overlay
             foreach (var overlay in menu.Overlays.Where(m => m.Visible).OfType<IClickableMenu>())
             {
-                b.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * 0.5f);
                 overlay.draw(b);
                 done = true;
                 break;

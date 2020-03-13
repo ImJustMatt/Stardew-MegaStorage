@@ -49,6 +49,7 @@ namespace MegaStorage.Framework.UI.Menus
             }
         }
         public bool Visible { get; set; } = true;
+        public bool FadedBackground => false;
         public IList<IMenu> SubMenus { get; } = new List<IMenu>();
         public IList<IMenu> Overlays { get; } = new List<IMenu>();
         public Item HoverItem { get; set; }

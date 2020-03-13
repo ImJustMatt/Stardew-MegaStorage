@@ -12,6 +12,7 @@ namespace MegaStorage.Framework.UI.Menus
         Vector2 Position { get; set; }
         Vector2 Dimensions { get; set; }
         bool Visible { get; set; }
+        bool FadedBackground { get; }
         IList<IMenu> SubMenus { get; }
         IList<IMenu> Overlays { get; }
         Item HoverItem { get; set; }
