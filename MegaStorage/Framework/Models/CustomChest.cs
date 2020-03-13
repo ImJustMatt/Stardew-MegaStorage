@@ -30,7 +30,15 @@ namespace MegaStorage.Framework.Models
         ** Public methods
         *********/
         internal InterfaceHost CreateItemGrabMenu() => new InterfaceHost(this);
-        internal CustomChest(ChestData chestData, Vector2 tileLocation)
+
+        public CustomChest() : base()
+        {
+            type.Value = "Crafting";
+            playerChest.Value = true;
+            _currentLidFrameReflected = MegaStorageMod.Helper.Reflection.GetField<int>(this, "currentLidFrame");
+        }
+
+        public CustomChest(ChestData chestData, Vector2 tileLocation)
             : base(
                 chestData.ParentSheetIndex,
                 tileLocation,
@@ -41,8 +49,6 @@ namespace MegaStorage.Framework.Models
             Name = chestData.Name;
             type.Value = "Crafting";
             playerChest.Value = true;
-            bigCraftable.Value = true;
-            canBeSetDown.Value = true;
             _currentLidFrameReflected = MegaStorageMod.Helper.Reflection.GetField<int>(this, "currentLidFrame");
         }
         public override Item getOne() => this;
@@ -378,7 +384,7 @@ namespace MegaStorage.Framework.Models
         {
             var chest = new Chest(playerChest.Value, TileLocation)
             {
-                name = name,
+                Name = Name,
                 Stack = Stack,
                 ParentSheetIndex = ParentSheetIndex
             };
@@ -398,9 +404,11 @@ namespace MegaStorage.Framework.Models
                 return;
 
             ChestData = ChestData.FromSaveData(saveData);
-            Name = chest.Name;
+            TileLocation = chest.TileLocation;
+            Name = ChestData.Name;
             Stack = chest.Stack;
-            ParentSheetIndex = chest.ParentSheetIndex;
+            ParentSheetIndex = ChestData.ParentSheetIndex;
+            startingLidFrame.Value = ParentSheetIndex + 1;
 
             items.CopyFrom(chest.items);
             playerChoiceColor.Value = chest.playerChoiceColor.Value;
@@ -415,9 +423,8 @@ namespace MegaStorage.Framework.Models
             var chestData = ChestData.FromSaveData(saveData);
             var customChest = new CustomChest(chestData, chest.TileLocation)
             {
-                Name = chest.Name,
-                Stack = chest.Stack,
-                ParentSheetIndex = chest.ParentSheetIndex
+                Name = chestData.Name,
+                Stack = chest.Stack
             };
 
             customChest.items.CopyFrom(chest.items);

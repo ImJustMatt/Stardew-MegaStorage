@@ -13,8 +13,8 @@ namespace MegaStorage.Framework.UI.Widgets
         /*********
         ** Fields
         *********/
-        private const int SelectedOffset = 8;
-        protected internal Func<Item, bool> BelongsToCategory;
+        public const int SelectedOffset = 8;
+        public Func<Item, bool> BelongsToCategory;
 
         /*********
         ** Public methods

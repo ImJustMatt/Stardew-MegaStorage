@@ -54,9 +54,14 @@ namespace MegaStorage.Framework.UI.Menus
         public Item HoverItem { get; set; }
         public string HoverText { get; set; }
         public int HoverAmount { get; set; }
+        public ItemSlot ItemSlot { get; set; }
         protected internal InterfaceHost ItemGrabMenu => CommonHelper.OfType<InterfaceHost>(ParentMenu);
-        protected internal CustomChest ActualChest =>
-            CommonHelper.OfType<CustomChest>(ItemGrabMenu.context);
+        protected internal CustomChest ActualChest => CommonHelper.OfType<CustomChest>(ItemGrabMenu.context);
+        protected internal Item HeldItem
+        {
+            get => ItemGrabMenu.heldItem;
+            set => ItemGrabMenu.heldItem = value;
+        }
 
         /*********
         ** Public methods
@@ -109,10 +114,71 @@ namespace MegaStorage.Framework.UI.Menus
 
         public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds) =>
             this.GameWindowSizeChanged(oldBounds, newBounds);
-        public override void receiveLeftClick(int x, int y, bool playSound = true) =>
+
+        public override void receiveLeftClick(int x, int y, bool playSound = true)
+        {
+            ItemSlot = null;
+
             this.ReceiveLeftClick(x, y, playSound);
-        public override void receiveRightClick(int x, int y, bool playSound = true) =>
-            this.ReceiveRightClick(x, y, playSound);
+
+            if (ItemSlot is null)
+                return;
+
+            if (HeldItem != null && ItemSlot.item != null && ItemSlot.item.canStackWith(HeldItem))
+            {
+                if (playSound)
+                    Game1.playSound("stoneStep");
+                HeldItem = Utility.addItemToInventory(HeldItem, ItemSlot.Slot, actualInventory, onAddItem);
+                ItemSlot.item = actualInventory[ItemSlot.Slot];
+            }
+            else if (HeldItem == null && ItemSlot.item != null)
+            {
+                if (playSound)
+                    Game1.playSound("dwop");
+                HeldItem = Utility.removeItemFromInventory(ItemSlot.Slot, actualInventory);
+                ItemSlot.item = null;
+            }
+            else if (HeldItem != null && ItemSlot.item == null)
+            {
+                if (playSound)
+                    Game1.playSound("stoneStep");
+                HeldItem = Utility.addItemToInventory(HeldItem, ItemSlot.Slot, actualInventory, onAddItem);
+                ItemSlot.item = actualInventory[ItemSlot.Slot];
+            }
+        }
+
+        public override void receiveRightClick(int x, int y, bool playSound = true)
+        {
+            ItemSlot = null;
+
+            this.ReceiveRightClick(x, y, playSound && ItemGrabMenu.playRightClickSound);
+
+            if (ItemSlot is null)
+                return;
+
+            if (HeldItem != null && ItemSlot.item != null && ItemSlot.item.canStackWith(HeldItem))
+            {
+                if (playSound)
+                    Game1.playSound("stoneStep");
+                HeldItem = Utility.addItemToInventory(HeldItem, ItemSlot.Slot, actualInventory, onAddItem);
+                ItemSlot.item = actualInventory[ItemSlot.Slot];
+            }
+            else if (HeldItem == null && ItemSlot.item != null)
+            {
+                if (playSound)
+                    Game1.playSound("dwop");
+                HeldItem = Utility.removeItemFromInventory(ItemSlot.Slot, actualInventory);
+                ItemSlot.item = null;
+            }
+            else if (HeldItem != null && ItemSlot.item == null)
+            {
+                if (playSound)
+                    Game1.playSound("stoneStep");
+                HeldItem = Utility.addItemToInventory(HeldItem, ItemSlot.Slot, actualInventory, onAddItem);
+                ItemSlot.item = actualInventory[ItemSlot.Slot];
+            }
+        }
+
         public override void receiveScrollWheelAction(int direction) =>
             this.ReceiveScrollWheelAction(direction);
         public override void performHoverAction(int x, int y) =>

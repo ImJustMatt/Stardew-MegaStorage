@@ -43,7 +43,8 @@ namespace MegaStorage.Framework.UI.Widgets
         public Action<IWidget> RightClickAction { get; set; }
         public Action<int, IWidget> ScrollAction { get; set; }
         public Action<int, int, IWidget> HoverAction { get; set; }
-        public int Slot { get; }
+        public int Slot { get; set; }
+        protected internal Menus.InventoryMenu InventoryMenu => CommonHelper.OfType<Menus.InventoryMenu>(ParentMenu);
 
         /*********
         ** Public methods
@@ -65,6 +66,9 @@ namespace MegaStorage.Framework.UI.Widgets
             ParentMenu = parentMenu;
             Offset = offset;
             DrawAction = Draw;
+            LeftClickAction = Click;
+            RightClickAction = RightClick;
+            HoverAction = Hover;
         }
 
         public void GameWindowSizeChanged() =>
@@ -91,6 +95,24 @@ namespace MegaStorage.Framework.UI.Widgets
                 StackDrawType.Draw,
                 Color.White,
                 false);
+        }
+
+        private void Click(IWidget widget)
+        {
+            InventoryMenu.ItemSlot ??= this;
+        }
+
+        private void RightClick(IWidget widget)
+        {
+            InventoryMenu.ItemSlot ??= this;
+        }
+
+        private void Hover(int x, int y, IWidget widget)
+        {
+            if (!Bounds.Contains(x, y))
+                return;
+
+            ParentMenu.HoverItem = item;
         }
     }
 }

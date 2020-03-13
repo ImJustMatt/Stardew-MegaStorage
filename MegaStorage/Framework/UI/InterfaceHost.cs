@@ -1,6 +1,5 @@
 ﻿using MegaStorage.Framework.Models;
 using MegaStorage.Framework.UI.Menus;
-using MegaStorage.Framework.UI.Widgets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -25,7 +24,6 @@ namespace MegaStorage.Framework.UI
         public const int MenuHeight = 736;
         public static readonly Vector2 ChestInventoryMenuOffset = new Vector2(-44, -68);
         public static readonly Vector2 ChestColorPickerOffset = new Vector2(32, -72);
-        public static readonly Vector2 RightWidgetsOffset = new Vector2(24, -32);
 
         public IMenu ParentMenu { get; } = null;
         public Vector2 Offset { get; set; } = -new Vector2(MenuWidth, MenuHeight) / 2f;
@@ -70,13 +68,6 @@ namespace MegaStorage.Framework.UI
         internal new PlayerInventoryMenu inventory { get; private set; }
         internal ItemPickMenu ItemPickMenu { get; private set; }
 
-        private TemporaryAnimatedSprite Poof
-        {
-            set => _poofReflected.SetValue(value);
-        }
-
-        private readonly IReflectedField<TemporaryAnimatedSprite> _poofReflected;
-
         public behaviorOnItemSelect BehaviorFunction
         {
             get => _behaviorFunction.GetValue();
@@ -98,7 +89,6 @@ namespace MegaStorage.Framework.UI
             playRightClickSound = true;
             allowRightClick = true;
             canExitOnKey = true;
-            _poofReflected = MegaStorageMod.Helper.Reflection.GetField<TemporaryAnimatedSprite>(this, "poof");
             _behaviorFunction = MegaStorageMod.Helper.Reflection.GetField<behaviorOnItemSelect>(this, "behaviorFunction");
 
             SetupMenus();
@@ -111,18 +101,16 @@ namespace MegaStorage.Framework.UI
             if (!Game1.options.showMenuBackground)
                 b.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * 0.5f);
 
-            this.Draw(b);
+            if (this.Draw(b))
+                return;
+
+            // Chest color picker
+            chestColorPicker.draw(b);
         }
 
         public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds)
         {
             this.GameWindowSizeChanged(oldBounds, newBounds);
-
-            // Reposition Overlays
-            foreach (var menu in Overlays.Where(m => m.Visible).OfType<IClickableMenu>())
-            {
-                menu.gameWindowSizeChanged(oldBounds, newBounds);
-            }
 
             // Reposition Chest Color Picker
             chestColorPicker.xPositionOnScreen = (int)(ItemsToGrabMenu.Position.X + ChestColorPickerOffset.X);
@@ -131,62 +119,38 @@ namespace MegaStorage.Framework.UI
 
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
-            var customChest = CommonHelper.OfType<CustomChest>(context);
-
-            // Left Click Overlays
-            foreach (var menu in Overlays
-                .Where(m => m.Visible)
-                .OfType<IClickableMenu>())
-            {
-                menu.receiveLeftClick(x, y, playSound);
+            if (this.ReceiveLeftClick(x, y, playSound))
                 return;
-            }
 
             // Left Click Chest Color Picker
+            var customChest = CommonHelper.OfType<CustomChest>(context);
             chestColorPicker.receiveLeftClick(x, y, playSound);
             customChest.playerChoiceColor.Value =
                 chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
-
-            this.ReceiveLeftClick(x, y, playSound);
         }
 
         public override void receiveRightClick(int x, int y, bool playSound = true)
         {
-            var customChest = CommonHelper.OfType<CustomChest>(context);
-
-            // Right Click Overlays
-            foreach (var menu in Overlays
-                .Where(m => m.Visible)
-                .OfType<IClickableMenu>())
-            {
-                menu.receiveRightClick(x, y, playSound && playRightClickSound);
+            if (this.ReceiveRightClick(x, y, playSound && playRightClickSound))
                 return;
-            }
 
             // Right Click Chest Color Picker
+            var customChest = CommonHelper.OfType<CustomChest>(context);
             chestColorPicker.receiveRightClick(x, y, playSound && playRightClickSound);
             customChest.playerChoiceColor.Value =
                 chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
-
-            this.ReceiveRightClick(x, y, playSound && playRightClickSound);
         }
 
         public override void receiveScrollWheelAction(int direction)
         {
+            if (this.ReceiveScrollWheelAction(direction))
+                return;
+
+            // Scroll Chest Color Picker
             var customChest = CommonHelper.OfType<CustomChest>(context);
             var x = Game1.getOldMouseX();
             var y = Game1.getOldMouseY();
 
-            // Scroll Overlays
-            foreach (var menu in Overlays
-                .Where(m => m.Visible)
-                .OfType<IClickableMenu>())
-            {
-                menu.receiveScrollWheelAction(direction);
-                return;
-            }
-
-            // Scroll Chest Color Picker
             if (chestColorPicker.isWithinBounds(x, y))
             {
                 if (direction < 0 && chestColorPicker.colorSelection < chestColorPicker.totalColors - 1)
@@ -198,37 +162,15 @@ namespace MegaStorage.Framework.UI
                 customChest.playerChoiceColor.Value =
                     chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
             }
-
-            this.ReceiveScrollWheelAction(direction);
         }
 
         public override void performHoverAction(int x, int y)
         {
-            // Hover Overlays
-            foreach (var menu in Overlays.Where(m => m.Visible).OfType<IClickableMenu>())
-            {
-                menu.performHoverAction(x, y);
+            if (this.PerformHoverAction(x, y))
                 return;
-            }
 
             // Hover Chest Color Picker
             chestColorPicker.performHoverAction(x, y);
-
-            this.PerformHoverAction(x, y);
-        }
-
-        /*********
-        ** Left Click
-        *********/
-        /// <summary>
-        /// Toggles the Chest Color Picker on/off
-        /// </summary>
-        /// <param name="widget">The toggle button that was clicked</param>
-        internal void ClickColorPickerToggleButton(IWidget widget)
-        {
-            Game1.player.showChestColorPicker = !Game1.player.showChestColorPicker;
-            chestColorPicker.visible = Game1.player.showChestColorPicker;
-            Game1.playSound("drumkit6");
         }
 
         /*********
@@ -243,11 +185,12 @@ namespace MegaStorage.Framework.UI
             ItemsToGrabMenu = (customChest.ChestData.EnableRemoteStorage)
                 ? new ChestInventoryMenu(this, ChestInventoryMenuOffset, customChest)
                 : new ChestInventoryMenu(this, ChestInventoryMenuOffset, customChest);
-            SubMenus.Add(ItemsToGrabMenu);
 
             // Player Inventory Menu
             inventory = new PlayerInventoryMenu(this, ChestInventoryMenuOffset + new Vector2(0, ItemsToGrabMenu.height));
+
             SubMenus.Add(inventory);
+            SubMenus.Add(ItemsToGrabMenu);
 
             // Color Picker (Replace with Overlay)
             chestColorPicker = new DiscreteColorPicker(
@@ -365,23 +308,6 @@ namespace MegaStorage.Framework.UI
                 allClickableComponents.Add(discreteColorPicker);
             }
 
-            // Color Picker Toggle
-            colorPickerToggleButton = new ClickableTexture(
-                "colorPickerToggleButton",
-                ItemsToGrabMenu,
-                RightWidgetsOffset + ItemsToGrabMenu.Dimensions * new Vector2(1, 1f / 4f),
-                Game1.mouseCursors,
-                new Rectangle(119, 469, 16, 16),
-                Game1.content.LoadString("Strings\\UI:Toggle_ColorPicker"))
-            {
-                myID = 27346,
-                downNeighborID = 12952,
-                leftNeighborID = 53933,
-                region = 15923,
-                LeftClickAction = ClickColorPickerToggleButton
-            };
-            allClickableComponents.Add(colorPickerToggleButton);
-
             // Add Invisible Drop Item Button?
             dropItemInvisibleButton = new ClickableComponent(
                 new Rectangle(xPositionOnScreen - IClickableMenu.borderWidth - IClickableMenu.spaceToClearSideBorder - 128, yPositionOnScreen + IClickableMenu.spaceToClearTopBorder + IClickableMenu.borderWidth + 164, Game1.tileSize, Game1.tileSize), "")
@@ -390,15 +316,5 @@ namespace MegaStorage.Framework.UI
             };
             allClickableComponents.Add(dropItemInvisibleButton);
         }
-
-        private static TemporaryAnimatedSprite CreatePoof(int x, int y) => new TemporaryAnimatedSprite(
-            "TileSheets/animations",
-            new Rectangle(0, 320, Game1.tileSize, Game1.tileSize),
-            50f,
-            8,
-            0,
-            new Vector2(x - x % Game1.tileSize + 16, y - y % Game1.tileSize + 16),
-            false,
-            false);
     }
 }

@@ -40,17 +40,30 @@ namespace MegaStorage.Framework.UI.Menus
             CommonHelper.DrawInventoryIcon(b, Position + BackpackIconOffset);
         }
 
+        public override void receiveLeftClick(int x, int y, bool playSound = true)
+        {
+            base.receiveLeftClick(x, y, playSound);
+
+            if (!(HeldItem is null) && isWithinBounds(x, y))
+                ItemGrabMenu.BehaviorFunction?.Invoke(HeldItem, Game1.player);
+        }
+
+        public override void receiveRightClick(int x, int y, bool playSound = true)
+        {
+            base.receiveRightClick(x, y, playSound);
+
+            if (!(HeldItem is null) && isWithinBounds(x, y))
+                ItemGrabMenu.BehaviorFunction?.Invoke(HeldItem, Game1.player);
+        }
+
         public sealed override void SyncItems()
         {
-            for (var slot = 0; slot < capacity; ++slot)
+            foreach (var itemSlot in allClickableComponents.OfType<ItemSlot>())
             {
-                var itemSlot = allClickableComponents
-                    .OfType<ItemSlot>()
-                    .Single(cc => cc.Slot == slot);
-
-                itemSlot.item = (slot < actualInventory.Count)
-                    ? actualInventory.ElementAt(slot)
+                itemSlot.item = (itemSlot.Slot < actualInventory.Count)
+                    ? actualInventory[itemSlot.Slot]
                     : null;
+                itemSlot.visible = !(itemSlot.item is null);
             }
         }
 
@@ -85,8 +98,13 @@ namespace MegaStorage.Framework.UI.Menus
         {
             var itemSlot = allClickableComponents
                 .OfType<ItemSlot>()
-                .Single(cc => cc.Slot == slot);
+                .First(cc => cc.Slot == slot);
+
+            if (itemSlot is null)
+                return;
+
             itemSlot.item = currentItem;
+            itemSlot.visible = !(currentItem is null);
         }
 
         private void ClickOkButton(IWidget widget)

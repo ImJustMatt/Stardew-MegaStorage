@@ -44,7 +44,6 @@ namespace MegaStorage.Framework.UI.Widgets
         public Action<int, IWidget> ScrollAction { get; set; }
         public Action<int, int, IWidget> HoverAction { get; set; }
         public Color Color { get; set; } = Color.White;
-        public int HoverNumber { get; set; } = -1;
 
         /*********
         ** Public methods
@@ -55,7 +54,7 @@ namespace MegaStorage.Framework.UI.Widgets
             Vector2 offset,
             Texture2D texture,
             Rectangle sourceRect,
-            string hoverText = "",
+            string hoverText = null,
             int width = Game1.tileSize,
             int height = Game1.tileSize,
             float scale = Game1.pixelZoom)
@@ -69,6 +68,7 @@ namespace MegaStorage.Framework.UI.Widgets
             ParentMenu = parentMenu;
             Offset = offset;
             DrawAction = Draw;
+            HoverAction = Hover;
         }
 
         public void GameWindowSizeChanged() =>
@@ -77,9 +77,17 @@ namespace MegaStorage.Framework.UI.Widgets
         /*********
         ** Private methods
         *********/
-        private void Draw(SpriteBatch b, IWidget widget)
+        protected internal virtual void Draw(SpriteBatch b, IWidget widget)
         {
             draw(b, Color, 0.860000014305115f + bounds.Y / 20000f);
+        }
+
+        protected internal virtual void Hover(int x, int y, IWidget widget)
+        {
+            if (!Bounds.Contains(x, y))
+                return;
+
+            ParentMenu.HoverText = hoverText;
         }
     }
 }

@@ -37,7 +37,17 @@ namespace MegaStorage.Framework.UI.Menus
         }
 
         public CustomChest CustomChest;
-        public IList<Item> VisibleItems;
+        public IList<Item> VisibleItems => actualInventory
+            .Where(_currentTab.BelongsToCategory)
+            .ToList();
+        public TemporaryAnimatedSprite Poof
+        {
+            set
+            {
+                _poofReflected ??= MegaStorageMod.Helper.Reflection.GetField<TemporaryAnimatedSprite>(ItemGrabMenu, "poof");
+                _poofReflected.SetValue(value);
+            }
+        }
 
         private ChestTab _currentTab;
         private int _currentRow;
@@ -45,6 +55,8 @@ namespace MegaStorage.Framework.UI.Menus
 
         private ClickableTexture _upArrow;
         private ClickableTexture _downArrow;
+
+        private IReflectedField<TemporaryAnimatedSprite> _poofReflected;
 
         /*********
         ** Public methods
@@ -57,31 +69,176 @@ namespace MegaStorage.Framework.UI.Menus
                 6)
         {
             CustomChest = customChest;
+            CustomChest.items.OnElementChanged += SyncItem;
+            ItemGrabMenu.BehaviorFunction = customChest.grabItemFromInventory;
+            ItemGrabMenu.behaviorOnItemGrab = customChest.grabItemFromChest;
             SetupWidgets();
             SyncItems();
         }
+
+        public override void receiveLeftClick(int x, int y, bool playSound = true)
+        {
+            base.receiveLeftClick(x, y, false);
+
+            if (HeldItem is null)
+                return;
+            ItemGrabMenu.behaviorOnItemGrab?.Invoke(HeldItem, Game1.player);
+
+            if (HeldItem is SObject obj)
+            {
+                switch (obj.ParentSheetIndex)
+                {
+                    case 326:
+                        HeldItem = null;
+                        Game1.player.canUnderstandDwarves = true;
+                        Poof = CommonHelper.CreatePoof(x, y);
+                        Game1.playSound("fireball");
+                        break;
+                    case 102:
+                        HeldItem = null;
+                        Game1.player.foundArtifact(102, 1);
+                        Poof = CommonHelper.CreatePoof(x, y);
+                        Game1.playSound("fireball");
+                        break;
+                    default:
+                        if (Utility.IsNormalObjectAtParentSheetIndex(HeldItem, 434))
+                        {
+                            HeldItem = null;
+                            exitThisMenu(false);
+                            Game1.player.eatObject(obj, true);
+                        }
+                        else if (obj.IsRecipe)
+                        {
+                            var key = HeldItem.Name.Substring(0,
+                                HeldItem.Name.IndexOf("Recipe",
+                                    StringComparison.InvariantCultureIgnoreCase) - 1);
+                            try
+                            {
+                                if (obj.Category == -7)
+                                {
+                                    Game1.player.cookingRecipes.Add(key, 0);
+                                }
+                                else
+                                {
+                                    Game1.player.craftingRecipes.Add(key, 0);
+                                }
+
+                                Poof = CommonHelper.CreatePoof(x, y);
+                                Game1.playSound("newRecipe");
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Error(e.Message);
+                                throw;
+                            }
+                            HeldItem = null;
+                        }
+                        break;
+                }
+            }
+
+            if (!(HeldItem is null) && Game1.player.addItemToInventoryBool(HeldItem))
+            {
+                HeldItem = null;
+                Game1.playSound("coin");
+            }
+
+            SyncItems();
+        }
+
+        public override void receiveRightClick(int x, int y, bool playSound = true)
+        {
+            base.receiveRightClick(x, y, false);
+
+            if (HeldItem is null)
+                return;
+            ItemGrabMenu.behaviorOnItemGrab?.Invoke(HeldItem, Game1.player);
+
+            if (HeldItem is SObject obj)
+            {
+                switch (obj.ParentSheetIndex)
+                {
+                    case 326:
+                        HeldItem = null;
+                        Game1.player.canUnderstandDwarves = true;
+                        Poof = CommonHelper.CreatePoof(x, y);
+                        Game1.playSound("fireball");
+                        break;
+                    case 102:
+                        HeldItem = null;
+                        Game1.player.foundArtifact(102, 1);
+                        Poof = CommonHelper.CreatePoof(x, y);
+                        Game1.playSound("fireball");
+                        break;
+                    default:
+                        if (Utility.IsNormalObjectAtParentSheetIndex(HeldItem, 434))
+                        {
+                            HeldItem = null;
+                            exitThisMenu(false);
+                            Game1.player.eatObject(obj, true);
+                        }
+                        else if (obj.IsRecipe)
+                        {
+                            var key = HeldItem.Name.Substring(0,
+                                HeldItem.Name.IndexOf("Recipe",
+                                    StringComparison.InvariantCultureIgnoreCase) - 1);
+                            try
+                            {
+                                if (obj.Category == -7)
+                                {
+                                    Game1.player.cookingRecipes.Add(key, 0);
+                                }
+                                else
+                                {
+                                    Game1.player.craftingRecipes.Add(key, 0);
+                                }
+
+                                Poof = CommonHelper.CreatePoof(x, y);
+                                Game1.playSound("newRecipe");
+                            }
+                            catch (Exception e)
+                            {
+                                Log.Error(e.Message);
+                                throw;
+                            }
+                            HeldItem = null;
+                        }
+                        break;
+                }
+            }
+
+            if (!(HeldItem is null) && Game1.player.addItemToInventoryBool(HeldItem))
+            {
+                HeldItem = null;
+                Game1.playSound("coin");
+            }
+
+            SyncItems();
+        }
+
         public sealed override void SyncItems()
         {
-            VisibleItems = (_currentTab?.Filter(actualInventory) ?? actualInventory)
-                .Skip(ItemsPerRow * _currentRow)
-                .ToList();
-
             _maxRows = (int)Math.Ceiling((double)VisibleItems.Count / ItemsPerRow);
             _upArrow.visible = _currentRow > 0;
             _downArrow.visible = _currentRow < _maxRows - rows;
 
-            for (var slot = 0; slot < capacity; ++slot)
+            var enumerator = VisibleItems.Skip(ItemsPerRow * _currentRow).GetEnumerator();
+            foreach (var itemSlot in allClickableComponents.OfType<ItemSlot>())
             {
-                var itemSlot = allClickableComponents
-                    .OfType<ItemSlot>()
-                    .Single(cc => cc.Slot == slot);
-
-                itemSlot.item = (slot < VisibleItems.Count)
-                    ? VisibleItems.ElementAt(slot)
-                    : null;
-
-                itemSlot.visible = !(itemSlot.item is null);
+                if (enumerator.MoveNext())
+                {
+                    itemSlot.item = enumerator.Current;
+                    itemSlot.Slot = actualInventory.IndexOf(enumerator.Current);
+                    itemSlot.visible = true;
+                }
+                else
+                {
+                    itemSlot.item = null;
+                    itemSlot.Slot = -1;
+                    itemSlot.visible = false;
+                }
             }
+            enumerator.Dispose();
         }
 
         /*********
@@ -123,6 +280,23 @@ namespace MegaStorage.Framework.UI.Menus
 
             if (!CustomChest.ChestData.EnableChestTabs)
                 return;
+
+            // Color Picker Toggle
+            ItemGrabMenu.colorPickerToggleButton = new ClickableTexture(
+                "colorPickerToggleButton",
+                this,
+                RightWidgetsOffset + Dimensions * new Vector2(1, 1f / 4f),
+                Game1.mouseCursors,
+                new Rectangle(119, 469, 16, 16),
+                Game1.content.LoadString("Strings\\UI:Toggle_ColorPicker"))
+            {
+                myID = 27346,
+                downNeighborID = 12952,
+                leftNeighborID = 53933,
+                region = 15923,
+                LeftClickAction = ClickColorPickerToggleButton
+            };
+            allClickableComponents.Add(ItemGrabMenu.colorPickerToggleButton);
 
             // Fill Stacks
             ItemGrabMenu.fillStacksButton = new ClickableTexture(
@@ -227,8 +401,25 @@ namespace MegaStorage.Framework.UI.Menus
             allClickableComponents.Add(starButton);
         }
 
-        private void SyncItem(NetList<Item, NetRef<Item>> list, int slot, Item oldValue, Item currentItem) =>
-            SyncItems();
+        private void SyncItem(NetList<Item, NetRef<Item>> list, int slot, Item oldValue, Item currentItem)
+        {
+            if (!_currentTab.BelongsToCategory(currentItem))
+                return;
+
+            var itemSlot = allClickableComponents
+                               .OfType<ItemSlot>()
+                               .FirstOrDefault(cc => cc.Slot == slot)
+                           ?? allClickableComponents
+                               .OfType<ItemSlot>()
+                               .FirstOrDefault(cc => cc.Slot == -1);
+
+            if (itemSlot is null)
+                return;
+
+            itemSlot.item = currentItem;
+            itemSlot.Slot = slot;
+            itemSlot.visible = !(currentItem is null);
+        }
 
         private void DrawStarButton(SpriteBatch b, IWidget widget)
         {
@@ -273,6 +464,13 @@ namespace MegaStorage.Framework.UI.Menus
             // Reassign top inventory
             actualInventory = CustomChest.items;
             SyncItems();
+        }
+
+        private void ClickColorPickerToggleButton(IWidget widget)
+        {
+            Game1.player.showChestColorPicker = !Game1.player.showChestColorPicker;
+            ItemGrabMenu.chestColorPicker.visible = Game1.player.showChestColorPicker;
+            Game1.playSound("drumkit6");
         }
 
         private void ClickFillStacksButton(IWidget widget)

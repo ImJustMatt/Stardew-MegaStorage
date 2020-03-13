@@ -9,8 +9,9 @@ namespace MegaStorage.Framework.UI.Menus
 {
     internal static class MenuExtensions
     {
-        public static void Draw(this IMenu menu, SpriteBatch b)
+        public static bool Draw(this IMenu menu, SpriteBatch b)
         {
+            var done = false;
             var clickableMenu = CommonHelper.OfType<IClickableMenu>(menu);
 
             // Draw Menus
@@ -37,12 +38,14 @@ namespace MegaStorage.Framework.UI.Menus
             // Draw Overlay
             foreach (var overlay in menu.Overlays.Where(m => m.Visible).OfType<IClickableMenu>())
             {
+                b.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * 0.5f);
                 overlay.draw(b);
+                done = true;
                 break;
             }
 
             if (!(menu is InterfaceHost interfaceHost))
-                return;
+                return done;
 
             interfaceHost.hoveredItem = menu.HoverItem;
             interfaceHost.hoverText = menu.HoverText;
@@ -83,11 +86,12 @@ namespace MegaStorage.Framework.UI.Menus
             Game1.mouseCursorTransparency = 1f;
             interfaceHost.drawMouse(b);
 
-            return;
+            return done;
         }
 
-        public static void GameWindowSizeChanged(this IMenu menu, Rectangle oldBounds, Rectangle newBounds)
+        public static bool GameWindowSizeChanged(this IMenu menu, Rectangle oldBounds, Rectangle newBounds)
         {
+            var done = false;
             var clickableMenu = CommonHelper.OfType<IClickableMenu>(menu);
 
             // Reposition Self
@@ -99,6 +103,7 @@ namespace MegaStorage.Framework.UI.Menus
             foreach (var overlay in menu.Overlays.OfType<IClickableMenu>())
             {
                 overlay.gameWindowSizeChanged(oldBounds, newBounds);
+                done = true;
             }
 
             // Reposition Menus
@@ -112,9 +117,11 @@ namespace MegaStorage.Framework.UI.Menus
             {
                 widget.GameWindowSizeChanged();
             }
+
+            return done;
         }
 
-        public static void ReceiveLeftClick(this IMenu menu, int x, int y, bool playSound = true)
+        public static bool ReceiveLeftClick(this IMenu menu, int x, int y, bool playSound = true)
         {
             var clickableMenu = CommonHelper.OfType<IClickableMenu>(menu);
 
@@ -122,7 +129,7 @@ namespace MegaStorage.Framework.UI.Menus
             foreach (var overlay in menu.Overlays.Where(m => m.Visible).OfType<IClickableMenu>())
             {
                 overlay.receiveLeftClick(x, y, playSound);
-                return;
+                return true;
             }
 
             // Left Click Menus
@@ -139,9 +146,11 @@ namespace MegaStorage.Framework.UI.Menus
             {
                 widget.LeftClickAction(widget);
             }
+
+            return false;
         }
 
-        public static void ReceiveRightClick(this IMenu menu, int x, int y, bool playSound = true)
+        public static bool ReceiveRightClick(this IMenu menu, int x, int y, bool playSound = true)
         {
             var clickableMenu = CommonHelper.OfType<IClickableMenu>(menu);
 
@@ -149,7 +158,7 @@ namespace MegaStorage.Framework.UI.Menus
             foreach (var overlay in menu.Overlays.Where(m => m.Visible).OfType<IClickableMenu>())
             {
                 overlay.receiveRightClick(x, y, playSound);
-                return;
+                return true;
             }
 
             // Right Click Menus
@@ -166,9 +175,11 @@ namespace MegaStorage.Framework.UI.Menus
             {
                 widget.RightClickAction(widget);
             }
+
+            return false;
         }
 
-        public static void ReceiveScrollWheelAction(this IMenu menu, int direction)
+        public static bool ReceiveScrollWheelAction(this IMenu menu, int direction)
         {
             var clickableMenu = CommonHelper.OfType<IClickableMenu>(menu);
 
@@ -179,7 +190,7 @@ namespace MegaStorage.Framework.UI.Menus
             foreach (var overlay in menu.Overlays.Where(m => m.Visible).OfType<IClickableMenu>())
             {
                 overlay.receiveScrollWheelAction(direction);
-                return;
+                return true;
             }
 
             // Scroll Menus
@@ -196,9 +207,11 @@ namespace MegaStorage.Framework.UI.Menus
             {
                 widget.ScrollAction(direction, widget);
             }
+
+            return false;
         }
 
-        public static void PerformHoverAction(this IMenu menu, int x, int y)
+        public static bool PerformHoverAction(this IMenu menu, int x, int y)
         {
             var clickableMenu = CommonHelper.OfType<IClickableMenu>(menu);
 
@@ -214,7 +227,7 @@ namespace MegaStorage.Framework.UI.Menus
                 menu.HoverItem = overlay.HoverItem;
                 menu.HoverText = overlay.HoverText;
                 menu.HoverAmount = overlay.HoverAmount;
-                return;
+                return true;
             }
 
             // Hover Menus
@@ -237,6 +250,8 @@ namespace MegaStorage.Framework.UI.Menus
             {
                 widget.HoverAction(x, y, widget);
             }
+
+            return false;
         }
     }
 }

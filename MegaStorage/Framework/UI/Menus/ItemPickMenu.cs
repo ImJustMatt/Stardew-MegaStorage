@@ -142,21 +142,20 @@ namespace MegaStorage.Framework.UI.Menus
         private IList<SObject> _currentObjects;
         private readonly IList<IWidget> _itemSlots = new List<IWidget>();
         protected internal InterfaceHost ItemGrabMenu => CommonHelper.OfType<InterfaceHost>(ParentMenu);
+        protected internal ChestInventoryMenu ItemsToGrabMenu => ItemGrabMenu.ItemsToGrabMenu;
+        protected internal PlayerInventoryMenu Inventory => ItemGrabMenu.inventory;
 
         /*********
         ** Public methods
         *********/
         public ItemPickMenu(IMenu parentMenu, Vector2 offset)
         {
-            var itemsToGrabMenu = ItemGrabMenu.ItemsToGrabMenu;
-            var inventory = ItemGrabMenu.inventory;
-
             ParentMenu = parentMenu;
             Offset = offset;
-            width = itemsToGrabMenu.width - (int)Padding.X;
-            height = inventory.yPositionOnScreen -
-                     itemsToGrabMenu.yPositionOnScreen +
-                     inventory.height -
+            width = ItemsToGrabMenu.width - (int)Padding.X;
+            height = Inventory.yPositionOnScreen -
+                     ItemsToGrabMenu.yPositionOnScreen +
+                     Inventory.height -
                      (int)Padding.Y;
             allClickableComponents = new List<ClickableComponent>();
 
@@ -167,10 +166,8 @@ namespace MegaStorage.Framework.UI.Menus
 
         public override void draw(SpriteBatch b)
         {
-            b.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * 0.5f);
-
             // Draw Dialogue Box
-            CommonHelper.DrawDialogueBox(b, xPositionOnScreen, yPositionOnScreen, width, height);
+            CommonHelper.DrawDialogueBox(b, Bounds);
 
             this.Draw(b);
         }

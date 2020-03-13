@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Locations;
-using StardewValley.Menus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -205,6 +204,16 @@ namespace MegaStorage
                 1f);
         }
 
+        public static TemporaryAnimatedSprite CreatePoof(int x, int y) => new TemporaryAnimatedSprite(
+            "TileSheets/animations",
+            new Rectangle(0, 320, Game1.tileSize, Game1.tileSize),
+            50f,
+            8,
+            0,
+            new Vector2(x - x % Game1.tileSize + 16, y - y % Game1.tileSize + 16),
+            false,
+            false);
+
         /// <summary>
         /// Zooms in on the hovered component
         /// </summary>
@@ -213,11 +222,13 @@ namespace MegaStorage
         /// <param name="widget">The item being hovered over</param>
         public static void HoverZoom(int x, int y, IWidget widget)
         {
-            if (!(widget is ClickableTextureComponent cc))
+            if (!(widget is ClickableTexture cc))
                 return;
             cc.scale = cc.containsPoint(x, y)
                 ? Math.Min(1.1f, cc.scale + 0.05f)
                 : Math.Max(1f, cc.scale - 0.05f);
+            if (cc.containsPoint(x, y))
+                widget.ParentMenu.HoverText = cc.hoverText;
         }
 
         /// <summary>
@@ -228,11 +239,13 @@ namespace MegaStorage
         /// <param name="widget">The item being hovered over</param>
         public static void HoverPixelZoom(int x, int y, IWidget widget)
         {
-            if (!(widget is ClickableTextureComponent cc))
+            if (!(widget is ClickableTexture cc))
                 return;
             cc.scale = cc.containsPoint(x, y)
                 ? Math.Min(Game1.pixelZoom * 1.1f, cc.scale + 0.05f)
                 : Math.Max(Game1.pixelZoom * 1f, cc.scale - 0.05f);
+            if (cc.containsPoint(x, y))
+                widget.ParentMenu.HoverText = cc.hoverText;
         }
 
         public static T NonNull<T>(T obj)
