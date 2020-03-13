@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -24,8 +23,7 @@ namespace MegaStorage.Framework.Models
             string name,
             int capacity,
             bool enableChestTabs,
-            bool enableRemoteStorage,
-            Vector2? tileLocation = null)
+            bool enableRemoteStorage)
         {
             ParentSheetIndex = parentSheetIndex;
             Name = name;
