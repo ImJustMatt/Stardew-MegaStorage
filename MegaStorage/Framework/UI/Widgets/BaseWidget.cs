@@ -13,11 +13,6 @@ namespace MegaStorage.Framework.UI.Widgets
         *********/
         public IMenu ParentMenu { get; }
         public Vector2 Offset { get; }
-        public Rectangle Bounds
-        {
-            get => bounds;
-            set => bounds = value;
-        }
         public Vector2 Position
         {
             get => new Vector2(bounds.X, bounds.Y);

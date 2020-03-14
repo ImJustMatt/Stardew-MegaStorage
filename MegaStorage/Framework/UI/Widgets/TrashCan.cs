@@ -77,7 +77,7 @@ namespace MegaStorage.Framework.UI.Widgets
         /// <param name="widget">The trash can being hovered over</param>
         protected internal override void Hover(int x, int y, IWidget widget)
         {
-            if (!Bounds.Contains(x, y))
+            if (!containsPoint(x, y))
             {
                 _lidRotation = Math.Max(_lidRotation - (float)Math.PI / 48f, 0.0f);
                 return;
@@ -94,7 +94,7 @@ namespace MegaStorage.Framework.UI.Widgets
                 return;
             }
 
-            if (Bounds.Contains(x, y))
+            if (containsPoint(x, y))
             {
                 ItemGrabMenu.hoverAmount = ItemGrabMenu.hoverAmount == -1
                     ? Utility.getTrashReclamationPrice(ItemGrabMenu.heldItem, Game1.player)

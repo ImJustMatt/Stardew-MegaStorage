@@ -9,7 +9,6 @@ namespace MegaStorage.Framework.UI.Widgets
     {
         IMenu ParentMenu { get; }
         Vector2 Offset { get; }
-        Rectangle Bounds { get; }
         Vector2 Position { get; set; }
         Action<SpriteBatch, IWidget> DrawAction { get; set; }
         Action<IWidget> LeftClickAction { get; set; }
