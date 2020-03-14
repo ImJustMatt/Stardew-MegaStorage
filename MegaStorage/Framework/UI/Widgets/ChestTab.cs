@@ -3,8 +3,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MegaStorage.Framework.UI.Widgets
 {
@@ -34,8 +32,6 @@ namespace MegaStorage.Framework.UI.Widgets
                 return;
             menu.ChestTabChanged += OnChestTabChanged;
         }
-
-        public List<Item> Filter(IList<Item> items) => items.Where(BelongsToCategory).ToList();
 
         /*********
         ** Private methods

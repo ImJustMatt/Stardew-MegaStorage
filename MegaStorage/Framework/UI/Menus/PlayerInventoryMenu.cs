@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace MegaStorage.Framework.UI.Menus
 {
-    internal class PlayerInventoryMenu : InventoryMenu
+    internal class PlayerInventoryMenu : BaseInventoryMenu
     {
         /*********
         ** Fields
@@ -37,7 +37,7 @@ namespace MegaStorage.Framework.UI.Menus
             base.draw(b);
 
             // Backpack Icon
-            CommonHelper.DrawInventoryIcon(b, Position + BackpackIconOffset);
+            Sprites.Inventory.DrawBackpack(b, Position + BackpackIconOffset);
         }
 
         public override void receiveLeftClick(int x, int y, bool playSound = true)
@@ -63,7 +63,7 @@ namespace MegaStorage.Framework.UI.Menus
                 itemSlot.item = (itemSlot.Slot < actualInventory.Count)
                     ? actualInventory[itemSlot.Slot]
                     : null;
-                itemSlot.visible = !(itemSlot.item is null);
+                itemSlot.visible = itemSlot.Slot < Game1.player.MaxItems;
             }
         }
 
@@ -85,13 +85,13 @@ namespace MegaStorage.Framework.UI.Menus
                 upNeighborID = 5948,
                 leftNeighborID = 11,
                 LeftClickAction = ClickOkButton,
-                HoverAction = CommonHelper.HoverZoom
+                HoverAction = WidgetExtensions.HoverZoom
             };
-            allClickableComponents.Add(ItemGrabMenu.okButton);
+            ItemGrabMenu.allClickableComponents.Add(ItemGrabMenu.okButton);
 
             // Trash Can
             ItemGrabMenu.trashCan = new TrashCan(this, RightWidgetsOffset + new Vector2(width, 68));
-            allClickableComponents.Add(ItemGrabMenu.trashCan);
+            ItemGrabMenu.allClickableComponents.Add(ItemGrabMenu.trashCan);
         }
 
         private void SyncItem(NetList<Item, NetRef<Item>> list, int slot, Item oldValue, Item currentItem)
@@ -104,7 +104,6 @@ namespace MegaStorage.Framework.UI.Menus
                 return;
 
             itemSlot.item = currentItem;
-            itemSlot.visible = !(currentItem is null);
         }
 
         private void ClickOkButton(IWidget widget)

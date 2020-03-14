@@ -6,7 +6,7 @@ using System;
 
 namespace MegaStorage.Framework.UI.Widgets
 {
-    internal class NumberSlider : ClickableComponent, IWidget
+    internal class BaseWidget : ClickableComponent, IWidget
     {
         /*********
         ** Fields
@@ -27,16 +27,6 @@ namespace MegaStorage.Framework.UI.Widgets
                 bounds.Y = (int)value.Y;
             }
         }
-        public Vector2 Dimensions
-        {
-            get => new Vector2(bounds.Width, bounds.Height);
-            set
-            {
-                bounds.Width = (int)value.X;
-                bounds.Height = (int)value.Y;
-            }
-        }
-
         public Action<SpriteBatch, IWidget> DrawAction { get; set; }
         public Action<IWidget> LeftClickAction { get; set; }
         public Action<IWidget> RightClickAction { get; set; }
@@ -46,7 +36,7 @@ namespace MegaStorage.Framework.UI.Widgets
         /*********
         ** Public methods
         *********/
-        public NumberSlider(string name,
+        public BaseWidget(string name,
             IMenu parentMenu,
             Vector2 offset,
             string label,
@@ -61,19 +51,10 @@ namespace MegaStorage.Framework.UI.Widgets
         {
             ParentMenu = parentMenu;
             Offset = offset;
-
-            DrawAction = Draw;
         }
-
-        public void GameWindowSizeChanged() =>
-            Position = ParentMenu.Position + Offset;
 
         /*********
         ** Private methods
         *********/
-        private void Draw(SpriteBatch b, IWidget widget)
-        {
-
-        }
     }
 }

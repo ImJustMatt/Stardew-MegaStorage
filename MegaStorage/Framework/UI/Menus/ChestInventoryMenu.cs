@@ -14,7 +14,7 @@ using SObject = StardewValley.Object;
 
 namespace MegaStorage.Framework.UI.Menus
 {
-    internal class ChestInventoryMenu : InventoryMenu
+    internal class ChestInventoryMenu : BaseInventoryMenu
     {
         /*********
         ** Fields
@@ -55,6 +55,7 @@ namespace MegaStorage.Framework.UI.Menus
 
         private ClickableTexture _upArrow;
         private ClickableTexture _downArrow;
+        private Checkbox _starButton;
 
         private IReflectedField<TemporaryAnimatedSprite> _poofReflected;
 
@@ -91,13 +92,13 @@ namespace MegaStorage.Framework.UI.Menus
                     case 326:
                         HeldItem = null;
                         Game1.player.canUnderstandDwarves = true;
-                        Poof = CommonHelper.CreatePoof(x, y);
+                        Poof = Sprites.CreatePoof(x, y);
                         Game1.playSound("fireball");
                         break;
                     case 102:
                         HeldItem = null;
                         Game1.player.foundArtifact(102, 1);
-                        Poof = CommonHelper.CreatePoof(x, y);
+                        Poof = Sprites.CreatePoof(x, y);
                         Game1.playSound("fireball");
                         break;
                     default:
@@ -123,7 +124,7 @@ namespace MegaStorage.Framework.UI.Menus
                                     Game1.player.craftingRecipes.Add(key, 0);
                                 }
 
-                                Poof = CommonHelper.CreatePoof(x, y);
+                                Poof = Sprites.CreatePoof(x, y);
                                 Game1.playSound("newRecipe");
                             }
                             catch (Exception e)
@@ -161,13 +162,13 @@ namespace MegaStorage.Framework.UI.Menus
                     case 326:
                         HeldItem = null;
                         Game1.player.canUnderstandDwarves = true;
-                        Poof = CommonHelper.CreatePoof(x, y);
+                        Poof = Sprites.CreatePoof(x, y);
                         Game1.playSound("fireball");
                         break;
                     case 102:
                         HeldItem = null;
                         Game1.player.foundArtifact(102, 1);
-                        Poof = CommonHelper.CreatePoof(x, y);
+                        Poof = Sprites.CreatePoof(x, y);
                         Game1.playSound("fireball");
                         break;
                     default:
@@ -193,7 +194,7 @@ namespace MegaStorage.Framework.UI.Menus
                                     Game1.player.craftingRecipes.Add(key, 0);
                                 }
 
-                                Poof = CommonHelper.CreatePoof(x, y);
+                                Poof = Sprites.CreatePoof(x, y);
                                 Game1.playSound("newRecipe");
                             }
                             catch (Exception e)
@@ -229,13 +230,11 @@ namespace MegaStorage.Framework.UI.Menus
                 {
                     itemSlot.item = enumerator.Current;
                     itemSlot.Slot = actualInventory.IndexOf(enumerator.Current);
-                    itemSlot.visible = true;
                 }
                 else
                 {
                     itemSlot.item = null;
                     itemSlot.Slot = -1;
-                    itemSlot.visible = false;
                 }
             }
             enumerator.Dispose();
@@ -285,7 +284,7 @@ namespace MegaStorage.Framework.UI.Menus
             ItemGrabMenu.colorPickerToggleButton = new ClickableTexture(
                 "colorPickerToggleButton",
                 this,
-                RightWidgetsOffset + Dimensions * new Vector2(1, 1f / 4f),
+                RightWidgetsOffset + this.GetDimensions() * new Vector2(1, 1f / 4f),
                 Game1.mouseCursors,
                 new Rectangle(119, 469, 16, 16),
                 Game1.content.LoadString("Strings\\UI:Toggle_ColorPicker"))
@@ -296,13 +295,13 @@ namespace MegaStorage.Framework.UI.Menus
                 region = 15923,
                 LeftClickAction = ClickColorPickerToggleButton
             };
-            allClickableComponents.Add(ItemGrabMenu.colorPickerToggleButton);
+            ItemGrabMenu.allClickableComponents.Add(ItemGrabMenu.colorPickerToggleButton);
 
             // Fill Stacks
             ItemGrabMenu.fillStacksButton = new ClickableTexture(
                 "fillStacks",
                 this,
-                RightWidgetsOffset + Dimensions * new Vector2(1, 2f / 4f),
+                RightWidgetsOffset + this.GetDimensions() * new Vector2(1, 2f / 4f),
                 Game1.mouseCursors,
                 FillStacksSourceRect,
                 Game1.content.LoadString("Strings\\UI:ItemGrab_FillStacks"))
@@ -313,15 +312,15 @@ namespace MegaStorage.Framework.UI.Menus
                 leftNeighborID = 53957,
                 region = 15923,
                 LeftClickAction = ClickFillStacksButton,
-                HoverAction = CommonHelper.HoverPixelZoom
+                HoverAction = WidgetExtensions.HoverPixelZoom
             };
-            allClickableComponents.Add(ItemGrabMenu.fillStacksButton);
+            ItemGrabMenu.allClickableComponents.Add(ItemGrabMenu.fillStacksButton);
 
             // Organize
             ItemGrabMenu.organizeButton = new ClickableTexture(
                 "organize",
                 this,
-                RightWidgetsOffset + Dimensions * new Vector2(1, 3f / 4f),
+                RightWidgetsOffset + this.GetDimensions() * new Vector2(1, 3f / 4f),
                 Game1.mouseCursors,
                 OrganizeSourceRect,
                 Game1.content.LoadString("Strings\\UI:ItemGrab_Organize"))
@@ -332,9 +331,9 @@ namespace MegaStorage.Framework.UI.Menus
                 leftNeighborID = 53969,
                 region = 15923,
                 LeftClickAction = ClickOrganizeButton,
-                HoverAction = CommonHelper.HoverPixelZoom
+                HoverAction = WidgetExtensions.HoverPixelZoom
             };
-            allClickableComponents.Add(ItemGrabMenu.organizeButton);
+            ItemGrabMenu.allClickableComponents.Add(ItemGrabMenu.organizeButton);
 
             // Chest Tabs
             for (var index = 0; index < Math.Min(7, ModConfig.Instance.ChestTabs.Count); ++index)
@@ -393,18 +392,34 @@ namespace MegaStorage.Framework.UI.Menus
             if (!CustomChest.ChestData.EnableRemoteStorage)
                 return;
 
-            var starButton = new StarButton(this, new Vector2(-1, -1) * Game1.tileSize)
+            _starButton = new Checkbox(
+                "starButton",
+                this,
+                new Vector2(-1, -1) * Game1.tileSize,
+                Game1.mouseCursors,
+                Sprites.Icons.InactiveStarIcon,
+                Sprites.Icons.ActiveStarIcon)
             {
                 DrawAction = DrawStarButton,
                 LeftClickAction = ClickStarButton
             };
-            allClickableComponents.Add(starButton);
+            allClickableComponents.Add(_starButton);
         }
 
-        private void SyncItem(NetList<Item, NetRef<Item>> list, int slot, Item oldValue, Item currentItem)
+        private void SyncItem(NetList<Item, NetRef<Item>> list, int slot, Item oldItem, Item currentItem)
         {
-            if (!_currentTab.BelongsToCategory(currentItem))
+            var oldBelongsToCategory = _currentTab.BelongsToCategory(oldItem);
+            var newBelongsToCategory = _currentTab.BelongsToCategory(currentItem);
+
+            if (!oldBelongsToCategory && !newBelongsToCategory)
                 return;
+
+            if (oldBelongsToCategory && !newBelongsToCategory)
+            {
+                ItemSlot.item = null;
+                ItemSlot.Slot = -1;
+                return;
+            }
 
             var itemSlot = allClickableComponents
                                .OfType<ItemSlot>()
@@ -418,15 +433,14 @@ namespace MegaStorage.Framework.UI.Menus
 
             itemSlot.item = currentItem;
             itemSlot.Slot = slot;
-            itemSlot.visible = !(currentItem is null);
         }
 
         private void DrawStarButton(SpriteBatch b, IWidget widget)
         {
             var cc = CommonHelper.OfType<ClickableTextureComponent>(widget);
             cc.sourceRect = ActualChest.Equals(CustomChest)
-                ? CommonHelper.StarButtonActive
-                : CommonHelper.StarButtonInactive;
+                ? Sprites.Icons.ActiveStarIcon
+                : Sprites.Icons.InactiveStarIcon;
             cc.draw(
                 b,
                 ActualChest.Equals(CustomChest) ? Color.White : Color.Gray * 0.8f,
@@ -443,7 +457,7 @@ namespace MegaStorage.Framework.UI.Menus
             if (ActualChest.Equals(CustomChest))
                 return;
 
-            cc.sourceRect = CommonHelper.StarButtonActive;
+            cc.sourceRect = Sprites.Icons.ActiveStarIcon;
 
             if (CustomChest.Equals(MegaStorageMod.MainChest))
             {

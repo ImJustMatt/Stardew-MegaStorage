@@ -3,51 +3,52 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MegaStorage.Framework.UI.Menus
 {
     internal static class MenuExtensions
     {
+        public static Rectangle GetBounds(this IClickableMenu menu) =>
+            new Rectangle(menu.xPositionOnScreen, menu.yPositionOnScreen, menu.width, menu.height);
+
+        public static Vector2 GetDimensions(this IClickableMenu menu) =>
+            new Vector2(menu.width, menu.height);
+        public static IMenu BaseMenu(this IMenu menu)
+        {
+            while (true)
+            {
+                if (menu.Type == MenuType.Base || menu.ParentMenu is null)
+                    return menu;
+                menu = menu.ParentMenu;
+            }
+        }
         public static bool Draw(this IMenu menu, SpriteBatch b)
         {
             var done = false;
-            var clickableMenu = CommonHelper.OfType<IClickableMenu>(menu);
 
             if (menu.FadedBackground)
                 b.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * 0.5f);
 
-            // Draw Menus
-            foreach (var subMenu in menu.SubMenus.Where(m => m.Visible).OfType<IClickableMenu>())
-            {
-                subMenu.draw(b);
-            }
-
             // Draw Widgets
-            foreach (var widget in clickableMenu.allClickableComponents
-                .Where(cc => cc.visible)
-                .OfType<IWidget>())
+            foreach (var widget in menu.Widgets())
             {
-                if (!(widget.DrawAction is null))
-                {
-                    widget.DrawAction(b, widget);
-                }
-                else if (widget is ClickableTextureComponent cc)
-                {
-                    cc.draw(b);
-                }
+                widget.DrawAction?.Invoke(b, widget);
             }
 
-            // Draw Overlay
-            foreach (var overlay in menu.Overlays.Where(m => m.Visible).OfType<IClickableMenu>())
+            // Draw Menus
+            foreach (var subMenu in menu.Menus(true, false))
             {
-                overlay.draw(b);
-                done = true;
-                break;
+                CommonHelper.OfType<IClickableMenu>(subMenu).draw(b);
+                if (subMenu.Type == MenuType.Overlay)
+                    done = true;
             }
 
-            if (!(menu is InterfaceHost interfaceHost))
+            if (menu.Type != MenuType.Base)
                 return done;
+
+            var interfaceHost = CommonHelper.OfType<InterfaceHost>(menu);
 
             // Hover Text
             if (!(interfaceHost.hoveredItem is null))
@@ -90,28 +91,22 @@ namespace MegaStorage.Framework.UI.Menus
         public static bool GameWindowSizeChanged(this IMenu menu, Rectangle oldBounds, Rectangle newBounds)
         {
             var done = false;
-            var clickableMenu = CommonHelper.OfType<IClickableMenu>(menu);
 
             // Reposition Self
             menu.Position = menu.Offset +
                             (menu.ParentMenu?.Position ??
                             new Vector2(Game1.viewport.Width, Game1.viewport.Height) / 2);
 
-            // Reposition Overlays
-            foreach (var overlay in menu.Overlays.OfType<IClickableMenu>())
-            {
-                overlay.gameWindowSizeChanged(oldBounds, newBounds);
-                done = true;
-            }
-
             // Reposition Menus
-            foreach (var subMenu in menu.SubMenus.OfType<IClickableMenu>())
+            foreach (var subMenu in menu.Menus(false))
             {
-                subMenu.gameWindowSizeChanged(oldBounds, newBounds);
+                CommonHelper.OfType<IClickableMenu>(subMenu).gameWindowSizeChanged(oldBounds, newBounds);
+                if (subMenu.Type == MenuType.Overlay)
+                    done = true;
             }
 
             // Reposition Widgets
-            foreach (var widget in clickableMenu.allClickableComponents.OfType<IWidget>())
+            foreach (var widget in menu.Widgets(false))
             {
                 widget.GameWindowSizeChanged();
             }
@@ -121,28 +116,18 @@ namespace MegaStorage.Framework.UI.Menus
 
         public static bool ReceiveLeftClick(this IMenu menu, int x, int y, bool playSound = true)
         {
-            var clickableMenu = CommonHelper.OfType<IClickableMenu>(menu);
-
-            // Left Overlays
-            foreach (var overlay in menu.Overlays.Where(m => m.Visible).OfType<IClickableMenu>())
-            {
-                overlay.receiveLeftClick(x, y, playSound);
-                return true;
-            }
-
             // Left Click Menus
-            foreach (var subMenu in menu.SubMenus.Where(m => m.Visible).OfType<IClickableMenu>())
+            foreach (var subMenu in menu.Menus())
             {
-                subMenu.receiveLeftClick(x, y, playSound);
+                CommonHelper.OfType<IClickableMenu>(subMenu).receiveLeftClick(x, y, playSound);
+                if (subMenu.Type == MenuType.Overlay)
+                    return true;
             }
 
             // Left Click Widgets
-            foreach (var widget in clickableMenu.allClickableComponents
-                .Where(cc => cc.visible)
-                .OfType<IWidget>()
-                .Where(cc => cc.Bounds.Contains(x, y) && !(cc.LeftClickAction is null)))
+            foreach (var widget in menu.Widgets(true, x, y))
             {
-                widget.LeftClickAction(widget);
+                widget.LeftClickAction?.Invoke(widget);
             }
 
             return false;
@@ -150,28 +135,18 @@ namespace MegaStorage.Framework.UI.Menus
 
         public static bool ReceiveRightClick(this IMenu menu, int x, int y, bool playSound = true)
         {
-            var clickableMenu = CommonHelper.OfType<IClickableMenu>(menu);
-
-            // Right Click Overlays
-            foreach (var overlay in menu.Overlays.Where(m => m.Visible).OfType<IClickableMenu>())
-            {
-                overlay.receiveRightClick(x, y, playSound);
-                return true;
-            }
-
             // Right Click Menus
-            foreach (var subMenu in menu.SubMenus.Where(m => m.Visible).OfType<IClickableMenu>())
+            foreach (var subMenu in menu.Menus())
             {
-                subMenu.receiveRightClick(x, y, playSound);
+                CommonHelper.OfType<IClickableMenu>(subMenu).receiveRightClick(x, y, playSound);
+                if (subMenu.Type == MenuType.Overlay)
+                    return true;
             }
 
             // Right Click Widgets
-            foreach (var widget in clickableMenu.allClickableComponents
-                .Where(cc => cc.visible)
-                .OfType<IWidget>()
-                .Where(cc => cc.Bounds.Contains(x, y) && !(cc.RightClickAction is null)))
+            foreach (var widget in menu.Widgets(true, x, y))
             {
-                widget.RightClickAction(widget);
+                widget.RightClickAction?.Invoke(widget);
             }
 
             return false;
@@ -179,31 +154,21 @@ namespace MegaStorage.Framework.UI.Menus
 
         public static bool ReceiveScrollWheelAction(this IMenu menu, int direction)
         {
-            var clickableMenu = CommonHelper.OfType<IClickableMenu>(menu);
-
             var mouseX = Game1.getOldMouseX();
             var mouseY = Game1.getOldMouseY();
 
-            // Scroll Overlays
-            foreach (var overlay in menu.Overlays.Where(m => m.Visible).OfType<IClickableMenu>())
-            {
-                overlay.receiveScrollWheelAction(direction);
-                return true;
-            }
-
             // Scroll Menus
-            foreach (var subMenu in menu.SubMenus.Where(m => m.Visible).OfType<IClickableMenu>())
+            foreach (var subMenu in menu.Menus())
             {
-                subMenu.receiveScrollWheelAction(direction);
+                CommonHelper.OfType<IClickableMenu>(subMenu).receiveScrollWheelAction(direction);
+                if (subMenu.Type == MenuType.Overlay)
+                    return true;
             }
 
             // Scroll Widgets
-            foreach (var widget in clickableMenu.allClickableComponents
-                .Where(cc => cc.visible)
-                .OfType<IWidget>()
-                .Where(cc => cc.Bounds.Contains(mouseX, mouseY) && !(cc.ScrollAction is null)))
+            foreach (var widget in menu.Widgets(true, mouseX, mouseY))
             {
-                widget.ScrollAction(direction, widget);
+                widget.ScrollAction?.Invoke(direction, widget);
             }
 
             return false;
@@ -211,7 +176,6 @@ namespace MegaStorage.Framework.UI.Menus
 
         public static bool PerformHoverAction(this IMenu menu, int x, int y)
         {
-            var clickableMenu = CommonHelper.OfType<IClickableMenu>(menu);
             if (menu is InterfaceHost interfaceHost)
             {
                 interfaceHost.hoveredItem = null;
@@ -219,31 +183,32 @@ namespace MegaStorage.Framework.UI.Menus
                 interfaceHost.hoverAmount = -1;
             }
 
-            // Hover Overlays
-            foreach (var overlay in menu.Overlays.Where(m => m.Visible))
-            {
-                var clickableOverlay = CommonHelper.OfType<IClickableMenu>(overlay);
-                clickableOverlay.performHoverAction(x, y);
-                return true;
-            }
-
             // Hover Menus
-            foreach (var subMenu in menu.SubMenus.Where(m => m.Visible))
+            foreach (var subMenu in menu.Menus())
             {
-                var clickableSubMenu = CommonHelper.OfType<IClickableMenu>(subMenu);
-                clickableSubMenu.performHoverAction(x, y);
+                CommonHelper.OfType<IClickableMenu>(subMenu).performHoverAction(x, y);
+                if (subMenu.Type == MenuType.Overlay)
+                    return true;
             }
 
             // Hover Widgets
-            foreach (var widget in clickableMenu.allClickableComponents
-                .Where(cc => cc.visible)
-                .OfType<IWidget>()
-                .Where(cc => !(cc.HoverAction is null)))
+            foreach (var widget in menu.Widgets())
             {
-                widget.HoverAction(x, y, widget);
+                widget.HoverAction?.Invoke(x, y, widget);
             }
 
             return false;
         }
+
+        private static IEnumerable<IWidget> Widgets(this IMenu menu, bool visible = true, int x = -1, int y = -1) =>
+            CommonHelper.OfType<IClickableMenu>(menu).allClickableComponents
+                .Where(cc => (!visible || cc.visible)
+                             && (x == -1 || y == -1 || cc.containsPoint(x, y)))
+                .OfType<IWidget>();
+
+        private static IEnumerable<IMenu> Menus(this IMenu menu, bool visible = true, bool reverse = true) =>
+            menu.SubMenus
+                .Where(m => !visible || m.Visible)
+                .OrderBy(m => reverse ? 3 - m.Type : m.Type);
     }
 }

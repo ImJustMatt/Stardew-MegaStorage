@@ -5,11 +5,10 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace MegaStorage.Framework.UI.Menus
 {
-    internal abstract class InventoryMenu : StardewValley.Menus.InventoryMenu, IMenu
+    internal abstract class BaseInventoryMenu : InventoryMenu, IMenu
     {
         /*********
         ** Fields
@@ -18,18 +17,8 @@ namespace MegaStorage.Framework.UI.Menus
         public static readonly Vector2 Padding = new Vector2(56, 44);
 
         public IMenu ParentMenu { get; }
+        public MenuType Type { get; } = MenuType.Sub;
         public Vector2 Offset { get; set; }
-        public Rectangle Bounds
-        {
-            get => new Rectangle(xPositionOnScreen, yPositionOnScreen, width, height);
-            set
-            {
-                xPositionOnScreen = value.X;
-                yPositionOnScreen = value.Y;
-                width = value.Width;
-                height = value.Height;
-            }
-        }
         public Vector2 Position
         {
             get => new Vector2(xPositionOnScreen, yPositionOnScreen);
@@ -39,20 +28,11 @@ namespace MegaStorage.Framework.UI.Menus
                 yPositionOnScreen = (int)value.Y;
             }
         }
-        public Vector2 Dimensions
-        {
-            get => new Vector2(width, height);
-            set
-            {
-                width = (int)value.X;
-                height = (int)value.Y;
-            }
-        }
         public bool Visible { get; set; } = true;
         public bool FadedBackground => false;
         public IList<IMenu> SubMenus { get; } = new List<IMenu>();
-        public IList<IMenu> Overlays { get; } = new List<IMenu>();
         public ItemSlot ItemSlot { get; set; }
+
         protected internal InterfaceHost ItemGrabMenu => CommonHelper.OfType<InterfaceHost>(ParentMenu);
         protected internal CustomChest ActualChest => CommonHelper.OfType<CustomChest>(ItemGrabMenu.context);
         protected internal Item HeldItem
@@ -64,7 +44,7 @@ namespace MegaStorage.Framework.UI.Menus
         /*********
         ** Public methods
         *********/
-        protected InventoryMenu(
+        protected BaseInventoryMenu(
             IMenu parentMenu,
             Vector2 offset,
             IList<Item> items,
@@ -74,7 +54,7 @@ namespace MegaStorage.Framework.UI.Menus
                     (int)(parentMenu.Position.Y + offset.Y),
                     false,
                     items,
-                    InventoryMenu.highlightAllItems,
+                    highlightAllItems,
                     rows * ItemsPerRow,
                     rows)
         {
@@ -89,23 +69,14 @@ namespace MegaStorage.Framework.UI.Menus
         public override void draw(SpriteBatch b)
         {
             // Draw Dialogue Box
-            CommonHelper.DrawDialogueBox(b, Bounds);
+            Sprites.Menu.Draw(b, this.GetBounds());
 
             // Draw Grid
-            CommonHelper.DrawInventoryGrid(b,
+            var maxItems = showGrayedOutSlots ? Game1.player.MaxItems : -1;
+            Sprites.Inventory.DrawGrid(b,
                 Position + Padding,
-                Dimensions - Padding * 2);
-
-            if (showGrayedOutSlots)
-            {
-                for (var slot = Game1.player.MaxItems; slot < capacity; ++slot)
-                {
-                    var itemSlot = allClickableComponents
-                        .OfType<ItemSlot>()
-                        .Single(cc => cc.Slot == slot);
-                    itemSlot.DrawGrayedOut(b);
-                }
-            }
+                this.GetDimensions() - Padding * 2,
+                maxItems);
 
             this.Draw(b);
         }
@@ -193,11 +164,11 @@ namespace MegaStorage.Framework.UI.Menus
                 var col = slot % ItemsPerRow;
                 var row = slot / ItemsPerRow;
                 var itemSlot = new ItemSlot(
-                    slot,
                     this,
                     Padding + new Vector2(
                         col * (Game1.tileSize + horizontalGap),
-                        row * (Game1.tileSize + verticalGap)))
+                        row * (Game1.tileSize + verticalGap)),
+                    slot)
                 {
                     myID = slot,
                     leftNeighborID = col != 0 ? slot - 1 : 107,

@@ -11,7 +11,7 @@ using SObject = StardewValley.Object;
 
 namespace MegaStorage.Framework.UI.Menus
 {
-    internal class ItemPickMenu : IClickableMenu, IMenu
+    internal class ItemPickMenu : BaseOverlay
     {
         /*********
         ** Fields
@@ -19,44 +19,6 @@ namespace MegaStorage.Framework.UI.Menus
         public const int ItemsPerRow = 11;
         public static Vector2 Padding = new Vector2(56, 44);
 
-        public IMenu ParentMenu { get; }
-        public Vector2 Offset { get; set; }
-        public Rectangle Bounds
-        {
-            get => new Rectangle(xPositionOnScreen, yPositionOnScreen, width, height);
-            set
-            {
-                xPositionOnScreen = value.X;
-                yPositionOnScreen = value.Y;
-                width = value.Width;
-                height = value.Height;
-            }
-        }
-        public Vector2 Position
-        {
-            get => new Vector2(xPositionOnScreen, yPositionOnScreen);
-            set
-            {
-                xPositionOnScreen = (int)value.X;
-                yPositionOnScreen = (int)value.Y;
-            }
-        }
-        public Vector2 Dimensions
-        {
-            get => new Vector2(width, height);
-            set
-            {
-                width = (int)value.X;
-                height = (int)value.Y;
-            }
-        }
-        public bool Visible { get; set; }
-        public bool FadedBackground => true;
-        public IList<IMenu> SubMenus { get; } = new List<IMenu>();
-        public IList<IMenu> Overlays { get; } = new List<IMenu>();
-        public Item HoverItem { get; set; }
-        public string HoverText { get; set; }
-        public int HoverAmount { get; set; }
         public ChestTab SelectedChestTab
         {
             get => _selectedTab;
@@ -142,63 +104,35 @@ namespace MegaStorage.Framework.UI.Menus
         private int _currentCategory;
         private IList<SObject> _currentObjects;
         private readonly IList<IWidget> _itemSlots = new List<IWidget>();
-        protected internal InterfaceHost ItemGrabMenu => CommonHelper.OfType<InterfaceHost>(ParentMenu);
-        protected internal ChestInventoryMenu ItemsToGrabMenu => ItemGrabMenu.ItemsToGrabMenu;
-        protected internal PlayerInventoryMenu Inventory => ItemGrabMenu.inventory;
 
         /*********
         ** Public methods
         *********/
         public ItemPickMenu(IMenu parentMenu, Vector2 offset)
+            : base(parentMenu, offset)
         {
-            ParentMenu = parentMenu;
-            Offset = offset;
             width = ItemsToGrabMenu.width - (int)Padding.X;
             height = Inventory.yPositionOnScreen -
                      ItemsToGrabMenu.yPositionOnScreen +
                      Inventory.height -
                      (int)Padding.Y;
-            allClickableComponents = new List<ClickableComponent>();
-
-            Position = ParentMenu.Position + Offset;
-
             SetupWidgets();
         }
 
         public override void draw(SpriteBatch b)
         {
             // Draw Dialogue Box
-            CommonHelper.DrawDialogueBox(b, Bounds);
+            Sprites.Menu.Draw(b, this.GetBounds());
 
             this.Draw(b);
         }
 
-        public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds) =>
-            this.GameWindowSizeChanged(oldBounds, newBounds);
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
-            this.ReceiveLeftClick(x, y, playSound);
+            base.receiveLeftClick(x, y, playSound);
 
             if (!isWithinBounds(x, y))
                 Visible = false;
-        }
-        public override void receiveRightClick(int x, int y, bool playSound = true) =>
-            this.ReceiveRightClick(x, y, playSound);
-        public override void receiveScrollWheelAction(int direction) =>
-            this.ReceiveScrollWheelAction(direction);
-        public override void performHoverAction(int x, int y)
-        {
-            HoverText = null;
-
-            // Hover Text
-            foreach (var clickableComponent in allClickableComponents
-                .OfType<ClickableTexture>()
-                .Where(c => !(c.hoverText is null) && c.containsPoint(x, y)))
-            {
-                HoverText = clickableComponent.hoverText;
-            }
-
-            this.PerformHoverAction(x, y);
         }
 
         /*********
@@ -210,7 +144,7 @@ namespace MegaStorage.Framework.UI.Menus
             ChestTabName = new Label(
                 "chestTabName",
                 this,
-                InventoryMenu.Padding,
+                BaseInventoryMenu.Padding,
                 SelectedChestTab?.name,
                 width - (int)Padding.X * 2,
                 Game1.tileSize,
@@ -250,7 +184,10 @@ namespace MegaStorage.Framework.UI.Menus
             CategoryCheckbox = new Checkbox(
                 "categoryCheckbox",
                 this,
-                Padding + new Vector2(0, Game1.tileSize));
+                Padding + new Vector2(0, Game1.tileSize),
+                Game1.mouseCursors,
+                OptionsCheckbox.sourceRectUnchecked,
+                OptionsCheckbox.sourceRectChecked);
             allClickableComponents.Add(CategoryCheckbox);
 
             // Category Name (Label)

@@ -1,7 +1,6 @@
 ﻿using MegaStorage.Framework.UI.Menus;
 using Microsoft.Xna.Framework;
-using StardewValley;
-using StardewValley.Menus;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace MegaStorage.Framework.UI.Widgets
 {
@@ -11,6 +10,8 @@ namespace MegaStorage.Framework.UI.Widgets
         ** Fields
         *********/
         public bool IsChecked;
+        public Rectangle OffState;
+        public Rectangle OnState;
 
         /*********
         ** Public methods
@@ -18,9 +19,14 @@ namespace MegaStorage.Framework.UI.Widgets
         public Checkbox(
             string name,
             IMenu parentMenu,
-            Vector2 offset)
-            : base(name, parentMenu, offset, Game1.mouseCursors, OptionsCheckbox.sourceRectUnchecked)
+            Vector2 offset,
+            Texture2D texture,
+            Rectangle offState,
+            Rectangle onState)
+            : base(name, parentMenu, offset, texture, offState)
         {
+            OffState = offState;
+            OnState = onState;
             LeftClickAction = LeftClick;
         }
 
@@ -31,8 +37,8 @@ namespace MegaStorage.Framework.UI.Widgets
         {
             IsChecked = !IsChecked;
             sourceRect = IsChecked
-                ? OptionsCheckbox.sourceRectChecked
-                : OptionsCheckbox.sourceRectUnchecked;
+                ? OnState
+                : OffState;
         }
     }
 }

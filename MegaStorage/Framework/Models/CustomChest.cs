@@ -1,5 +1,5 @@
 ﻿using MegaStorage.API;
-using MegaStorage.Framework.UI;
+using MegaStorage.Framework.UI.Menus;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using PyTK.CustomElementHandler;

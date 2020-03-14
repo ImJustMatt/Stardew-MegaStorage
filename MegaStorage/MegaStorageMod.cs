@@ -1,7 +1,7 @@
 ﻿using MegaStorage.API;
 using MegaStorage.Framework;
 using MegaStorage.Framework.Models;
-using MegaStorage.Framework.UI;
+using MegaStorage.Framework.UI.Menus;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -52,13 +52,13 @@ namespace MegaStorage
                 if (item.Stack == 0)
                     item.Stack = 1;
 
-                var addedItem = MegaStorageMod.MainChest.addItem(item);
+                var addedItem = MainChest.addItem(item);
                 if (addedItem is null)
                     Game1.player.removeItemFromInventory(item);
                 else
                     addedItem = Game1.player.addItemToInventory(addedItem);
 
-                MegaStorageMod.MainChest.clearNulls();
+                MainChest.clearNulls();
             }
         }
 
@@ -167,7 +167,7 @@ namespace MegaStorage
             {
                 //ActiveItemGrabMenu?.StashItems();
             }
-            else if (e.Button.Equals(ModConfig.Instance.StashAnywhereKey) && !(MegaStorageMod.MainChest is null))
+            else if (e.Button.Equals(ModConfig.Instance.StashAnywhereKey) && !(MainChest is null))
             {
                 StashItems();
             }

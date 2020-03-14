@@ -28,15 +28,6 @@ namespace MegaStorage.Framework.UI.Widgets
                 bounds.Y = (int)value.Y;
             }
         }
-        public Vector2 Dimensions
-        {
-            get => new Vector2(bounds.Width, bounds.Height);
-            set
-            {
-                bounds.Width = (int)value.X;
-                bounds.Height = (int)value.Y;
-            }
-        }
 
         public Action<SpriteBatch, IWidget> DrawAction { get; set; }
         public Action<IWidget> LeftClickAction { get; set; }
@@ -44,8 +35,11 @@ namespace MegaStorage.Framework.UI.Widgets
         public Action<int, IWidget> ScrollAction { get; set; }
         public Action<int, int, IWidget> HoverAction { get; set; }
         public Color Color { get; set; } = Color.White;
-        protected internal Menus.InventoryMenu InventoryMenu => CommonHelper.OfType<Menus.InventoryMenu>(ParentMenu);
-        protected internal InterfaceHost ItemGrabMenu => CommonHelper.OfType<InterfaceHost>(ParentMenu.ParentMenu);
+        protected internal IMenu BaseMenu => _baseMenu ??= ParentMenu.BaseMenu();
+        protected internal InterfaceHost ItemGrabMenu => CommonHelper.OfType<InterfaceHost>(BaseMenu);
+        protected internal BaseInventoryMenu InventoryMenu => CommonHelper.OfType<BaseInventoryMenu>(ParentMenu);
+
+        private IMenu _baseMenu;
 
         /*********
         ** Public methods
@@ -73,15 +67,15 @@ namespace MegaStorage.Framework.UI.Widgets
             HoverAction = Hover;
         }
 
-        public void GameWindowSizeChanged() =>
-            Position = ParentMenu.Position + Offset;
-
         /*********
         ** Private methods
         *********/
         protected internal virtual void Draw(SpriteBatch b, IWidget widget)
         {
-            draw(b, Color, 0.860000014305115f + bounds.Y / 20000f);
+            if (!(item is null))
+                drawItem(b);
+            else
+                draw(b, Color, 0.860000014305115f + bounds.Y / 20000f);
         }
 
         protected internal virtual void Hover(int x, int y, IWidget widget)
@@ -89,7 +83,8 @@ namespace MegaStorage.Framework.UI.Widgets
             if (!Bounds.Contains(x, y))
                 return;
 
-            ItemGrabMenu.hoverText = hoverText;
+            ItemGrabMenu.hoverText ??= hoverText;
+            ItemGrabMenu.hoveredItem ??= item;
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using MegaStorage.Framework.Models;
-using MegaStorage.Framework.UI.Menus;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -10,9 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using InventoryMenu = MegaStorage.Framework.UI.Menus.InventoryMenu;
 
-namespace MegaStorage.Framework.UI
+namespace MegaStorage.Framework.UI.Menus
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal class InterfaceHost : ItemGrabMenu, IMenu
@@ -26,18 +24,8 @@ namespace MegaStorage.Framework.UI
         public static readonly Vector2 ChestColorPickerOffset = new Vector2(32, -72);
 
         public IMenu ParentMenu { get; } = null;
+        public MenuType Type { get; } = MenuType.Base;
         public Vector2 Offset { get; set; } = -new Vector2(MenuWidth, MenuHeight) / 2f;
-        public Rectangle Bounds
-        {
-            get => new Rectangle(xPositionOnScreen, yPositionOnScreen, width, height);
-            set
-            {
-                xPositionOnScreen = value.X;
-                yPositionOnScreen = value.Y;
-                width = value.Width;
-                height = value.Height;
-            }
-        }
         public Vector2 Position
         {
             get => new Vector2(xPositionOnScreen, yPositionOnScreen);
@@ -47,23 +35,10 @@ namespace MegaStorage.Framework.UI
                 yPositionOnScreen = Math.Max(spaceToClearTopBorder, (int)value.Y);
             }
         }
-        public Vector2 Dimensions
-        {
-            get => new Vector2(width, height);
-            set
-            {
-                width = (int)value.X;
-                height = (int)value.Y;
-            }
-        }
 
         public bool Visible { get; set; } = true;
         public bool FadedBackground => !Game1.options.showMenuBackground;
         public IList<IMenu> SubMenus { get; } = new List<IMenu>();
-        public IList<IMenu> Overlays { get; } = new List<IMenu>();
-        public Item HoverItem { get; set; }
-        public string HoverText { get; set; }
-        public int HoverAmount { get; set; }
 
         internal new ChestInventoryMenu ItemsToGrabMenu { get; private set; }
         internal new PlayerInventoryMenu inventory { get; private set; }
@@ -83,10 +58,11 @@ namespace MegaStorage.Framework.UI
             : base(CommonHelper.NonNull(customChest).items, customChest)
         {
             Position = Offset + (new Vector2(Game1.viewport.Width, Game1.viewport.Height) / 2);
-            Dimensions = new Vector2(MenuWidth, MenuHeight);
+            width = MenuWidth;
+            height = MenuHeight;
 
             // Setup Properties
-            allClickableComponents = new List<ClickableComponent>();
+            allClickableComponents.Clear();
             playRightClickSound = true;
             allowRightClick = true;
             canExitOnKey = true;
@@ -181,9 +157,11 @@ namespace MegaStorage.Framework.UI
             ItemsToGrabMenu = (customChest.ChestData.EnableRemoteStorage)
                 ? new ChestInventoryMenu(this, ChestInventoryMenuOffset, customChest)
                 : new ChestInventoryMenu(this, ChestInventoryMenuOffset, customChest);
+            base.ItemsToGrabMenu = ItemsToGrabMenu;
 
             // Player Inventory Menu
             inventory = new PlayerInventoryMenu(this, ChestInventoryMenuOffset + new Vector2(0, ItemsToGrabMenu.height));
+            base.inventory = inventory;
 
             SubMenus.Add(inventory);
             SubMenus.Add(ItemsToGrabMenu);
@@ -204,7 +182,7 @@ namespace MegaStorage.Framework.UI
 
             // Item Pick Overlay
             ItemPickMenu = new ItemPickMenu(this, ChestInventoryMenuOffset + ItemPickMenu.Padding / 2);
-            Overlays.Add(ItemPickMenu);
+            SubMenus.Add(ItemPickMenu);
         }
 
         private void SetupWidgets()
@@ -216,8 +194,8 @@ namespace MegaStorage.Framework.UI
             for (var slot = 0; slot < ItemsToGrabMenu.inventory.Count; ++slot)
             {
                 var cc = ItemsToGrabMenu.inventory.ElementAt(slot);
-                var col = slot % InventoryMenu.ItemsPerRow;
-                var row = slot / InventoryMenu.ItemsPerRow;
+                var col = slot % BaseInventoryMenu.ItemsPerRow;
+                var row = slot / BaseInventoryMenu.ItemsPerRow;
 
                 cc.myID += 53910;
                 cc.fullyImmutable = true;
@@ -235,7 +213,7 @@ namespace MegaStorage.Framework.UI
                     cc.downNeighborID += 53910;
 
                 // Left column adjustment
-                if (col == InventoryMenu.ItemsPerRow - 1)
+                if (col == BaseInventoryMenu.ItemsPerRow - 1)
                 {
                     cc.rightNeighborID = row switch
                     {
@@ -277,15 +255,15 @@ namespace MegaStorage.Framework.UI
             for (var slot = 0; slot < inventory.inventory.Count; ++slot)
             {
                 var cc = ItemsToGrabMenu.inventory.ElementAt(slot);
-                var col = slot % InventoryMenu.ItemsPerRow;
-                var row = slot / InventoryMenu.ItemsPerRow;
+                var col = slot % BaseInventoryMenu.ItemsPerRow;
+                var row = slot / BaseInventoryMenu.ItemsPerRow;
 
                 // Top row adjustment
                 if (row == 0)
                     cc.upNeighborID = ItemsToGrabMenu.inventory.Count > slot ? 53910 + slot : 4343;
 
                 // Right column adjustment
-                if (col == InventoryMenu.ItemsPerRow - 1)
+                if (col == BaseInventoryMenu.ItemsPerRow - 1)
                     cc.rightNeighborID = row < 2 ? 5948 : 4857;
             }
 
@@ -293,7 +271,7 @@ namespace MegaStorage.Framework.UI
             discreteColorPickerCC = new List<ClickableComponent>();
             for (var index = 0; index < chestColorPicker.totalColors; ++index)
             {
-                var discreteColorPicker = new ClickableComponent(new Rectangle(chestColorPicker.xPositionOnScreen + IClickableMenu.borderWidth / 2 + index * 9 * 4, chestColorPicker.yPositionOnScreen + IClickableMenu.borderWidth / 2, 36, 28), "")
+                var discreteColorPicker = new ClickableComponent(new Rectangle(chestColorPicker.xPositionOnScreen + borderWidth / 2 + index * 9 * 4, chestColorPicker.yPositionOnScreen + borderWidth / 2, 36, 28), "")
                 {
                     myID = index + 4343,
                     rightNeighborID = index < chestColorPicker.totalColors - 1 ? index + 4343 + 1 : -1,
@@ -306,7 +284,7 @@ namespace MegaStorage.Framework.UI
 
             // Add Invisible Drop Item Button?
             dropItemInvisibleButton = new ClickableComponent(
-                new Rectangle(xPositionOnScreen - IClickableMenu.borderWidth - IClickableMenu.spaceToClearSideBorder - 128, yPositionOnScreen + IClickableMenu.spaceToClearTopBorder + IClickableMenu.borderWidth + 164, Game1.tileSize, Game1.tileSize), "")
+                new Rectangle(xPositionOnScreen - borderWidth - spaceToClearSideBorder - 128, yPositionOnScreen + spaceToClearTopBorder + borderWidth + 164, Game1.tileSize, Game1.tileSize), "")
             {
                 myID = 107
             };
