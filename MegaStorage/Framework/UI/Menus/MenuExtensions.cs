@@ -34,7 +34,7 @@ namespace MegaStorage.Framework.UI.Menus
             // Draw Widgets
             foreach (var widget in menu.Widgets())
             {
-                widget.DrawAction?.Invoke(b, widget);
+                widget.Events.Draw?.Invoke(b, widget);
             }
 
             // Draw Menus
@@ -127,7 +127,7 @@ namespace MegaStorage.Framework.UI.Menus
             // Left Click Widgets
             foreach (var widget in menu.Widgets(true, x, y))
             {
-                widget.LeftClickAction?.Invoke(widget);
+                widget.Events.LeftClick?.Invoke(widget);
             }
 
             return false;
@@ -146,7 +146,7 @@ namespace MegaStorage.Framework.UI.Menus
             // Right Click Widgets
             foreach (var widget in menu.Widgets(true, x, y))
             {
-                widget.RightClickAction?.Invoke(widget);
+                widget.Events.RightClick?.Invoke(widget);
             }
 
             return false;
@@ -168,7 +168,7 @@ namespace MegaStorage.Framework.UI.Menus
             // Scroll Widgets
             foreach (var widget in menu.Widgets(true, mouseX, mouseY))
             {
-                widget.ScrollAction?.Invoke(direction, widget);
+                widget.Events.Scroll?.Invoke(direction, widget);
             }
 
             return false;
@@ -194,7 +194,7 @@ namespace MegaStorage.Framework.UI.Menus
             // Hover Widgets
             foreach (var widget in menu.Widgets())
             {
-                widget.HoverAction?.Invoke(x, y, widget);
+                widget.Events.Hover?.Invoke(x, y, widget);
             }
 
             return false;

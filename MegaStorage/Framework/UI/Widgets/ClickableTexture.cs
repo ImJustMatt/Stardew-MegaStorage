@@ -23,16 +23,10 @@ namespace MegaStorage.Framework.UI.Widgets
                 bounds.Y = (int)value.Y;
             }
         }
-
-        public Action<SpriteBatch, IWidget> DrawAction { get; set; }
-        public Action<IWidget> LeftClickAction { get; set; }
-        public Action<IWidget> RightClickAction { get; set; }
-        public Action<int, IWidget> ScrollAction { get; set; }
-        public Action<int, int, IWidget> HoverAction { get; set; }
+        public WidgetEvents Events { get; } = new WidgetEvents();
         public Color Color { get; set; } = Color.White;
         protected internal IMenu BaseMenu => _baseMenu ??= ParentMenu.BaseMenu();
         protected internal InterfaceHost ItemGrabMenu => CommonHelper.OfType<InterfaceHost>(BaseMenu);
-        protected internal BaseInventoryMenu InventoryMenu => CommonHelper.OfType<BaseInventoryMenu>(ParentMenu);
 
         private IMenu _baseMenu;
 
@@ -58,8 +52,8 @@ namespace MegaStorage.Framework.UI.Widgets
         {
             ParentMenu = parentMenu;
             Offset = offset;
-            DrawAction = Draw;
-            HoverAction = Hover;
+            Events.Draw = Draw;
+            Events.Hover = Hover;
         }
 
         /*********

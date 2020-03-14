@@ -11,6 +11,7 @@ namespace MegaStorage.Framework.UI.Widgets
         ** Fields
         *********/
         public int Slot { get; set; }
+        protected internal BaseInventoryMenu InventoryMenu => CommonHelper.OfType<BaseInventoryMenu>(ParentMenu);
 
         /*********
         ** Public methods
@@ -30,15 +31,15 @@ namespace MegaStorage.Framework.UI.Widgets
             Slot = slot;
             Color = Color.White * 0.0f;
             this.item = item;
-            DrawAction = Draw;
-            LeftClickAction = Click;
-            RightClickAction = RightClick;
+            Events.Draw = Draw;
+            Events.LeftClick = LeftClick;
+            Events.RightClick = RightClick;
         }
 
         /*********
         ** Private methods
         *********/
-        protected internal void Click(IWidget widget)
+        protected internal void LeftClick(IWidget widget)
         {
             InventoryMenu.ItemSlot ??= this;
         }

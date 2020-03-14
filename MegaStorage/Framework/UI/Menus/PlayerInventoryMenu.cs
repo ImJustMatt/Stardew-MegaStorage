@@ -73,7 +73,7 @@ namespace MegaStorage.Framework.UI.Menus
         private void SetupWidgets()
         {
             // OK Button
-            ItemGrabMenu.okButton = new ClickableTexture(
+            var okButton = new ClickableTexture(
                 "okButton",
                 this,
                 RightWidgetsOffset + new Vector2(width, 204),
@@ -83,15 +83,17 @@ namespace MegaStorage.Framework.UI.Menus
             {
                 myID = 4857,
                 upNeighborID = 5948,
-                leftNeighborID = 11,
-                LeftClickAction = ClickOkButton,
-                HoverAction = WidgetExtensions.HoverZoom
+                leftNeighborID = 11
             };
-            ItemGrabMenu.allClickableComponents.Add(ItemGrabMenu.okButton);
+            okButton.Events.LeftClick = ClickOkButton;
+            okButton.Events.Hover = WidgetEvents.HoverZoom;
+            allClickableComponents.Add(okButton);
+            ItemGrabMenu.okButton = okButton;
 
             // Trash Can
-            ItemGrabMenu.trashCan = new TrashCan(this, RightWidgetsOffset + new Vector2(width, 68));
-            ItemGrabMenu.allClickableComponents.Add(ItemGrabMenu.trashCan);
+            var trashCan = new TrashCan(this, RightWidgetsOffset + new Vector2(width, 68));
+            allClickableComponents.Add(trashCan);
+            ItemGrabMenu.trashCan = trashCan;
         }
 
         private void SyncItem(NetList<Item, NetRef<Item>> list, int slot, Item oldValue, Item currentItem)

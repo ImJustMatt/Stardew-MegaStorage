@@ -27,7 +27,7 @@ namespace MegaStorage.Framework.UI.Widgets
         {
             OffState = offState;
             OnState = onState;
-            LeftClickAction = LeftClick;
+            Events.LeftClick = LeftClick;
         }
 
         /*********

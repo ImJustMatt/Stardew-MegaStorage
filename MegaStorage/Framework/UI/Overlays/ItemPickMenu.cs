@@ -162,9 +162,9 @@ namespace MegaStorage.Framework.UI.Overlays
                 Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 44),
                 scale: 1f)
             {
-                visible = false,
-                LeftClickAction = PrevPage
+                visible = false
             };
+            LeftArrow.Events.LeftClick = PrevPage;
             allClickableComponents.Add(LeftArrow);
 
             // Right Arrow
@@ -175,10 +175,8 @@ namespace MegaStorage.Framework.UI.Overlays
                 new Vector2(width - Game1.tileSize, 0),
                 Game1.mouseCursors,
                 Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 33),
-                scale: 1f)
-            {
-                LeftClickAction = NextPage
-            };
+                scale: 1f);
+            RightArrow.Events.LeftClick = NextPage;
             allClickableComponents.Add(RightArrow);
 
             // Category Checkbox
@@ -209,10 +207,8 @@ namespace MegaStorage.Framework.UI.Overlays
                     this,
                     Padding + new Vector2(col, row + 2) * Game1.tileSize,
                     Game1.objectSpriteSheet,
-                    Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, 1))
-                {
-                    DrawAction = DrawItem
-                };
+                    Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, 1));
+                itemSlotCC.Events.Draw = DrawItem;
                 _itemSlots.Add(itemSlotCC);
                 allClickableComponents.Add(itemSlotCC);
             }

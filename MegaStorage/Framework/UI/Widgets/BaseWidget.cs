@@ -22,11 +22,11 @@ namespace MegaStorage.Framework.UI.Widgets
                 bounds.Y = (int)value.Y;
             }
         }
-        public Action<SpriteBatch, IWidget> DrawAction { get; set; }
-        public Action<IWidget> LeftClickAction { get; set; }
-        public Action<IWidget> RightClickAction { get; set; }
-        public Action<int, IWidget> ScrollAction { get; set; }
-        public Action<int, int, IWidget> HoverAction { get; set; }
+        public WidgetEvents Events { get; } = new WidgetEvents();
+        protected internal IMenu BaseMenu => _baseMenu ??= ParentMenu.BaseMenu();
+        protected internal InterfaceHost ItemGrabMenu => CommonHelper.OfType<InterfaceHost>(BaseMenu);
+
+        private IMenu _baseMenu;
 
         /*********
         ** Public methods

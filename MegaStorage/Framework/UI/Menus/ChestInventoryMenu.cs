@@ -256,9 +256,9 @@ namespace MegaStorage.Framework.UI.Menus
             {
                 myID = 88,
                 downNeighborID = 89,
-                visible = false,
-                LeftClickAction = ScrollUp
+                visible = false
             };
+            _upArrow.Events.LeftClick = ScrollUp;
             allClickableComponents.Add(_upArrow);
 
             // Down Arrow
@@ -273,15 +273,15 @@ namespace MegaStorage.Framework.UI.Menus
                 myID = 89,
                 upNeighborID = 88,
                 visible = _currentRow <= _maxRows - rows,
-                LeftClickAction = ScrollDown
             };
+            _downArrow.Events.LeftClick = ScrollDown;
             allClickableComponents.Add(_downArrow);
 
             if (!CustomChest.ChestData.EnableChestTabs)
                 return;
 
             // Color Picker Toggle
-            ItemGrabMenu.colorPickerToggleButton = new ClickableTexture(
+            var colorPickerToggleButton = new ClickableTexture(
                 "colorPickerToggleButton",
                 this,
                 RightWidgetsOffset + this.GetDimensions() * new Vector2(1, 1f / 4f),
@@ -292,13 +292,14 @@ namespace MegaStorage.Framework.UI.Menus
                 myID = 27346,
                 downNeighborID = 12952,
                 leftNeighborID = 53933,
-                region = 15923,
-                LeftClickAction = ClickColorPickerToggleButton
+                region = 15923
             };
-            ItemGrabMenu.allClickableComponents.Add(ItemGrabMenu.colorPickerToggleButton);
+            colorPickerToggleButton.Events.LeftClick = ClickColorPickerToggleButton;
+            allClickableComponents.Add(colorPickerToggleButton);
+            ItemGrabMenu.colorPickerToggleButton = colorPickerToggleButton;
 
             // Fill Stacks
-            ItemGrabMenu.fillStacksButton = new ClickableTexture(
+            var fillStacksButton = new ClickableTexture(
                 "fillStacks",
                 this,
                 RightWidgetsOffset + this.GetDimensions() * new Vector2(1, 2f / 4f),
@@ -310,14 +311,15 @@ namespace MegaStorage.Framework.UI.Menus
                 upNeighborID = 27346,
                 downNeighborID = 106,
                 leftNeighborID = 53957,
-                region = 15923,
-                LeftClickAction = ClickFillStacksButton,
-                HoverAction = WidgetExtensions.HoverPixelZoom
+                region = 15923
             };
-            ItemGrabMenu.allClickableComponents.Add(ItemGrabMenu.fillStacksButton);
+            fillStacksButton.Events.LeftClick = ClickFillStacksButton;
+            fillStacksButton.Events.Hover = WidgetEvents.HoverPixelZoom;
+            allClickableComponents.Add(fillStacksButton);
+            ItemGrabMenu.fillStacksButton = fillStacksButton;
 
             // Organize
-            ItemGrabMenu.organizeButton = new ClickableTexture(
+            var organizeButton = new ClickableTexture(
                 "organize",
                 this,
                 RightWidgetsOffset + this.GetDimensions() * new Vector2(1, 3f / 4f),
@@ -329,11 +331,12 @@ namespace MegaStorage.Framework.UI.Menus
                 upNeighborID = 12952,
                 downNeighborID = 5948,
                 leftNeighborID = 53969,
-                region = 15923,
-                LeftClickAction = ClickOrganizeButton,
-                HoverAction = WidgetExtensions.HoverPixelZoom
+                region = 15923
             };
-            ItemGrabMenu.allClickableComponents.Add(ItemGrabMenu.organizeButton);
+            organizeButton.Events.LeftClick = ClickOrganizeButton;
+            organizeButton.Events.Hover = WidgetEvents.HoverPixelZoom;
+            allClickableComponents.Add(organizeButton);
+            ItemGrabMenu.organizeButton = organizeButton;
 
             // Chest Tabs
             for (var index = 0; index < Math.Min(7, ModConfig.Instance.ChestTabs.Count); ++index)
@@ -355,8 +358,8 @@ namespace MegaStorage.Framework.UI.Menus
                     6 => 53970, // ItemsToGrabMenu.inventory Row 6 Col 1
                     _ => 53970
                 };
-                chestTab.RightClickAction = RightClickChestTab;
-                chestTab.ScrollAction = ScrollChestTab;
+                chestTab.Events.RightClick = RightClickChestTab;
+                chestTab.Events.Scroll = ScrollChestTab;
                 chestTab.BelongsToCategory = chestTab.name switch
                 {
                     "All" => item => true,
@@ -400,9 +403,10 @@ namespace MegaStorage.Framework.UI.Menus
                 Sprites.Icons.InactiveStarIcon,
                 Sprites.Icons.ActiveStarIcon)
             {
-                DrawAction = DrawStarButton,
-                LeftClickAction = ClickStarButton
+                myID = 123
             };
+            _starButton.Events.Draw = DrawStarButton;
+            _starButton.Events.LeftClick = ClickStarButton;
             allClickableComponents.Add(_starButton);
         }
 

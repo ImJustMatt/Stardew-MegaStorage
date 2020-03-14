@@ -26,7 +26,7 @@ namespace MegaStorage.Framework.UI.Widgets
             : base(name, parentMenu, offset, texture, sourceRect,
                 MegaStorageMod.Helper.Translation.Get($"category.{name}"))
         {
-            LeftClickAction = LeftClick;
+            Events.LeftClick = LeftClick;
 
             if (!(ParentMenu is ChestInventoryMenu menu))
                 return;

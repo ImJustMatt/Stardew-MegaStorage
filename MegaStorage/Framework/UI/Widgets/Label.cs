@@ -38,9 +38,12 @@ namespace MegaStorage.Framework.UI.Widgets
         {
             TextAlign = align;
             Font = font ?? Game1.dialogueFont;
-            DrawAction = Draw;
-            if (!(forWidget is null))
-                LeftClickAction = forWidget.LeftClickAction;
+            Events.Draw = Draw;
+            if (forWidget is null)
+                return;
+
+            Events.LeftClick = forWidget.Events.LeftClick;
+            Events.RightClick = forWidget.Events.RightClick;
         }
 
         /*********

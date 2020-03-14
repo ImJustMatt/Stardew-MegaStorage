@@ -30,9 +30,9 @@ namespace MegaStorage.Framework.UI.Widgets
             leftNeighborID = 23;
             upNeighborID = 106;
 
-            DrawAction = Draw;
-            LeftClickAction = Click;
-            HoverAction = Hover;
+            Events.Draw = Draw;
+            Events.LeftClick = LeftClick;
+            Events.Hover = Hover;
             hoverText = Game1.content.LoadString("Strings\\UI:TrashCanSale");
         }
 
@@ -63,7 +63,7 @@ namespace MegaStorage.Framework.UI.Widgets
         /// Trashes the currently held item
         /// </summary>
         /// <param name="widget">The trash can that was clicked</param>
-        protected internal void Click(IWidget widget)
+        protected internal void LeftClick(IWidget widget)
         {
             Utility.trashItem(ItemGrabMenu.heldItem);
             ItemGrabMenu.heldItem = null;
