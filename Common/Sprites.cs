@@ -26,8 +26,11 @@ namespace MegaStorage
             /*********
             ** Public methods
             *********/
-            public static void Draw(SpriteBatch b, Rectangle bounds) =>
+            public static void Draw(SpriteBatch b, Rectangle bounds)
+            {
                 Draw(b, bounds.X, bounds.Y, bounds.Width, bounds.Height);
+            }
+
             public static void Draw(SpriteBatch b, int x, int y, int width, int height)
             {
                 // Background
@@ -129,21 +132,24 @@ namespace MegaStorage
             /*********
             ** Public methods
             *********/
-            public static void DrawGrid(SpriteBatch b, Vector2 position, Vector2 dimensions, int maxItems = -1) =>
+            public static void DrawGrid(SpriteBatch b, Vector2 position, Vector2 dimensions, int maxItems = -1)
+            {
                 DrawGrid(b, (int)position.X, (int)position.Y, (int)dimensions.X, (int)dimensions.Y, maxItems);
+            }
+
             public static void DrawGrid(SpriteBatch b, int x, int y, int width, int height, int maxItems = -1)
             {
-                var rows = (int)Math.Floor((double)width / Game1.tileSize);
-                var cols = (int)Math.Floor((double)height / Game1.tileSize);
-                var capacity = rows * cols;
-                var horizontalGap = (width - rows * Game1.tileSize) / (rows - 1);
-                var verticalGap = (height - cols * Game1.tileSize) / (cols - 1);
+                int rows = (int)Math.Floor((double)width / Game1.tileSize);
+                int cols = (int)Math.Floor((double)height / Game1.tileSize);
+                int capacity = rows * cols;
+                int horizontalGap = (width - rows * Game1.tileSize) / (rows - 1);
+                int verticalGap = (height - cols * Game1.tileSize) / (cols - 1);
 
-                for (var slot = 0; slot < capacity; ++slot)
+                for (int slot = 0; slot < capacity; ++slot)
                 {
-                    var col = slot % rows;
-                    var row = slot / rows;
-                    var pos = new Vector2(
+                    int col = slot % rows;
+                    int row = slot / rows;
+                    Vector2 pos = new Vector2(
                         x + col * (Game1.tileSize + horizontalGap),
                         y + row * (Game1.tileSize + verticalGap));
 
@@ -174,8 +180,11 @@ namespace MegaStorage
                 }
             }
 
-            public static void DrawBackpack(SpriteBatch b, Vector2 position) =>
+            public static void DrawBackpack(SpriteBatch b, Vector2 position)
+            {
                 DrawBackpack(b, (int)position.X, (int)position.Y);
+            }
+
             public static void DrawBackpack(SpriteBatch b, int x, int y)
             {
                 b.Draw(Game1.mouseCursors,
@@ -215,21 +224,26 @@ namespace MegaStorage
             public static readonly Rectangle InactiveStarIcon = new Rectangle(294, 392, 16, 16);
         }
 
-        public static Rectangle GetTile(int x, int y) =>
-            new Rectangle(
-                Game1.tileSize * x,
-                Game1.tileSize * y,
-                Game1.tileSize,
-                Game1.tileSize);
+        public static Rectangle GetTile(int x, int y)
+        {
+            return new Rectangle(
+Game1.tileSize * x,
+Game1.tileSize * y,
+Game1.tileSize,
+Game1.tileSize);
+        }
 
-        public static TemporaryAnimatedSprite CreatePoof(int x, int y) => new TemporaryAnimatedSprite(
-            "TileSheets/animations",
-            new Rectangle(0, 320, Game1.tileSize, Game1.tileSize),
-            50f,
-            8,
-            0,
-            new Vector2(x - x % Game1.tileSize + 16, y - y % Game1.tileSize + 16),
-            false,
-            false);
+        public static TemporaryAnimatedSprite CreatePoof(int x, int y)
+        {
+            return new TemporaryAnimatedSprite(
+"TileSheets/animations",
+new Rectangle(0, 320, Game1.tileSize, Game1.tileSize),
+50f,
+8,
+0,
+new Vector2(x - x % Game1.tileSize + 16, y - y % Game1.tileSize + 16),
+false,
+false);
+        }
     }
 }

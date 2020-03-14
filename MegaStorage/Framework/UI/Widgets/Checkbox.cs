@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace MegaStorage.Framework.UI.Widgets
 {
-    internal class Checkbox : ClickableTexture
+    internal class Checkbox : BaseWidget
     {
         /*********
         ** Fields

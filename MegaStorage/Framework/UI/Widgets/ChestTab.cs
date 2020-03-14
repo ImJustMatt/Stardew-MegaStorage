@@ -6,7 +6,7 @@ using System;
 
 namespace MegaStorage.Framework.UI.Widgets
 {
-    internal class ChestTab : ClickableTexture
+    internal class ChestTab : BaseWidget
     {
         /*********
         ** Fields
@@ -28,7 +28,7 @@ namespace MegaStorage.Framework.UI.Widgets
         {
             Events.LeftClick = LeftClick;
 
-            if (!(ParentMenu is ChestInventoryMenu menu))
+            if (!(ParentMenu is ChestInventory menu))
                 return;
             menu.ChestTabChanged += OnChestTabChanged;
         }
@@ -38,14 +38,14 @@ namespace MegaStorage.Framework.UI.Widgets
         *********/
         private void LeftClick(IWidget widget)
         {
-            if (!(ParentMenu is ChestInventoryMenu menu))
+            if (!(ParentMenu is ChestInventory menu))
                 return;
             menu.CurrentTab = this;
         }
 
         private void OnChestTabChanged(object sender, EventArgs e)
         {
-            if (!(ParentMenu is ChestInventoryMenu menu))
+            if (!(ParentMenu is ChestInventory menu))
                 return;
             bounds.X = (int)(ParentMenu.Position.X + Offset.X) +
                        (menu.CurrentTab.Equals(this) ? SelectedOffset : 0);

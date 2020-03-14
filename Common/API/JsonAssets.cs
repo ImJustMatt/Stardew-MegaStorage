@@ -9,8 +9,15 @@ namespace MegaStorage.API
     internal static class JsonAssets
     {
         public static IJsonAssetsApi API { get; set; }
-        public static void LoadAssets(string name) => API?.LoadAssets(name);
-        public static int GetBigCraftableId(string name) => API?.GetBigCraftableId(name) ?? -1;
+        public static void LoadAssets(string name)
+        {
+            API?.LoadAssets(name);
+        }
+
+        public static int GetBigCraftableId(string name)
+        {
+            return API?.GetBigCraftableId(name) ?? -1;
+        }
     }
     public interface IJsonAssetsApi
     {

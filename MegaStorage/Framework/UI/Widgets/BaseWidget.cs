@@ -1,12 +1,12 @@
 ﻿using MegaStorage.Framework.UI.Menus;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewValley;
 using StardewValley.Menus;
-using System;
 
 namespace MegaStorage.Framework.UI.Widgets
 {
-    internal class BaseWidget : ClickableComponent, IWidget
+    internal class BaseWidget : ClickableTextureComponent, IWidget
     {
         /*********
         ** Fields
@@ -23,33 +23,69 @@ namespace MegaStorage.Framework.UI.Widgets
             }
         }
         public WidgetEvents Events { get; } = new WidgetEvents();
-        protected internal IMenu BaseMenu => _baseMenu ??= ParentMenu.BaseMenu();
-        protected internal InterfaceHost ItemGrabMenu => CommonHelper.OfType<InterfaceHost>(BaseMenu);
-
-        private IMenu _baseMenu;
+        public Color Color { get; set; } = Color.White;
+        protected internal InterfaceHost BaseMenu =>
+            _baseMenu ??= CommonHelper.OfType<InterfaceHost>(ParentMenu.BaseMenu());
+        private InterfaceHost _baseMenu;
 
         /*********
         ** Public methods
         *********/
-        public BaseWidget(string name,
-            IMenu parentMenu,
-            Vector2 offset,
-            string label,
-            int width = 0,
-            int height = 0)
-            : base(new Rectangle((int)(parentMenu.Position.X + offset.X),
+        public BaseWidget(string name, IMenu parentMenu, Vector2 offset, string label, int width = 0, int height = 0)
+            : base(name,
+                new Rectangle((int)(parentMenu.Position.X + offset.X),
                     (int)(parentMenu.Position.Y + offset.Y),
                     width,
                     height),
-                name,
-                label)
+                label, null, null, Rectangle.Empty, 1f)
         {
             ParentMenu = parentMenu;
             Offset = offset;
+            Events.Draw = Draw;
+            Events.Hover = Hover;
+        }
+
+        public BaseWidget(
+            string name,
+            IMenu parentMenu,
+            Vector2 offset,
+            Texture2D texture,
+            Rectangle sourceRect,
+            string hoverText = null,
+            int width = Game1.tileSize,
+            int height = Game1.tileSize,
+            float scale = Game1.pixelZoom)
+            : base(name,
+                new Rectangle((int)(parentMenu.Position.X + offset.X),
+                    (int)(parentMenu.Position.Y + offset.Y),
+                    width,
+                    height),
+                "", hoverText, texture, sourceRect, scale)
+        {
+            ParentMenu = parentMenu;
+            Offset = offset;
+            Events.Draw = Draw;
+            Events.Hover = Hover;
         }
 
         /*********
         ** Private methods
         *********/
+        protected internal virtual void Draw(SpriteBatch b, IWidget widget)
+        {
+            if (!(item is null))
+                drawItem(b);
+            else
+                draw(b, Color, 0.860000014305115f + bounds.Y / 20000f);
+        }
+
+        protected internal virtual void Hover(int x, int y, IWidget widget)
+        {
+            if (!containsPoint(x, y))
+                return;
+
+            BaseMenu.hoverText ??= hoverText;
+            BaseMenu.hoveredItem ??= item;
+        }
     }
 }

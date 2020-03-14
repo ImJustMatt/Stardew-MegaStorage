@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 
 namespace MegaStorage.Framework.UI.Overlays
 {
-    internal class ItemStackMenu : BaseOverlay
+    internal class ItemStack : BaseOverlay
     {
         /*********
         ** Fields
@@ -13,7 +13,7 @@ namespace MegaStorage.Framework.UI.Overlays
         /*********
         ** Public methods
         *********/
-        protected ItemStackMenu(IMenu parentMenu, Vector2 offset)
+        protected ItemStack(IMenu parentMenu, Vector2 offset)
             : base(parentMenu, offset)
         {
         }

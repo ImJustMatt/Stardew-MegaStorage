@@ -32,7 +32,9 @@ namespace MegaStorage.Framework.Models
             EnableRemoteStorage = enableRemoteStorage;
         }
 
-        public Dictionary<string, string> ToSaveData() => new Dictionary<string, string>
+        public Dictionary<string, string> ToSaveData()
+        {
+            return new Dictionary<string, string>
         {
             { "ParentSheetIndex", ParentSheetIndex.ToString(CultureInfo.InvariantCulture) },
             { "Name", Name },
@@ -40,13 +42,17 @@ namespace MegaStorage.Framework.Models
             { "EnableChestTabs", EnableChestTabs ? "true" : "false" },
             { "EnableRemoteStorage" , EnableRemoteStorage ? "true" : "false" }
         };
+        }
 
-        public static ChestData FromSaveData(Dictionary<string, string> saveData) => new ChestData(
-            Convert.ToInt32(saveData["ParentSheetIndex"], CultureInfo.InvariantCulture),
-            saveData["Name"],
-            Convert.ToInt32(saveData["Capacity"], CultureInfo.InvariantCulture),
-            saveData["EnableChestTabs"] == "true",
-            saveData["EnableRemoteStorage"] == "true");
+        public static ChestData FromSaveData(Dictionary<string, string> saveData)
+        {
+            return new ChestData(
+Convert.ToInt32(saveData["ParentSheetIndex"], CultureInfo.InvariantCulture),
+saveData["Name"],
+Convert.ToInt32(saveData["Capacity"], CultureInfo.InvariantCulture),
+saveData["EnableChestTabs"] == "true",
+saveData["EnableRemoteStorage"] == "true");
+        }
 
         /*********
         ** Private methods

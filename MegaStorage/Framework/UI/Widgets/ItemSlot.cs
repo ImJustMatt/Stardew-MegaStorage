@@ -5,13 +5,13 @@ using System.Globalization;
 
 namespace MegaStorage.Framework.UI.Widgets
 {
-    internal class ItemSlot : ClickableTexture
+    internal class ItemSlot : BaseWidget
     {
         /*********
         ** Fields
         *********/
         public int Slot { get; set; }
-        protected internal BaseInventoryMenu InventoryMenu => CommonHelper.OfType<BaseInventoryMenu>(ParentMenu);
+        protected internal BaseInventory InventoryMenu => CommonHelper.OfType<BaseInventory>(ParentMenu);
 
         /*********
         ** Public methods

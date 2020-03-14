@@ -12,7 +12,7 @@ using SObject = StardewValley.Object;
 
 namespace MegaStorage.Framework.UI.Overlays
 {
-    internal class ItemPickMenu : BaseOverlay
+    internal class ItemSelect : BaseOverlay
     {
         /*********
         ** Fields
@@ -37,7 +37,7 @@ namespace MegaStorage.Framework.UI.Overlays
             {
                 if (AllObjects.Any())
                     return AllObjects;
-                foreach (var id in Game1.objectInformation.Keys)
+                foreach (int id in Game1.objectInformation.Keys)
                 {
                     AllObjects.Add(new SObject(Vector2.Zero, id, 1));
                 }
@@ -51,7 +51,7 @@ namespace MegaStorage.Framework.UI.Overlays
             {
                 if (AllCategories.Any())
                     return AllCategories;
-                var categories = Objects
+                List<string> categories = Objects
                     .Select(obj => obj.getCategoryName())
                     .Distinct()
                     .Where(cat => !string.IsNullOrWhiteSpace(cat))
@@ -71,9 +71,9 @@ namespace MegaStorage.Framework.UI.Overlays
                 _currentObjects = Objects
                     .Where(o => o.getCategoryName().Equals(Categories[_currentCategory], StringComparison.InvariantCultureIgnoreCase))
                     .ToList();
-                for (var slot = 0; slot < ItemsPerRow * MaxRows; ++slot)
+                for (int slot = 0; slot < ItemsPerRow * MaxRows; ++slot)
                 {
-                    var itemSlot = _itemSlots.ElementAt(slot);
+                    IWidget itemSlot = _itemSlots.ElementAt(slot);
                     if (!(itemSlot is ClickableTextureComponent itemSlotCC))
                         continue;
                     if (slot >= _currentObjects.Count)
@@ -82,7 +82,7 @@ namespace MegaStorage.Framework.UI.Overlays
                         continue;
                     }
 
-                    var obj = _currentObjects[slot];
+                    SObject obj = _currentObjects[slot];
                     itemSlotCC.sourceRect = Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, obj.ParentSheetIndex, 16, 16);
                     itemSlotCC.name = obj.ParentSheetIndex.ToString(CultureInfo.InvariantCulture);
                     itemSlotCC.hoverText = obj.DisplayName;
@@ -97,8 +97,8 @@ namespace MegaStorage.Framework.UI.Overlays
         private protected static readonly List<SObject> AllObjects = new List<SObject>();
         private protected static readonly List<string> AllCategories = new List<string>();
         private protected Label ChestTabName;
-        private protected ClickableTexture LeftArrow;
-        private protected ClickableTexture RightArrow;
+        private protected BaseWidget LeftArrow;
+        private protected BaseWidget RightArrow;
         private protected Checkbox CategoryCheckbox;
         private protected Label CategoryName;
         private ChestTab _selectedTab;
@@ -109,13 +109,13 @@ namespace MegaStorage.Framework.UI.Overlays
         /*********
         ** Public methods
         *********/
-        public ItemPickMenu(IMenu parentMenu, Vector2 offset)
+        public ItemSelect(IMenu parentMenu, Vector2 offset)
             : base(parentMenu, offset)
         {
-            width = ItemsToGrabMenu.width - (int)Padding.X;
-            height = Inventory.yPositionOnScreen -
-                     ItemsToGrabMenu.yPositionOnScreen +
-                     Inventory.height -
+            width = ChestInventoryMenu.width - (int)Padding.X;
+            height = PlayerInventoryMenu.yPositionOnScreen -
+                     ChestInventoryMenu.yPositionOnScreen +
+                     PlayerInventoryMenu.height -
                      (int)Padding.Y;
             SetupWidgets();
         }
@@ -145,7 +145,7 @@ namespace MegaStorage.Framework.UI.Overlays
             ChestTabName = new Label(
                 "chestTabName",
                 this,
-                BaseInventoryMenu.Padding,
+                BaseInventory.Padding,
                 SelectedChestTab?.name,
                 width - (int)Padding.X * 2,
                 Game1.tileSize,
@@ -153,7 +153,7 @@ namespace MegaStorage.Framework.UI.Overlays
             allClickableComponents.Add(ChestTabName);
 
             // Left Arrow
-            LeftArrow = new ClickableTexture(
+            LeftArrow = new BaseWidget(
                 "leftArrow",
                 this,
                 Padding * new Vector2(1, 1) +
@@ -168,7 +168,7 @@ namespace MegaStorage.Framework.UI.Overlays
             allClickableComponents.Add(LeftArrow);
 
             // Right Arrow
-            RightArrow = new ClickableTexture(
+            RightArrow = new BaseWidget(
                 "rightArrow",
                 this,
                 Padding * new Vector2(-1, 1) +
@@ -198,11 +198,11 @@ namespace MegaStorage.Framework.UI.Overlays
             allClickableComponents.Add(CategoryName);
 
             // Items
-            for (var slot = 0; slot < ItemsPerRow * MaxRows; ++slot)
+            for (int slot = 0; slot < ItemsPerRow * MaxRows; ++slot)
             {
-                var col = slot % ItemsPerRow;
-                var row = slot / ItemsPerRow;
-                var itemSlotCC = new ClickableTexture(
+                int col = slot % ItemsPerRow;
+                int row = slot / ItemsPerRow;
+                BaseWidget itemSlotCC = new BaseWidget(
                     slot.ToString(CultureInfo.InvariantCulture),
                     this,
                     Padding + new Vector2(col, row + 2) * Game1.tileSize,
@@ -218,7 +218,7 @@ namespace MegaStorage.Framework.UI.Overlays
 
         private static void DrawItem(SpriteBatch b, IWidget widget)
         {
-            if (!(widget is ClickableTexture cc))
+            if (!(widget is BaseWidget cc))
                 return;
             cc.draw(
                 b,

@@ -11,9 +11,9 @@ namespace MegaStorage.Framework
     {
         public static CustomChest ToCustomChest(this Item item, Vector2 tileLocation)
         {
-            var chestData = MegaStorageMod.CustomChests.Single(c => c.ParentSheetIndex == item.ParentSheetIndex);
+            ChestData chestData = MegaStorageMod.CustomChests.Single(c => c.ParentSheetIndex == item.ParentSheetIndex);
 
-            var customChest = new CustomChest(chestData, tileLocation)
+            CustomChest customChest = new CustomChest(chestData, tileLocation)
             {
                 Name = item.Name,
                 Stack = item.Stack,

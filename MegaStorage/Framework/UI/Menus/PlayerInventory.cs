@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace MegaStorage.Framework.UI.Menus
 {
-    internal class PlayerInventoryMenu : BaseInventoryMenu
+    internal class PlayerInventory : BaseInventory
     {
         /*********
         ** Fields
@@ -19,7 +19,7 @@ namespace MegaStorage.Framework.UI.Menus
         /*********
         ** Public methods
         *********/
-        public PlayerInventoryMenu(IMenu parentMenu, Vector2 offset)
+        public PlayerInventory(IMenu parentMenu, Vector2 offset)
             : base(
                 parentMenu,
                 offset,
@@ -58,7 +58,7 @@ namespace MegaStorage.Framework.UI.Menus
 
         public sealed override void SyncItems()
         {
-            foreach (var itemSlot in allClickableComponents.OfType<ItemSlot>())
+            foreach (ItemSlot itemSlot in allClickableComponents.OfType<ItemSlot>())
             {
                 itemSlot.item = (itemSlot.Slot < actualInventory.Count)
                     ? actualInventory[itemSlot.Slot]
@@ -73,7 +73,7 @@ namespace MegaStorage.Framework.UI.Menus
         private void SetupWidgets()
         {
             // OK Button
-            var okButton = new ClickableTexture(
+            BaseWidget okButton = new BaseWidget(
                 "okButton",
                 this,
                 RightWidgetsOffset + new Vector2(width, 204),
@@ -91,14 +91,14 @@ namespace MegaStorage.Framework.UI.Menus
             ItemGrabMenu.okButton = okButton;
 
             // Trash Can
-            var trashCan = new TrashCan(this, RightWidgetsOffset + new Vector2(width, 68));
+            TrashCan trashCan = new TrashCan(this, RightWidgetsOffset + new Vector2(width, 68));
             allClickableComponents.Add(trashCan);
             ItemGrabMenu.trashCan = trashCan;
         }
 
         private void SyncItem(NetList<Item, NetRef<Item>> list, int slot, Item oldValue, Item currentItem)
         {
-            var itemSlot = allClickableComponents
+            ItemSlot itemSlot = allClickableComponents
                 .OfType<ItemSlot>()
                 .First(cc => cc.Slot == slot);
 

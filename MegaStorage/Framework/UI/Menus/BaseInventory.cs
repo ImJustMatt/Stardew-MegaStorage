@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace MegaStorage.Framework.UI.Menus
 {
-    internal abstract class BaseInventoryMenu : InventoryMenu, IMenu
+    internal abstract class BaseInventory : InventoryMenu, IMenu
     {
         /*********
         ** Fields
@@ -44,7 +44,7 @@ namespace MegaStorage.Framework.UI.Menus
         /*********
         ** Public methods
         *********/
-        protected BaseInventoryMenu(
+        protected BaseInventory(
             IMenu parentMenu,
             Vector2 offset,
             IList<Item> items,
@@ -72,7 +72,7 @@ namespace MegaStorage.Framework.UI.Menus
             Sprites.Menu.Draw(b, this.GetBounds());
 
             // Draw Grid
-            var maxItems = showGrayedOutSlots ? Game1.player.MaxItems : -1;
+            int maxItems = showGrayedOutSlots ? Game1.player.MaxItems : -1;
             Sprites.Inventory.DrawGrid(b,
                 Position + Padding,
                 this.GetDimensions() - Padding * 2,
@@ -81,8 +81,10 @@ namespace MegaStorage.Framework.UI.Menus
             this.Draw(b);
         }
 
-        public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds) =>
+        public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds)
+        {
             this.GameWindowSizeChanged(oldBounds, newBounds);
+        }
 
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
@@ -148,10 +150,16 @@ namespace MegaStorage.Framework.UI.Menus
             }
         }
 
-        public override void receiveScrollWheelAction(int direction) =>
+        public override void receiveScrollWheelAction(int direction)
+        {
             this.ReceiveScrollWheelAction(direction);
-        public override void performHoverAction(int x, int y) =>
+        }
+
+        public override void performHoverAction(int x, int y)
+        {
             this.PerformHoverAction(x, y);
+        }
+
         public abstract void SyncItems();
 
         /*********
@@ -159,11 +167,11 @@ namespace MegaStorage.Framework.UI.Menus
         *********/
         private void SetupItemSlots()
         {
-            for (var slot = 0; slot < capacity; ++slot)
+            for (int slot = 0; slot < capacity; ++slot)
             {
-                var col = slot % ItemsPerRow;
-                var row = slot / ItemsPerRow;
-                var itemSlot = new ItemSlot(
+                int col = slot % ItemsPerRow;
+                int row = slot / ItemsPerRow;
+                ItemSlot itemSlot = new ItemSlot(
                     this,
                     Padding + new Vector2(
                         col * (Game1.tileSize + horizontalGap),

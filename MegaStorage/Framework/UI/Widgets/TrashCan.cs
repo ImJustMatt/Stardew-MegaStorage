@@ -6,7 +6,7 @@ using System;
 
 namespace MegaStorage.Framework.UI.Widgets
 {
-    internal class TrashCan : ClickableTexture
+    internal class TrashCan : BaseWidget
     {
         /*********
         ** Fields
@@ -65,8 +65,8 @@ namespace MegaStorage.Framework.UI.Widgets
         /// <param name="widget">The trash can that was clicked</param>
         protected internal void LeftClick(IWidget widget)
         {
-            Utility.trashItem(ItemGrabMenu.heldItem);
-            ItemGrabMenu.heldItem = null;
+            Utility.trashItem(BaseMenu.heldItem);
+            BaseMenu.heldItem = null;
         }
 
         /// <summary>
@@ -88,17 +88,17 @@ namespace MegaStorage.Framework.UI.Widgets
 
             _lidRotation = Math.Min(_lidRotation + (float)Math.PI / 48f, 1.570796f);
 
-            if (ItemGrabMenu.heldItem is null ||
-                Utility.getTrashReclamationPrice(ItemGrabMenu.heldItem, Game1.player) <= 0)
+            if (BaseMenu.heldItem is null ||
+                Utility.getTrashReclamationPrice(BaseMenu.heldItem, Game1.player) <= 0)
             {
                 return;
             }
 
             if (containsPoint(x, y))
             {
-                ItemGrabMenu.hoverAmount = ItemGrabMenu.hoverAmount == -1
-                    ? Utility.getTrashReclamationPrice(ItemGrabMenu.heldItem, Game1.player)
-                    : ItemGrabMenu.hoverAmount;
+                BaseMenu.hoverAmount = BaseMenu.hoverAmount == -1
+                    ? Utility.getTrashReclamationPrice(BaseMenu.heldItem, Game1.player)
+                    : BaseMenu.hoverAmount;
             }
 
             base.Hover(x, y, widget);

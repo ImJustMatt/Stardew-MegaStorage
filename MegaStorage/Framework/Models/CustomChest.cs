@@ -29,7 +29,10 @@ namespace MegaStorage.Framework.Models
         /*********
         ** Public methods
         *********/
-        internal InterfaceHost CreateItemGrabMenu() => new InterfaceHost(this);
+        internal InterfaceHost CreateItemGrabMenu()
+        {
+            return new InterfaceHost(this);
+        }
 
         public CustomChest() : base()
         {
@@ -51,7 +54,10 @@ namespace MegaStorage.Framework.Models
             playerChest.Value = true;
             _currentLidFrameReflected = MegaStorageMod.Helper.Reflection.GetField<int>(this, "currentLidFrame");
         }
-        public override Item getOne() => this;
+        public override Item getOne()
+        {
+            return this;
+        }
 
         public override Item addItem(Item itemToAdd)
         {
@@ -62,7 +68,7 @@ namespace MegaStorage.Framework.Models
             clearNulls();
 
             // Find Stackable slot
-            foreach (var item in items.Where(item => !(item is null) && item.canStackWith(itemToAdd)))
+            foreach (Item item in items.Where(item => !(item is null) && item.canStackWith(itemToAdd)))
             {
                 itemToAdd.Stack = item.addToStack(itemToAdd);
                 if (itemToAdd.Stack <= 0)
@@ -79,7 +85,7 @@ namespace MegaStorage.Framework.Models
 
         public override void updateWhenCurrentLocation(GameTime time, GameLocation environment)
         {
-            var currentLidFrameValue = CurrentLidFrame;
+            int currentLidFrameValue = CurrentLidFrame;
             fixLidFrame();
             mutex.Update(environment);
             if (shakeTimer > 0 && time != null)
@@ -136,7 +142,7 @@ namespace MegaStorage.Framework.Models
             if (item.Stack == 0)
                 item.Stack = 1;
 
-            var addedItem = addItem(item);
+            Item addedItem = addItem(item);
             if (addedItem is null)
                 who.removeItemFromInventory(item);
             else
@@ -148,7 +154,7 @@ namespace MegaStorage.Framework.Models
                 Game1.activeClickableMenu = CreateItemGrabMenu();
             ((ItemGrabMenu)Game1.activeClickableMenu).heldItem = addedItem;
 
-            var id = !(Game1.activeClickableMenu.currentlySnappedComponent is null)
+            int id = !(Game1.activeClickableMenu.currentlySnappedComponent is null)
                 ? Game1.activeClickableMenu.currentlySnappedComponent.myID : -1;
             if (id == -1)
                 return;
@@ -162,7 +168,7 @@ namespace MegaStorage.Framework.Models
             if (location is null)
                 return false;
 
-            var tile = new Vector2(x / (float)Game1.tileSize, y / (float)Game1.tileSize);
+            Vector2 tile = new Vector2(x / (float)Game1.tileSize, y / (float)Game1.tileSize);
             health = 10;
             owner.Value = who?.UniqueMultiplayerID ?? Game1.player.UniqueMultiplayerID;
 
@@ -173,7 +179,7 @@ namespace MegaStorage.Framework.Models
             }
             shakeTimer = 50;
 
-            var customChest = new CustomChest(ChestData, tile)
+            CustomChest customChest = new CustomChest(ChestData, tile)
             {
                 Name = Name,
                 ParentSheetIndex = ParentSheetIndex
@@ -196,11 +202,11 @@ namespace MegaStorage.Framework.Models
             if (t == null || t is MeleeWeapon || !t.isHeavyHitter())
                 return false;
 
-            var player = t.getLastFarmerToUse();
+            Farmer player = t.getLastFarmerToUse();
             if (player == null)
                 return false;
 
-            var c = player.GetToolLocation() / 64f;
+            Vector2 c = player.GetToolLocation() / 64f;
             c.X = (int)c.X;
             c.Y = (int)c.Y;
             mutex.RequestLock(() =>
@@ -226,21 +232,23 @@ namespace MegaStorage.Framework.Models
             return false;
         }
 
-        private Debris CreateDebris(Farmer player) =>
-            new Debris(-ParentSheetIndex,
-                player.GetToolLocation(),
-                new Vector2(player.GetBoundingBox()
-                        .Center.X,
-                    player.GetBoundingBox()
-                        .Center.Y))
+        private Debris CreateDebris(Farmer player)
+        {
+            return new Debris(-ParentSheetIndex,
+player.GetToolLocation(),
+new Vector2(player.GetBoundingBox()
+.Center.X,
+player.GetBoundingBox()
+.Center.Y))
             {
                 item = this
             };
+        }
 
         public override void draw(SpriteBatch spriteBatch, int x, int y, float alpha = 1)
         {
-            var layerDepth = Math.Max(0.0f, ((y + 1f) * Game1.tileSize - 24f) / 10000f) + x * 1E-05f;
-            var globalPosition = new Vector2(x * Game1.tileSize, (y - 1) * Game1.tileSize);
+            float layerDepth = Math.Max(0.0f, ((y + 1f) * Game1.tileSize - 24f) / 10000f) + x * 1E-05f;
+            Vector2 globalPosition = new Vector2(x * Game1.tileSize, (y - 1) * Game1.tileSize);
             if (playerChoiceColor.Value.Equals(Color.Black))
             {
                 // Draw Chest
@@ -269,7 +277,7 @@ namespace MegaStorage.Framework.Models
             }
             else
             {
-                var spriteBraceBottom = Game1.getSourceRectForStandardTileSheet(
+                Rectangle spriteBraceBottom = Game1.getSourceRectForStandardTileSheet(
                     Game1.bigCraftableSpriteSheet,
                     ParentSheetIndex + 12,
                     16,
@@ -375,14 +383,16 @@ namespace MegaStorage.Framework.Models
             }
         }
 
-        private Vector2 ShakeOffset(int minValue, int maxValue) =>
-            shakeTimer > 0
-                ? new Vector2(Game1.random.Next(minValue, maxValue), 0)
-                : Vector2.Zero;
+        private Vector2 ShakeOffset(int minValue, int maxValue)
+        {
+            return shakeTimer > 0
+? new Vector2(Game1.random.Next(minValue, maxValue), 0)
+: Vector2.Zero;
+        }
 
         public object getReplacement()
         {
-            var chest = new Chest(playerChest.Value, TileLocation)
+            Chest chest = new Chest(playerChest.Value, TileLocation)
             {
                 Name = Name,
                 Stack = Stack,
@@ -396,7 +406,10 @@ namespace MegaStorage.Framework.Models
             return chest;
         }
 
-        public Dictionary<string, string> getAdditionalSaveData() => ChestData.ToSaveData();
+        public Dictionary<string, string> getAdditionalSaveData()
+        {
+            return ChestData.ToSaveData();
+        }
 
         public void rebuild(Dictionary<string, string> saveData, object item)
         {
@@ -420,8 +433,8 @@ namespace MegaStorage.Framework.Models
             if (!(item is Chest chest) || saveData is null)
                 throw new InvalidOperationException("Cannot create CustomChest");
 
-            var chestData = ChestData.FromSaveData(saveData);
-            var customChest = new CustomChest(chestData, chest.TileLocation)
+            ChestData chestData = ChestData.FromSaveData(saveData);
+            CustomChest customChest = new CustomChest(chestData, chest.TileLocation)
             {
                 Name = chestData.Name,
                 Stack = chest.Stack

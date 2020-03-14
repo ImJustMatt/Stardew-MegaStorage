@@ -25,9 +25,9 @@ namespace MegaStorage.Framework.UI.Overlays
         public bool Visible { get; set; }
         public bool FadedBackground => true;
         public IList<IMenu> SubMenus { get; } = new List<IMenu>();
-        protected internal InterfaceHost ItemGrabMenu => CommonHelper.OfType<InterfaceHost>(ParentMenu);
-        protected internal ChestInventoryMenu ItemsToGrabMenu => ItemGrabMenu.ItemsToGrabMenu;
-        protected internal PlayerInventoryMenu Inventory => ItemGrabMenu.inventory;
+        protected internal InterfaceHost BaseMenu => CommonHelper.OfType<InterfaceHost>(ParentMenu);
+        protected internal ChestInventory ChestInventoryMenu => BaseMenu.ChestInventoryMenu;
+        protected internal PlayerInventory PlayerInventoryMenu => BaseMenu.PlayerInventoryMenu;
 
         /*********
         ** Public methods
@@ -40,16 +40,30 @@ namespace MegaStorage.Framework.UI.Overlays
             Position = ParentMenu.Position + Offset;
         }
 
-        public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds) =>
+        public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds)
+        {
             this.GameWindowSizeChanged(oldBounds, newBounds);
-        public override void receiveLeftClick(int x, int y, bool playSound = true) =>
+        }
+
+        public override void receiveLeftClick(int x, int y, bool playSound = true)
+        {
             this.ReceiveLeftClick(x, y, playSound);
-        public override void receiveRightClick(int x, int y, bool playSound = true) =>
+        }
+
+        public override void receiveRightClick(int x, int y, bool playSound = true)
+        {
             this.ReceiveRightClick(x, y, playSound);
-        public override void receiveScrollWheelAction(int direction) =>
+        }
+
+        public override void receiveScrollWheelAction(int direction)
+        {
             this.ReceiveScrollWheelAction(direction);
-        public override void performHoverAction(int x, int y) =>
+        }
+
+        public override void performHoverAction(int x, int y)
+        {
             this.PerformHoverAction(x, y);
+        }
 
         /*********
         ** Private methods

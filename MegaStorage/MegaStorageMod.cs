@@ -16,7 +16,7 @@ namespace MegaStorage
 {
     public class MegaStorageMod : Mod
     {
-        internal new static IModHelper Helper;
+        internal static new IModHelper Helper;
         internal static InterfaceHost ActiveItemGrabMenu { get; set; }
         internal static CustomChest MainChest { get; set; }
         internal static IList<ChestData> CustomChests = new List<ChestData>();
@@ -41,18 +41,21 @@ namespace MegaStorage
             Helper.Events.Input.ButtonPressed += OnButtonPressed;
         }
 
-        public override object GetApi() => MegaStorageAPI.Instance;
+        public override object GetApi()
+        {
+            return MegaStorageAPI.Instance;
+        }
 
         internal static void StashItems()
         {
-            var items = Game1.player.Items.Where(ModConfig.Instance.StashItems.BelongsTo);
+            IEnumerable<Item> items = Game1.player.Items.Where(ModConfig.Instance.StashItems.BelongsTo);
 
-            foreach (var item in items)
+            foreach (Item item in items)
             {
                 if (item.Stack == 0)
                     item.Stack = 1;
 
-                var addedItem = MainChest.addItem(item);
+                Item addedItem = MainChest.addItem(item);
                 if (addedItem is null)
                     Game1.player.removeItemFromInventory(item);
                 else
@@ -118,15 +121,15 @@ namespace MegaStorage
             if (e.Added.Count() != 1)
                 return;
 
-            var itemPosition = e.Added.Single();
-            var pos = itemPosition.Key;
-            var item = itemPosition.Value;
+            KeyValuePair<Vector2, StardewValley.Object> itemPosition = e.Added.Single();
+            Vector2 pos = itemPosition.Key;
+            StardewValley.Object item = itemPosition.Value;
 
             if (item is CustomChest || CustomChests.All(c => c.ParentSheetIndex != item.ParentSheetIndex))
                 return;
 
             Log.Verbose("OnObjectListChanged: converting");
-            var customChest = item.ToCustomChest(pos);
+            CustomChest customChest = item.ToCustomChest(pos);
             e.Location.objects[pos] = customChest;
         }
 
@@ -155,8 +158,8 @@ namespace MegaStorage
         {
             if (!(Game1.activeClickableMenu is InterfaceHost customItemGrabMenu))
                 return;
-            var oldBounds = new Rectangle(0, 0, e.OldSize.X, e.OldSize.Y);
-            var newBounds = new Rectangle(0, 0, e.NewSize.X, e.NewSize.Y);
+            Rectangle oldBounds = new Rectangle(0, 0, e.OldSize.X, e.OldSize.Y);
+            Rectangle newBounds = new Rectangle(0, 0, e.NewSize.X, e.NewSize.Y);
             customItemGrabMenu.gameWindowSizeChanged(oldBounds, newBounds);
         }
 

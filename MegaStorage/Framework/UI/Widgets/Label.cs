@@ -39,6 +39,7 @@ namespace MegaStorage.Framework.UI.Widgets
             TextAlign = align;
             Font = font ?? Game1.dialogueFont;
             Events.Draw = Draw;
+
             if (forWidget is null)
                 return;
 
@@ -49,7 +50,7 @@ namespace MegaStorage.Framework.UI.Widgets
         /*********
         ** Private methods
         *********/
-        private void Draw(SpriteBatch b, IWidget widget)
+        protected internal override void Draw(SpriteBatch b, IWidget widget)
         {
             Utility.drawTextWithShadow(
                 b,

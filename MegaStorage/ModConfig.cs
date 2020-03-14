@@ -30,10 +30,12 @@ namespace MegaStorage
                 .Select(c => Convert.ToInt32(c, CultureInfo.InvariantCulture))
                 .ToList()
             : null;
-        internal bool BelongsTo(Item item) =>
-            (item is SObject obj)
-            && (IncludesAsList is null || IncludesAsList.Contains(obj.Category) || IncludesAsList.Contains(obj.ParentSheetIndex))
-            && (ExcludesAsList is null || !(ExcludesAsList.Contains(obj.Category) || ExcludesAsList.Contains(obj.ParentSheetIndex)));
+        internal bool BelongsTo(Item item)
+        {
+            return (item is SObject obj)
+&& (IncludesAsList is null || IncludesAsList.Contains(obj.Category) || IncludesAsList.Contains(obj.ParentSheetIndex))
+&& (ExcludesAsList is null || !(ExcludesAsList.Contains(obj.Category) || ExcludesAsList.Contains(obj.ParentSheetIndex)));
+        }
     }
 
     public class ChestTabConfig : StashConfig
@@ -59,20 +61,22 @@ namespace MegaStorage
             : Game1.mouseCursors;
         internal Rectangle SourceRect =>
             string.IsNullOrWhiteSpace(Image)
-            && DefaultChestTabs.TryGetValue(Name, out var sourceRect)
+            && DefaultChestTabs.TryGetValue(Name, out Rectangle sourceRect)
                 ? sourceRect
                 : Rectangle.Empty;
 
         /*********
         ** Public methods
         *********/
-        internal ChestTab ChestTab(IMenu parentMenu, int index) => new ChestTab(
-            Name,
-            parentMenu,
-            Offset + new Vector2(0, index * 60),
-            Texture,
-            SourceRect);
-
+        internal ChestTab ChestTab(IMenu parentMenu, int index)
+        {
+            return new ChestTab(
+Name,
+parentMenu,
+Offset + new Vector2(0, index * 60),
+Texture,
+SourceRect);
+        }
     }
 
     public class ModConfig

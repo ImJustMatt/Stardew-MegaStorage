@@ -1,8 +1,8 @@
 ﻿using MegaStorage.Framework.UI.Menus;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using StardewValley;
+using System;
 
 namespace MegaStorage.Framework.UI.Widgets
 {
@@ -30,13 +30,13 @@ namespace MegaStorage.Framework.UI.Widgets
         /// <param name="widget">The item being hovered over</param>
         public static void HoverZoom(int x, int y, IWidget widget)
         {
-            if (!(widget is ClickableTexture cc))
+            if (!(widget is BaseWidget cc))
                 return;
             cc.scale = cc.containsPoint(x, y)
                 ? Math.Min(1.1f, cc.scale + 0.05f)
                 : Math.Max(1f, cc.scale - 0.05f);
             if (cc.containsPoint(x, y))
-                cc.ItemGrabMenu.hoverText ??= cc.hoverText;
+                cc.BaseMenu.hoverText ??= cc.hoverText;
         }
 
         /// <summary>
@@ -47,13 +47,13 @@ namespace MegaStorage.Framework.UI.Widgets
         /// <param name="widget">The item being hovered over</param>
         public static void HoverPixelZoom(int x, int y, IWidget widget)
         {
-            if (!(widget is ClickableTexture cc))
+            if (!(widget is BaseWidget cc))
                 return;
             cc.scale = cc.containsPoint(x, y)
                 ? Math.Min(Game1.pixelZoom * 1.1f, cc.scale + 0.05f)
                 : Math.Max(Game1.pixelZoom * 1f, cc.scale - 0.05f);
             if (cc.containsPoint(x, y))
-                cc.ItemGrabMenu.hoverText ??= cc.hoverText;
+                cc.BaseMenu.hoverText ??= cc.hoverText;
         }
     }
 }
