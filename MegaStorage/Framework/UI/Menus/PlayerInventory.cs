@@ -58,7 +58,7 @@ namespace MegaStorage.Framework.UI.Menus
 
         public sealed override void SyncItems()
         {
-            foreach (ItemSlot itemSlot in allClickableComponents.OfType<ItemSlot>())
+            foreach (var itemSlot in allClickableComponents.OfType<ItemSlot>())
             {
                 itemSlot.item = (itemSlot.Slot < actualInventory.Count)
                     ? actualInventory[itemSlot.Slot]
@@ -73,7 +73,7 @@ namespace MegaStorage.Framework.UI.Menus
         private void SetupWidgets()
         {
             // OK Button
-            BaseWidget okButton = new BaseWidget(
+            var okButton = new BaseWidget(
                 "okButton",
                 this,
                 RightWidgetsOffset + new Vector2(width, 204),
@@ -91,14 +91,14 @@ namespace MegaStorage.Framework.UI.Menus
             ItemGrabMenu.okButton = okButton;
 
             // Trash Can
-            TrashCan trashCan = new TrashCan(this, RightWidgetsOffset + new Vector2(width, 68));
+            var trashCan = new TrashCan(this, RightWidgetsOffset + new Vector2(width, 68));
             allClickableComponents.Add(trashCan);
             ItemGrabMenu.trashCan = trashCan;
         }
 
         private void SyncItem(NetList<Item, NetRef<Item>> list, int slot, Item oldValue, Item currentItem)
         {
-            ItemSlot itemSlot = allClickableComponents
+            var itemSlot = allClickableComponents
                 .OfType<ItemSlot>()
                 .First(cc => cc.Slot == slot);
 

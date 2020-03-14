@@ -139,17 +139,17 @@ namespace MegaStorage
 
             public static void DrawGrid(SpriteBatch b, int x, int y, int width, int height, int maxItems = -1)
             {
-                int rows = (int)Math.Floor((double)width / Game1.tileSize);
-                int cols = (int)Math.Floor((double)height / Game1.tileSize);
-                int capacity = rows * cols;
-                int horizontalGap = (width - rows * Game1.tileSize) / (rows - 1);
-                int verticalGap = (height - cols * Game1.tileSize) / (cols - 1);
+                var rows = (int)Math.Floor((double)width / Game1.tileSize);
+                var cols = (int)Math.Floor((double)height / Game1.tileSize);
+                var capacity = rows * cols;
+                var horizontalGap = (width - rows * Game1.tileSize) / (rows - 1);
+                var verticalGap = (height - cols * Game1.tileSize) / (cols - 1);
 
-                for (int slot = 0; slot < capacity; ++slot)
+                for (var slot = 0; slot < capacity; ++slot)
                 {
-                    int col = slot % rows;
-                    int row = slot / rows;
-                    Vector2 pos = new Vector2(
+                    var col = slot % rows;
+                    var row = slot / rows;
+                    var pos = new Vector2(
                         x + col * (Game1.tileSize + horizontalGap),
                         y + row * (Game1.tileSize + verticalGap));
 
@@ -222,6 +222,12 @@ namespace MegaStorage
             // Star Button
             public static readonly Rectangle ActiveStarIcon = new Rectangle(310, 392, 16, 16);
             public static readonly Rectangle InactiveStarIcon = new Rectangle(294, 392, 16, 16);
+
+            // Fill Stacks
+            public static readonly Rectangle FillStacks = new Rectangle(103, 469, 16, 16);
+
+            // Organize
+            public static readonly Rectangle Organize = new Rectangle(162, 440, 16, 16);
         }
 
         public static Rectangle GetTile(int x, int y)

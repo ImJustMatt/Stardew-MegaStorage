@@ -48,14 +48,14 @@ namespace MegaStorage
 
         internal static void StashItems()
         {
-            IEnumerable<Item> items = Game1.player.Items.Where(ModConfig.Instance.StashItems.BelongsTo);
+            var items = Game1.player.Items.Where(ModConfig.Instance.StashItems.BelongsTo);
 
-            foreach (Item item in items)
+            foreach (var item in items)
             {
                 if (item.Stack == 0)
                     item.Stack = 1;
 
-                Item addedItem = MainChest.addItem(item);
+                var addedItem = MainChest.addItem(item);
                 if (addedItem is null)
                     Game1.player.removeItemFromInventory(item);
                 else
@@ -121,15 +121,15 @@ namespace MegaStorage
             if (e.Added.Count() != 1)
                 return;
 
-            KeyValuePair<Vector2, StardewValley.Object> itemPosition = e.Added.Single();
-            Vector2 pos = itemPosition.Key;
-            StardewValley.Object item = itemPosition.Value;
+            var itemPosition = e.Added.Single();
+            var pos = itemPosition.Key;
+            var item = itemPosition.Value;
 
             if (item is CustomChest || CustomChests.All(c => c.ParentSheetIndex != item.ParentSheetIndex))
                 return;
 
             Log.Verbose("OnObjectListChanged: converting");
-            CustomChest customChest = item.ToCustomChest(pos);
+            var customChest = item.ToCustomChest(pos);
             e.Location.objects[pos] = customChest;
         }
 
@@ -158,8 +158,8 @@ namespace MegaStorage
         {
             if (!(Game1.activeClickableMenu is InterfaceHost customItemGrabMenu))
                 return;
-            Rectangle oldBounds = new Rectangle(0, 0, e.OldSize.X, e.OldSize.Y);
-            Rectangle newBounds = new Rectangle(0, 0, e.NewSize.X, e.NewSize.Y);
+            var oldBounds = new Rectangle(0, 0, e.OldSize.X, e.OldSize.Y);
+            var newBounds = new Rectangle(0, 0, e.NewSize.X, e.NewSize.Y);
             customItemGrabMenu.gameWindowSizeChanged(oldBounds, newBounds);
         }
 

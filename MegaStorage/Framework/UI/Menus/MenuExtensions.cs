@@ -31,19 +31,19 @@ namespace MegaStorage.Framework.UI.Menus
         }
         public static bool Draw(this IMenu menu, SpriteBatch b)
         {
-            bool done = false;
+            var done = false;
 
             if (menu.FadedBackground)
                 b.Draw(Game1.fadeToBlackRect, Game1.graphics.GraphicsDevice.Viewport.Bounds, Color.Black * 0.5f);
 
             // Draw Widgets
-            foreach (IWidget widget in menu.Widgets())
+            foreach (var widget in menu.Widgets())
             {
                 widget.Events.Draw?.Invoke(b, widget);
             }
 
             // Draw Menus
-            foreach (IMenu subMenu in menu.Menus(true, false))
+            foreach (var subMenu in menu.Menus(true, false))
             {
                 CommonHelper.OfType<IClickableMenu>(subMenu).draw(b);
                 if (subMenu.Type == MenuType.Overlay)
@@ -53,7 +53,7 @@ namespace MegaStorage.Framework.UI.Menus
             if (menu.Type != MenuType.Base)
                 return done;
 
-            InterfaceHost interfaceHost = CommonHelper.OfType<InterfaceHost>(menu);
+            var interfaceHost = CommonHelper.OfType<InterfaceHost>(menu);
 
             // Hover Text
             if (!(interfaceHost.hoveredItem is null))
@@ -95,7 +95,7 @@ namespace MegaStorage.Framework.UI.Menus
 
         public static bool GameWindowSizeChanged(this IMenu menu, Rectangle oldBounds, Rectangle newBounds)
         {
-            bool done = false;
+            var done = false;
 
             // Reposition Self
             menu.Position = menu.Offset +
@@ -103,7 +103,7 @@ namespace MegaStorage.Framework.UI.Menus
                             new Vector2(Game1.viewport.Width, Game1.viewport.Height) / 2);
 
             // Reposition Menus
-            foreach (IMenu subMenu in menu.Menus(false))
+            foreach (var subMenu in menu.Menus(false))
             {
                 CommonHelper.OfType<IClickableMenu>(subMenu).gameWindowSizeChanged(oldBounds, newBounds);
                 if (subMenu.Type == MenuType.Overlay)
@@ -111,7 +111,7 @@ namespace MegaStorage.Framework.UI.Menus
             }
 
             // Reposition Widgets
-            foreach (IWidget widget in menu.Widgets(false))
+            foreach (var widget in menu.Widgets(false))
             {
                 widget.GameWindowSizeChanged();
             }
@@ -122,7 +122,7 @@ namespace MegaStorage.Framework.UI.Menus
         public static bool ReceiveLeftClick(this IMenu menu, int x, int y, bool playSound = true)
         {
             // Left Click Menus
-            foreach (IMenu subMenu in menu.Menus())
+            foreach (var subMenu in menu.Menus())
             {
                 CommonHelper.OfType<IClickableMenu>(subMenu).receiveLeftClick(x, y, playSound);
                 if (subMenu.Type == MenuType.Overlay)
@@ -130,7 +130,7 @@ namespace MegaStorage.Framework.UI.Menus
             }
 
             // Left Click Widgets
-            foreach (IWidget widget in menu.Widgets(true, x, y))
+            foreach (var widget in menu.Widgets(true, x, y))
             {
                 widget.Events.LeftClick?.Invoke(widget);
             }
@@ -141,7 +141,7 @@ namespace MegaStorage.Framework.UI.Menus
         public static bool ReceiveRightClick(this IMenu menu, int x, int y, bool playSound = true)
         {
             // Right Click Menus
-            foreach (IMenu subMenu in menu.Menus())
+            foreach (var subMenu in menu.Menus())
             {
                 CommonHelper.OfType<IClickableMenu>(subMenu).receiveRightClick(x, y, playSound);
                 if (subMenu.Type == MenuType.Overlay)
@@ -149,7 +149,7 @@ namespace MegaStorage.Framework.UI.Menus
             }
 
             // Right Click Widgets
-            foreach (IWidget widget in menu.Widgets(true, x, y))
+            foreach (var widget in menu.Widgets(true, x, y))
             {
                 widget.Events.RightClick?.Invoke(widget);
             }
@@ -159,11 +159,11 @@ namespace MegaStorage.Framework.UI.Menus
 
         public static bool ReceiveScrollWheelAction(this IMenu menu, int direction)
         {
-            int mouseX = Game1.getOldMouseX();
-            int mouseY = Game1.getOldMouseY();
+            var mouseX = Game1.getOldMouseX();
+            var mouseY = Game1.getOldMouseY();
 
             // Scroll Menus
-            foreach (IMenu subMenu in menu.Menus())
+            foreach (var subMenu in menu.Menus())
             {
                 CommonHelper.OfType<IClickableMenu>(subMenu).receiveScrollWheelAction(direction);
                 if (subMenu.Type == MenuType.Overlay)
@@ -171,7 +171,7 @@ namespace MegaStorage.Framework.UI.Menus
             }
 
             // Scroll Widgets
-            foreach (IWidget widget in menu.Widgets(true, mouseX, mouseY))
+            foreach (var widget in menu.Widgets(true, mouseX, mouseY))
             {
                 widget.Events.Scroll?.Invoke(direction, widget);
             }
@@ -189,7 +189,7 @@ namespace MegaStorage.Framework.UI.Menus
             }
 
             // Hover Menus
-            foreach (IMenu subMenu in menu.Menus())
+            foreach (var subMenu in menu.Menus())
             {
                 CommonHelper.OfType<IClickableMenu>(subMenu).performHoverAction(x, y);
                 if (subMenu.Type == MenuType.Overlay)
@@ -197,7 +197,7 @@ namespace MegaStorage.Framework.UI.Menus
             }
 
             // Hover Widgets
-            foreach (IWidget widget in menu.Widgets())
+            foreach (var widget in menu.Widgets())
             {
                 widget.Events.Hover?.Invoke(x, y, widget);
             }

@@ -60,7 +60,7 @@ namespace MegaStorage.Framework.UI.Widgets
                     (int)(parentMenu.Position.Y + offset.Y),
                     width,
                     height),
-                "", hoverText, texture, sourceRect, scale)
+                null, hoverText, texture, sourceRect, scale)
         {
             ParentMenu = parentMenu;
             Offset = offset;

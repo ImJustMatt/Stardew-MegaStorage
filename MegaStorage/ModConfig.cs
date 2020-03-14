@@ -61,7 +61,7 @@ namespace MegaStorage
             : Game1.mouseCursors;
         internal Rectangle SourceRect =>
             string.IsNullOrWhiteSpace(Image)
-            && DefaultChestTabs.TryGetValue(Name, out Rectangle sourceRect)
+            && DefaultChestTabs.TryGetValue(Name, out var sourceRect)
                 ? sourceRect
                 : Rectangle.Empty;
 

@@ -72,7 +72,7 @@ namespace MegaStorage.Framework.UI.Menus
             Sprites.Menu.Draw(b, this.GetBounds());
 
             // Draw Grid
-            int maxItems = showGrayedOutSlots ? Game1.player.MaxItems : -1;
+            var maxItems = showGrayedOutSlots ? Game1.player.MaxItems : -1;
             Sprites.Inventory.DrawGrid(b,
                 Position + Padding,
                 this.GetDimensions() - Padding * 2,
@@ -167,11 +167,11 @@ namespace MegaStorage.Framework.UI.Menus
         *********/
         private void SetupItemSlots()
         {
-            for (int slot = 0; slot < capacity; ++slot)
+            for (var slot = 0; slot < capacity; ++slot)
             {
-                int col = slot % ItemsPerRow;
-                int row = slot / ItemsPerRow;
-                ItemSlot itemSlot = new ItemSlot(
+                var col = slot % ItemsPerRow;
+                var row = slot / ItemsPerRow;
+                var itemSlot = new ItemSlot(
                     this,
                     Padding + new Vector2(
                         col * (Game1.tileSize + horizontalGap),

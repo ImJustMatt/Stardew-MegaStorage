@@ -37,7 +37,7 @@ namespace MegaStorage.Framework.UI.Overlays
             {
                 if (AllObjects.Any())
                     return AllObjects;
-                foreach (int id in Game1.objectInformation.Keys)
+                foreach (var id in Game1.objectInformation.Keys)
                 {
                     AllObjects.Add(new SObject(Vector2.Zero, id, 1));
                 }
@@ -51,7 +51,7 @@ namespace MegaStorage.Framework.UI.Overlays
             {
                 if (AllCategories.Any())
                     return AllCategories;
-                List<string> categories = Objects
+                var categories = Objects
                     .Select(obj => obj.getCategoryName())
                     .Distinct()
                     .Where(cat => !string.IsNullOrWhiteSpace(cat))
@@ -71,9 +71,9 @@ namespace MegaStorage.Framework.UI.Overlays
                 _currentObjects = Objects
                     .Where(o => o.getCategoryName().Equals(Categories[_currentCategory], StringComparison.InvariantCultureIgnoreCase))
                     .ToList();
-                for (int slot = 0; slot < ItemsPerRow * MaxRows; ++slot)
+                for (var slot = 0; slot < ItemsPerRow * MaxRows; ++slot)
                 {
-                    IWidget itemSlot = _itemSlots.ElementAt(slot);
+                    var itemSlot = _itemSlots.ElementAt(slot);
                     if (!(itemSlot is ClickableTextureComponent itemSlotCC))
                         continue;
                     if (slot >= _currentObjects.Count)
@@ -82,7 +82,7 @@ namespace MegaStorage.Framework.UI.Overlays
                         continue;
                     }
 
-                    SObject obj = _currentObjects[slot];
+                    var obj = _currentObjects[slot];
                     itemSlotCC.sourceRect = Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, obj.ParentSheetIndex, 16, 16);
                     itemSlotCC.name = obj.ParentSheetIndex.ToString(CultureInfo.InvariantCulture);
                     itemSlotCC.hoverText = obj.DisplayName;
@@ -198,11 +198,11 @@ namespace MegaStorage.Framework.UI.Overlays
             allClickableComponents.Add(CategoryName);
 
             // Items
-            for (int slot = 0; slot < ItemsPerRow * MaxRows; ++slot)
+            for (var slot = 0; slot < ItemsPerRow * MaxRows; ++slot)
             {
-                int col = slot % ItemsPerRow;
-                int row = slot / ItemsPerRow;
-                BaseWidget itemSlotCC = new BaseWidget(
+                var col = slot % ItemsPerRow;
+                var row = slot / ItemsPerRow;
+                var itemSlotCC = new BaseWidget(
                     slot.ToString(CultureInfo.InvariantCulture),
                     this,
                     Padding + new Vector2(col, row + 2) * Game1.tileSize,

@@ -20,8 +20,6 @@ namespace MegaStorage.Framework.UI.Menus
         ** Fields
         *********/
         public static readonly Vector2 RightWidgetsOffset = new Vector2(24, -32);
-        public static readonly Rectangle FillStacksSourceRect = new Rectangle(103, 469, 16, 16);
-        public static readonly Rectangle OrganizeSourceRect = new Rectangle(162, 440, 16, 16);
 
         public event EventHandler ChestTabChanged;
 
@@ -110,7 +108,7 @@ namespace MegaStorage.Framework.UI.Menus
                         }
                         else if (obj.IsRecipe)
                         {
-                            string key = HeldItem.Name.Substring(0,
+                            var key = HeldItem.Name.Substring(0,
                                 HeldItem.Name.IndexOf("Recipe",
                                     StringComparison.InvariantCultureIgnoreCase) - 1);
                             try
@@ -180,7 +178,7 @@ namespace MegaStorage.Framework.UI.Menus
                         }
                         else if (obj.IsRecipe)
                         {
-                            string key = HeldItem.Name.Substring(0,
+                            var key = HeldItem.Name.Substring(0,
                                 HeldItem.Name.IndexOf("Recipe",
                                     StringComparison.InvariantCultureIgnoreCase) - 1);
                             try
@@ -223,8 +221,8 @@ namespace MegaStorage.Framework.UI.Menus
             _upArrow.visible = _currentRow > 0;
             _downArrow.visible = _currentRow < _maxRows - rows;
 
-            IEnumerator<Item> enumerator = VisibleItems.Skip(ItemsPerRow * _currentRow).GetEnumerator();
-            foreach (ItemSlot itemSlot in allClickableComponents.OfType<ItemSlot>())
+            var enumerator = VisibleItems.Skip(ItemsPerRow * _currentRow).GetEnumerator();
+            foreach (var itemSlot in allClickableComponents.OfType<ItemSlot>())
             {
                 if (enumerator.MoveNext())
                 {
@@ -281,7 +279,7 @@ namespace MegaStorage.Framework.UI.Menus
                 return;
 
             // Color Picker Toggle
-            BaseWidget colorPickerToggleButton = new BaseWidget(
+            var colorPickerToggleButton = new BaseWidget(
                 "colorPickerToggleButton",
                 this,
                 RightWidgetsOffset + this.GetDimensions() * new Vector2(1, 1f / 4f),
@@ -299,12 +297,12 @@ namespace MegaStorage.Framework.UI.Menus
             ItemGrabMenu.colorPickerToggleButton = colorPickerToggleButton;
 
             // Fill Stacks
-            BaseWidget fillStacksButton = new BaseWidget(
+            var fillStacksButton = new BaseWidget(
                 "fillStacks",
                 this,
                 RightWidgetsOffset + this.GetDimensions() * new Vector2(1, 2f / 4f),
                 Game1.mouseCursors,
-                FillStacksSourceRect,
+                Sprites.Icons.FillStacks,
                 Game1.content.LoadString("Strings\\UI:ItemGrab_FillStacks"))
             {
                 myID = 12952,
@@ -319,12 +317,12 @@ namespace MegaStorage.Framework.UI.Menus
             ItemGrabMenu.fillStacksButton = fillStacksButton;
 
             // Organize
-            BaseWidget organizeButton = new BaseWidget(
+            var organizeButton = new BaseWidget(
                 "organize",
                 this,
                 RightWidgetsOffset + this.GetDimensions() * new Vector2(1, 3f / 4f),
                 Game1.mouseCursors,
-                OrganizeSourceRect,
+                Sprites.Icons.Organize,
                 Game1.content.LoadString("Strings\\UI:ItemGrab_Organize"))
             {
                 myID = 106,
@@ -339,10 +337,10 @@ namespace MegaStorage.Framework.UI.Menus
             ItemGrabMenu.organizeButton = organizeButton;
 
             // Chest Tabs
-            for (int index = 0; index < Math.Min(7, ModConfig.Instance.ChestTabs.Count); ++index)
+            for (var index = 0; index < Math.Min(7, ModConfig.Instance.ChestTabs.Count); ++index)
             {
-                ChestTabConfig chestTabConfig = ModConfig.Instance.ChestTabs.ElementAt(index);
-                ChestTab chestTab = chestTabConfig.ChestTab(this, index);
+                var chestTabConfig = ModConfig.Instance.ChestTabs.ElementAt(index);
+                var chestTab = chestTabConfig.ChestTab(this, index);
 
                 chestTab.myID = index + 239865;
                 chestTab.upNeighborID = index > 0 || CustomChest.ChestData.EnableRemoteStorage ? index + 239864 : 4343;
@@ -412,8 +410,8 @@ namespace MegaStorage.Framework.UI.Menus
 
         private void SyncItem(NetList<Item, NetRef<Item>> list, int slot, Item oldItem, Item currentItem)
         {
-            bool oldBelongsToCategory = _currentTab.BelongsToCategory(oldItem);
-            bool newBelongsToCategory = _currentTab.BelongsToCategory(currentItem);
+            var oldBelongsToCategory = _currentTab.BelongsToCategory(oldItem);
+            var newBelongsToCategory = _currentTab.BelongsToCategory(currentItem);
 
             if (!oldBelongsToCategory && !newBelongsToCategory)
                 return;
@@ -425,7 +423,7 @@ namespace MegaStorage.Framework.UI.Menus
                 return;
             }
 
-            ItemSlot itemSlot = allClickableComponents
+            var itemSlot = allClickableComponents
                                .OfType<ItemSlot>()
                                .FirstOrDefault(cc => cc.Slot == slot)
                            ?? allClickableComponents
@@ -441,7 +439,7 @@ namespace MegaStorage.Framework.UI.Menus
 
         private void DrawStarButton(SpriteBatch b, IWidget widget)
         {
-            ClickableTextureComponent cc = CommonHelper.OfType<ClickableTextureComponent>(widget);
+            var cc = CommonHelper.OfType<ClickableTextureComponent>(widget);
             cc.sourceRect = ActualChest.Equals(CustomChest)
                 ? Sprites.Icons.ActiveStarIcon
                 : Sprites.Icons.InactiveStarIcon;
@@ -456,7 +454,7 @@ namespace MegaStorage.Framework.UI.Menus
             if (!Context.IsMainPlayer || ActualChest.items.Count > 0)
                 return;
 
-            ClickableTextureComponent cc = CommonHelper.OfType<ClickableTextureComponent>(widget);
+            var cc = CommonHelper.OfType<ClickableTextureComponent>(widget);
 
             if (ActualChest.Equals(CustomChest))
                 return;
@@ -506,7 +504,7 @@ namespace MegaStorage.Framework.UI.Menus
 
         internal void RightClickChestTab(IWidget widget)
         {
-            ChestTab chestTab = CommonHelper.OfType<ChestTab>(widget);
+            var chestTab = CommonHelper.OfType<ChestTab>(widget);
             ItemGrabMenu.ItemPickMenu.SelectedChestTab = chestTab;
             ItemGrabMenu.ItemPickMenu.Visible = true;
         }
@@ -532,7 +530,7 @@ namespace MegaStorage.Framework.UI.Menus
             ChestTab savedTab = null;
             ChestTab prevTab = null;
             ChestTab nextTab = null;
-            foreach (ChestTab chestTab in allClickableComponents.OfType<ChestTab>())
+            foreach (var chestTab in allClickableComponents.OfType<ChestTab>())
             {
                 if (savedTab == CurrentTab)
                 {

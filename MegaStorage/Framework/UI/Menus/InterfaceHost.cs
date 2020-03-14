@@ -96,7 +96,7 @@ namespace MegaStorage.Framework.UI.Menus
                 return;
 
             // Left Click Chest Color Picker
-            CustomChest customChest = CommonHelper.OfType<CustomChest>(context);
+            var customChest = CommonHelper.OfType<CustomChest>(context);
             chestColorPicker.receiveLeftClick(x, y, playSound);
             customChest.playerChoiceColor.Value =
                 chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
@@ -108,7 +108,7 @@ namespace MegaStorage.Framework.UI.Menus
                 return;
 
             // Right Click Chest Color Picker
-            CustomChest customChest = CommonHelper.OfType<CustomChest>(context);
+            var customChest = CommonHelper.OfType<CustomChest>(context);
             chestColorPicker.receiveRightClick(x, y, playSound && playRightClickSound);
             customChest.playerChoiceColor.Value =
                 chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
@@ -120,9 +120,9 @@ namespace MegaStorage.Framework.UI.Menus
                 return;
 
             // Scroll Chest Color Picker
-            CustomChest customChest = CommonHelper.OfType<CustomChest>(context);
-            int x = Game1.getOldMouseX();
-            int y = Game1.getOldMouseY();
+            var customChest = CommonHelper.OfType<CustomChest>(context);
+            var x = Game1.getOldMouseX();
+            var y = Game1.getOldMouseY();
 
             if (chestColorPicker.isWithinBounds(x, y))
             {
@@ -192,11 +192,11 @@ namespace MegaStorage.Framework.UI.Menus
                 return;
 
             // inventory (Clickable Component)
-            for (int slot = 0; slot < ItemsToGrabMenu.inventory.Count; ++slot)
+            for (var slot = 0; slot < ItemsToGrabMenu.inventory.Count; ++slot)
             {
-                ClickableComponent cc = ItemsToGrabMenu.inventory.ElementAt(slot);
-                int col = slot % BaseInventory.ItemsPerRow;
-                int row = slot / BaseInventory.ItemsPerRow;
+                var cc = ItemsToGrabMenu.inventory.ElementAt(slot);
+                var col = slot % BaseInventory.ItemsPerRow;
+                var row = slot / BaseInventory.ItemsPerRow;
 
                 cc.myID += 53910;
                 cc.fullyImmutable = true;
@@ -253,11 +253,11 @@ namespace MegaStorage.Framework.UI.Menus
             }
 
             // inventory (Clickable Component)
-            for (int slot = 0; slot < inventory.inventory.Count; ++slot)
+            for (var slot = 0; slot < inventory.inventory.Count; ++slot)
             {
-                ClickableComponent cc = ItemsToGrabMenu.inventory.ElementAt(slot);
-                int col = slot % BaseInventory.ItemsPerRow;
-                int row = slot / BaseInventory.ItemsPerRow;
+                var cc = ItemsToGrabMenu.inventory.ElementAt(slot);
+                var col = slot % BaseInventory.ItemsPerRow;
+                var row = slot / BaseInventory.ItemsPerRow;
 
                 // Top row adjustment
                 if (row == 0)
@@ -270,9 +270,9 @@ namespace MegaStorage.Framework.UI.Menus
 
             // Chest Color Picker (Clickable Component)
             discreteColorPickerCC = new List<ClickableComponent>();
-            for (int index = 0; index < chestColorPicker.totalColors; ++index)
+            for (var index = 0; index < chestColorPicker.totalColors; ++index)
             {
-                ClickableComponent discreteColorPicker = new ClickableComponent(new Rectangle(chestColorPicker.xPositionOnScreen + borderWidth / 2 + index * 9 * 4, chestColorPicker.yPositionOnScreen + borderWidth / 2, 36, 28), "")
+                var discreteColorPicker = new ClickableComponent(new Rectangle(chestColorPicker.xPositionOnScreen + borderWidth / 2 + index * 9 * 4, chestColorPicker.yPositionOnScreen + borderWidth / 2, 36, 28), "")
                 {
                     myID = index + 4343,
                     rightNeighborID = index < chestColorPicker.totalColors - 1 ? index + 4343 + 1 : -1,
