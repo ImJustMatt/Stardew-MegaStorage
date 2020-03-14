@@ -23,7 +23,7 @@ namespace MegaStorage.Framework.UI.Widgets
             Vector2 offset,
             Texture2D texture,
             Rectangle sourceRect)
-            : base(name, parentMenu, offset, texture, sourceRect,
+            : base(name, parentMenu, offset, new Sprite(texture, sourceRect, scale: Game1.pixelZoom),
                 MegaStorageMod.Helper.Translation.Get($"category.{name}"))
         {
             Events.LeftClick = LeftClick;

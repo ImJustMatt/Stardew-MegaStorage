@@ -158,9 +158,7 @@ namespace MegaStorage.Framework.UI.Overlays
                 this,
                 Padding * new Vector2(1, 1) +
                 new Vector2(0, 0),
-                Game1.mouseCursors,
-                Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 44),
-                scale: 1f)
+                Sprites.Icons.LeftArrow)
             {
                 visible = false
             };
@@ -173,9 +171,7 @@ namespace MegaStorage.Framework.UI.Overlays
                 this,
                 Padding * new Vector2(-1, 1) +
                 new Vector2(width - Game1.tileSize, 0),
-                Game1.mouseCursors,
-                Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 33),
-                scale: 1f);
+                Sprites.Icons.RightArrow);
             RightArrow.Events.LeftClick = NextPage;
             allClickableComponents.Add(RightArrow);
 
@@ -184,9 +180,8 @@ namespace MegaStorage.Framework.UI.Overlays
                 "categoryCheckbox",
                 this,
                 Padding + new Vector2(0, Game1.tileSize),
-                Game1.mouseCursors,
-                OptionsCheckbox.sourceRectUnchecked,
-                OptionsCheckbox.sourceRectChecked);
+                Sprites.Icons.Unchecked,
+                Sprites.Icons.Checked);
             allClickableComponents.Add(CategoryCheckbox);
 
             // Category Name (Label)
@@ -202,15 +197,16 @@ namespace MegaStorage.Framework.UI.Overlays
             {
                 var col = slot % ItemsPerRow;
                 var row = slot / ItemsPerRow;
-                var itemSlotCC = new BaseWidget(
-                    slot.ToString(CultureInfo.InvariantCulture),
+                var itemSlot = new ItemSlot(
                     this,
                     Padding + new Vector2(col, row + 2) * Game1.tileSize,
-                    Game1.objectSpriteSheet,
-                    Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, 1));
-                itemSlotCC.Events.Draw = DrawItem;
-                _itemSlots.Add(itemSlotCC);
-                allClickableComponents.Add(itemSlotCC);
+                    slot,
+                    null)
+                {
+                    visible = false
+                };
+                _itemSlots.Add(itemSlot);
+                allClickableComponents.Add(itemSlot);
             }
 
             CurrentCategory = 0;

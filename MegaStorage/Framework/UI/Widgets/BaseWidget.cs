@@ -23,7 +23,6 @@ namespace MegaStorage.Framework.UI.Widgets
             }
         }
         public WidgetEvents Events { get; } = new WidgetEvents();
-        public Color Color { get; set; } = Color.White;
         protected internal InterfaceHost BaseMenu =>
             _baseMenu ??= CommonHelper.OfType<InterfaceHost>(ParentMenu.BaseMenu());
         private InterfaceHost _baseMenu;
@@ -49,18 +48,16 @@ namespace MegaStorage.Framework.UI.Widgets
             string name,
             IMenu parentMenu,
             Vector2 offset,
-            Texture2D texture,
-            Rectangle sourceRect,
+            Sprite sprite,
             string hoverText = null,
             int width = Game1.tileSize,
-            int height = Game1.tileSize,
-            float scale = Game1.pixelZoom)
+            int height = Game1.tileSize)
             : base(name,
                 new Rectangle((int)(parentMenu.Position.X + offset.X),
                     (int)(parentMenu.Position.Y + offset.Y),
                     width,
                     height),
-                null, hoverText, texture, sourceRect, scale)
+                null, hoverText, sprite.Texture, sprite.SourceRect, sprite.Scale)
         {
             ParentMenu = parentMenu;
             Offset = offset;
@@ -73,10 +70,7 @@ namespace MegaStorage.Framework.UI.Widgets
         *********/
         protected internal virtual void Draw(SpriteBatch b, IWidget widget)
         {
-            if (!(item is null))
-                drawItem(b);
-            else
-                draw(b, Color, 0.860000014305115f + bounds.Y / 20000f);
+            draw(b, Color.White, 0.860000014305115f + bounds.Y / 20000f);
         }
 
         protected internal virtual void Hover(int x, int y, IWidget widget)

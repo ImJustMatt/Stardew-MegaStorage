@@ -77,9 +77,7 @@ namespace MegaStorage.Framework.UI.Menus
                 "okButton",
                 this,
                 RightWidgetsOffset + new Vector2(width, 204),
-                Game1.mouseCursors,
-                Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 46),
-                scale: 1f)
+                Sprites.Icons.Ok)
             {
                 myID = 4857,
                 upNeighborID = 5948,

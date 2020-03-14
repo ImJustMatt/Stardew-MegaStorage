@@ -1,6 +1,5 @@
 ﻿using MegaStorage.Framework.UI.Menus;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace MegaStorage.Framework.UI.Widgets
 {
@@ -10,8 +9,8 @@ namespace MegaStorage.Framework.UI.Widgets
         ** Fields
         *********/
         public bool IsChecked;
-        public Rectangle OffState;
-        public Rectangle OnState;
+        public Sprite OffSprite;
+        public Sprite OnSprite;
 
         /*********
         ** Public methods
@@ -20,13 +19,12 @@ namespace MegaStorage.Framework.UI.Widgets
             string name,
             IMenu parentMenu,
             Vector2 offset,
-            Texture2D texture,
-            Rectangle offState,
-            Rectangle onState)
-            : base(name, parentMenu, offset, texture, offState)
+            Sprite offSprite,
+            Sprite onSprite)
+            : base(name, parentMenu, offset, offSprite)
         {
-            OffState = offState;
-            OnState = onState;
+            OffSprite = offSprite;
+            OnSprite = onSprite;
             Events.LeftClick = LeftClick;
         }
 
@@ -37,8 +35,8 @@ namespace MegaStorage.Framework.UI.Widgets
         {
             IsChecked = !IsChecked;
             sourceRect = IsChecked
-                ? OnState
-                : OffState;
+                ? OnSprite.SourceRect
+                : OffSprite.SourceRect;
         }
     }
 }

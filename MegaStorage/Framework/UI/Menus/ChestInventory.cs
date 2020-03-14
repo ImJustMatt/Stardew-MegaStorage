@@ -47,13 +47,13 @@ namespace MegaStorage.Framework.UI.Menus
             }
         }
 
+        protected internal BaseWidget UpArrow;
+        protected internal BaseWidget DownArrow;
+        protected internal Checkbox StarButton;
+
         private ChestTab _currentTab;
         private int _currentRow;
         private int _maxRows;
-
-        private BaseWidget _upArrow;
-        private BaseWidget _downArrow;
-        private Checkbox _starButton;
 
         private IReflectedField<TemporaryAnimatedSprite> _poofReflected;
 
@@ -218,8 +218,8 @@ namespace MegaStorage.Framework.UI.Menus
         public sealed override void SyncItems()
         {
             _maxRows = (int)Math.Ceiling((double)VisibleItems.Count / ItemsPerRow);
-            _upArrow.visible = _currentRow > 0;
-            _downArrow.visible = _currentRow < _maxRows - rows;
+            UpArrow.visible = _currentRow > 0;
+            DownArrow.visible = _currentRow < _maxRows - rows;
 
             var enumerator = VisibleItems.Skip(ItemsPerRow * _currentRow).GetEnumerator();
             foreach (var itemSlot in allClickableComponents.OfType<ItemSlot>())
@@ -244,36 +244,32 @@ namespace MegaStorage.Framework.UI.Menus
         private void SetupWidgets()
         {
             // Up Arrow
-            _upArrow = new BaseWidget(
+            UpArrow = new BaseWidget(
                 "upArrow",
                 this,
                 new Vector2(width - Game1.tileSize + 8, 36),
-                Game1.mouseCursors,
-                Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 12),
-                scale: 1f)
+                Sprites.Icons.UpArrow)
             {
                 myID = 88,
                 downNeighborID = 89,
                 visible = false
             };
-            _upArrow.Events.LeftClick = ScrollUp;
-            allClickableComponents.Add(_upArrow);
+            UpArrow.Events.LeftClick = ScrollUp;
+            allClickableComponents.Add(UpArrow);
 
             // Down Arrow
-            _downArrow = new BaseWidget(
+            DownArrow = new BaseWidget(
                 "downArrow",
                 this,
                 new Vector2(width - Game1.tileSize + 8, height - Game1.tileSize - 36),
-                Game1.mouseCursors,
-                Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 11),
-                scale: 1f)
+                Sprites.Icons.DownArrow)
             {
                 myID = 89,
                 upNeighborID = 88,
                 visible = _currentRow <= _maxRows - rows,
             };
-            _downArrow.Events.LeftClick = ScrollDown;
-            allClickableComponents.Add(_downArrow);
+            DownArrow.Events.LeftClick = ScrollDown;
+            allClickableComponents.Add(DownArrow);
 
             if (!CustomChest.ChestData.EnableChestTabs)
                 return;
@@ -283,8 +279,7 @@ namespace MegaStorage.Framework.UI.Menus
                 "colorPickerToggleButton",
                 this,
                 RightWidgetsOffset + this.GetDimensions() * new Vector2(1, 1f / 4f),
-                Game1.mouseCursors,
-                new Rectangle(119, 469, 16, 16),
+                Sprites.Icons.ColorToggle,
                 Game1.content.LoadString("Strings\\UI:Toggle_ColorPicker"))
             {
                 myID = 27346,
@@ -293,6 +288,7 @@ namespace MegaStorage.Framework.UI.Menus
                 region = 15923
             };
             colorPickerToggleButton.Events.LeftClick = ClickColorPickerToggleButton;
+            colorPickerToggleButton.Events.Hover = WidgetEvents.HoverPixelZoom;
             allClickableComponents.Add(colorPickerToggleButton);
             ItemGrabMenu.colorPickerToggleButton = colorPickerToggleButton;
 
@@ -301,7 +297,6 @@ namespace MegaStorage.Framework.UI.Menus
                 "fillStacks",
                 this,
                 RightWidgetsOffset + this.GetDimensions() * new Vector2(1, 2f / 4f),
-                Game1.mouseCursors,
                 Sprites.Icons.FillStacks,
                 Game1.content.LoadString("Strings\\UI:ItemGrab_FillStacks"))
             {
@@ -321,7 +316,6 @@ namespace MegaStorage.Framework.UI.Menus
                 "organize",
                 this,
                 RightWidgetsOffset + this.GetDimensions() * new Vector2(1, 3f / 4f),
-                Game1.mouseCursors,
                 Sprites.Icons.Organize,
                 Game1.content.LoadString("Strings\\UI:ItemGrab_Organize"))
             {
@@ -393,19 +387,18 @@ namespace MegaStorage.Framework.UI.Menus
             if (!CustomChest.ChestData.EnableRemoteStorage)
                 return;
 
-            _starButton = new Checkbox(
+            StarButton = new Checkbox(
                 "starButton",
                 this,
                 new Vector2(-1, -1) * Game1.tileSize,
-                Game1.mouseCursors,
                 Sprites.Icons.InactiveStarIcon,
                 Sprites.Icons.ActiveStarIcon)
             {
                 myID = 123
             };
-            _starButton.Events.Draw = DrawStarButton;
-            _starButton.Events.LeftClick = ClickStarButton;
-            allClickableComponents.Add(_starButton);
+            StarButton.Events.Draw = DrawStarButton;
+            StarButton.Events.LeftClick = ClickStarButton;
+            allClickableComponents.Add(StarButton);
         }
 
         private void SyncItem(NetList<Item, NetRef<Item>> list, int slot, Item oldItem, Item currentItem)
@@ -441,8 +434,8 @@ namespace MegaStorage.Framework.UI.Menus
         {
             var cc = CommonHelper.OfType<ClickableTextureComponent>(widget);
             cc.sourceRect = ActualChest.Equals(CustomChest)
-                ? Sprites.Icons.ActiveStarIcon
-                : Sprites.Icons.InactiveStarIcon;
+                ? Sprites.Icons.ActiveStarIcon.SourceRect
+                : Sprites.Icons.InactiveStarIcon.SourceRect;
             cc.draw(
                 b,
                 ActualChest.Equals(CustomChest) ? Color.White : Color.Gray * 0.8f,
@@ -459,7 +452,7 @@ namespace MegaStorage.Framework.UI.Menus
             if (ActualChest.Equals(CustomChest))
                 return;
 
-            cc.sourceRect = Sprites.Icons.ActiveStarIcon;
+            cc.sourceRect = Sprites.Icons.ActiveStarIcon.SourceRect;
 
             if (CustomChest.Equals(MegaStorageMod.MainChest))
             {

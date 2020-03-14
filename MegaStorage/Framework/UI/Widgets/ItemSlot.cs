@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using StardewValley;
 using System.Globalization;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace MegaStorage.Framework.UI.Widgets
 {
@@ -25,11 +26,10 @@ namespace MegaStorage.Framework.UI.Widgets
                     slot.ToString(CultureInfo.InvariantCulture),
                     parentMenu,
                     offset,
-                    Game1.menuTexture,
-                    Game1.getSourceRectForStandardTileSheet(Game1.menuTexture, 57))
+                    Sprites.Inventory.GrayedOut)
         {
             Slot = slot;
-            Color = Color.White * 0.0f;
+            scale = Game1.pixelZoom;
             this.item = item;
             Events.Draw = Draw;
             Events.LeftClick = LeftClick;
@@ -39,6 +39,11 @@ namespace MegaStorage.Framework.UI.Widgets
         /*********
         ** Private methods
         *********/
+        protected internal override void Draw(SpriteBatch b, IWidget widget)
+        {
+            if (!(item is null))
+                drawItem(b);
+        }
         protected internal void LeftClick(IWidget widget)
         {
             InventoryMenu.ItemSlot ??= this;

@@ -1,27 +1,29 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
+using StardewValley.Menus;
 using System;
+using System.Collections.Generic;
 
 namespace MegaStorage
 {
     internal static class Sprites
     {
-        // Dialogue Box Tiles
+        // Dialogue Box
         public static class Menu
         {
-            /*********
+            /*********W
             ** Fields
             *********/
-            public static readonly Rectangle Background = GetTile(1, 2);
-            public static readonly Rectangle Top = GetTile(2, 0);
-            public static readonly Rectangle Right = GetTile(3, 2);
-            public static readonly Rectangle Bottom = GetTile(2, 3);
-            public static readonly Rectangle Left = GetTile(0, 2);
-            public static readonly Rectangle TopRight = GetTile(3, 0);
-            public static readonly Rectangle BottomRight = GetTile(3, 3);
-            public static readonly Rectangle BottomLeft = GetTile(0, 3);
-            public static readonly Rectangle TopLeft = GetTile(0, 0);
+            public static readonly Sprite Background = new Sprite(Game1.menuTexture, GetTile(1, 2));
+            public static readonly Sprite BorderN = new Sprite(Game1.menuTexture, GetTile(2, 0));
+            public static readonly Sprite BorderE = new Sprite(Game1.menuTexture, GetTile(3, 2));
+            public static readonly Sprite BorderS = new Sprite(Game1.menuTexture, GetTile(2, 3));
+            public static readonly Sprite BorderW = new Sprite(Game1.menuTexture, GetTile(0, 2));
+            public static readonly Sprite BorderNE = new Sprite(Game1.menuTexture, GetTile(3, 0));
+            public static readonly Sprite BorderSE = new Sprite(Game1.menuTexture, GetTile(3, 3));
+            public static readonly Sprite BorderSW = new Sprite(Game1.menuTexture, GetTile(0, 3));
+            public static readonly Sprite BorderNW = new Sprite(Game1.menuTexture, GetTile(0, 0));
 
             /*********
             ** Public methods
@@ -34,87 +36,40 @@ namespace MegaStorage
             public static void Draw(SpriteBatch b, int x, int y, int width, int height)
             {
                 // Background
-                b.Draw(
-                    Game1.menuTexture,
-                    new Rectangle(
-                        x + Game1.tileSize / 2,
-                        y + Game1.tileSize / 2,
-                        width - Game1.tileSize,
-                        height - Game1.tileSize),
-                    Background,
-                    Color.White);
+                Background.Draw(b,
+                    x + Game1.tileSize / 2,
+                    y + Game1.tileSize / 2,
+                    width - Game1.tileSize,
+                    height - Game1.tileSize);
 
-                // Top Border
-                b.Draw(
-                    Game1.menuTexture,
-                    new Rectangle(
-                        x + Game1.tileSize,
-                        y,
-                        width - Game1.tileSize * 2,
-                        Game1.tileSize),
-                    Top,
-                    Color.White);
+                BorderN.Draw(b,
+                    x + Game1.tileSize,
+                    y,
+                    width - Game1.tileSize * 2,
+                    Game1.tileSize);
 
-                // Bottom Border
-                b.Draw(
-                    Game1.menuTexture,
-                    new Rectangle(
-                        x + Game1.tileSize,
-                        y + height - Game1.tileSize,
-                        width - Game1.tileSize * 2,
-                        Game1.tileSize),
-                    Bottom,
-                    Color.White);
+                BorderS.Draw(b,
+                    x + Game1.tileSize,
+                    y + height - Game1.tileSize,
+                    width - Game1.tileSize * 2,
+                    Game1.tileSize);
 
-                // Left Border
-                b.Draw(
-                    Game1.menuTexture,
-                    new Rectangle(
-                        x,
-                        y + Game1.tileSize,
-                        Game1.tileSize,
-                        height - Game1.tileSize * 2),
-                    Left,
-                    Color.White);
+                BorderE.Draw(b,
+                    x + width - Game1.tileSize,
+                    y + Game1.tileSize,
+                    Game1.tileSize,
+                    height - Game1.tileSize * 2);
 
-                // Right Border
-                b.Draw(
-                    Game1.menuTexture,
-                    new Rectangle(
-                        x + width - Game1.tileSize,
-                        y + Game1.tileSize,
-                        Game1.tileSize,
-                        height - Game1.tileSize * 2),
-                    Right,
-                    Color.White);
+                BorderW.Draw(b,
+                    x,
+                    y + Game1.tileSize,
+                    Game1.tileSize,
+                    height - Game1.tileSize * 2);
 
-                // Top-Right Corner
-                b.Draw(
-                    Game1.menuTexture,
-                    new Vector2(x + width - Game1.tileSize, y),
-                    TopRight,
-                    Color.White);
-
-                // Top-Left Corner
-                b.Draw(
-                    Game1.menuTexture,
-                    new Vector2(x, y),
-                    TopLeft,
-                    Color.White);
-
-                // Bottom-Right Corner
-                b.Draw(
-                    Game1.menuTexture,
-                    new Vector2(x + width - Game1.tileSize, y + height - Game1.tileSize),
-                    BottomRight,
-                    Color.White);
-
-                // Bottom-Left Corner
-                b.Draw(
-                    Game1.menuTexture,
-                    new Vector2(x, y + height - Game1.tileSize),
-                    BottomLeft,
-                    Color.White);
+                BorderNW.Draw(b, x, y);
+                BorderNE.Draw(b, x + width - Game1.tileSize, y);
+                BorderSE.Draw(b, x + width - Game1.tileSize, y + height - Game1.tileSize);
+                BorderSW.Draw(b, x, y + height - Game1.tileSize);
             }
         }
 
@@ -123,11 +78,29 @@ namespace MegaStorage
             /*********
             ** Fields
             *********/
-            public static readonly Rectangle Grid = Game1.getSourceRectForStandardTileSheet(Game1.menuTexture, 10);
-            public static readonly Rectangle GrayedOut = Game1.getSourceRectForStandardTileSheet(Game1.menuTexture, 57);
-            public static readonly Rectangle LeftTab = new Rectangle(16, 368, 12, 16);
-            public static readonly Rectangle RightTab = new Rectangle(21, 368, 11, 16);
-            public static readonly Rectangle Backpack = new Rectangle(4, 372, 8, 11);
+            public static readonly Sprite Grid = new Sprite(Game1.menuTexture, 10);
+            public static readonly Sprite GrayedOut = new Sprite(Game1.menuTexture, 57, Color.White * 0.5f);
+
+            public static readonly Sprite BorderW =
+                new Sprite(
+                    Game1.mouseCursors,
+                    new Rectangle(16, 368, 12, 16),
+                    270,
+                    Game1.pixelZoom);
+
+            public static readonly Sprite BorderE =
+                new Sprite(
+                    Game1.mouseCursors,
+                    new Rectangle(21, 368, 11, 16),
+                    270,
+                    Game1.pixelZoom);
+
+            public static readonly Sprite Backpack =
+                new Sprite(
+                    Game1.mouseCursors,
+                    new Rectangle(4, 372, 8, 11),
+                    0,
+                    Game1.pixelZoom);
 
             /*********
             ** Public methods
@@ -153,30 +126,10 @@ namespace MegaStorage
                         x + col * (Game1.tileSize + horizontalGap),
                         y + row * (Game1.tileSize + verticalGap));
 
-                    b.Draw(
-                        Game1.menuTexture,
-                        pos,
-                        Grid,
-                        Color.White,
-                        0.0f,
-                        Vector2.Zero,
-                        1f,
-                        SpriteEffects.None,
-                        0.5f);
+                    Grid.Draw(b, pos);
 
                     if (maxItems > -1 && slot >= maxItems)
-                    {
-                        b.Draw(
-                            Game1.menuTexture,
-                            pos,
-                            GrayedOut,
-                            Color.White * 0.5f,
-                            0.0f,
-                            Vector2.Zero,
-                            1f,
-                            SpriteEffects.None,
-                            0.5f);
-                    }
+                        GrayedOut.Draw(b, pos);
                 }
             }
 
@@ -187,69 +140,141 @@ namespace MegaStorage
 
             public static void DrawBackpack(SpriteBatch b, int x, int y)
             {
-                b.Draw(Game1.mouseCursors,
-                    new Vector2(x, y + 60),
-                    LeftTab,
-                    Color.White,
-                    4.712389f,
-                    Vector2.Zero,
-                    Game1.pixelZoom,
-                    SpriteEffects.None,
-                    1f);
-                b.Draw(Game1.mouseCursors,
-                    new Vector2(x, y + 28),
-                    RightTab,
-                    Color.White,
-                    4.712389f,
-                    Vector2.Zero,
-                    Game1.pixelZoom,
-                    SpriteEffects.None,
-                    1f);
-                b.Draw(Game1.mouseCursors,
-                    new Vector2(x + 24, y),
-                    Backpack,
-                    Color.White,
-                    0.0f,
-                    Vector2.Zero,
-                    Game1.pixelZoom,
-                    SpriteEffects.None,
-                    1f);
+                BorderW.Draw(b, x, y + 60);
+                BorderE.Draw(b, x, y + 28);
+                Backpack.Draw(b, x + 24, y);
             }
         }
 
         public static class Icons
         {
+            // General UI
+            public static readonly Sprite Ok = new Sprite(Game1.mouseCursors, 46);
+            public static readonly Sprite UpArrow = new Sprite(Game1.mouseCursors, 12);
+            public static readonly Sprite DownArrow = new Sprite(Game1.mouseCursors, 11);
+            public static readonly Sprite LeftArrow = new Sprite(Game1.mouseCursors, 44);
+            public static readonly Sprite RightArrow = new Sprite(Game1.mouseCursors, 33);
+            public static readonly Sprite Unchecked = new Sprite(Game1.mouseCursors, OptionsCheckbox.sourceRectUnchecked);
+            public static readonly Sprite Checked = new Sprite(Game1.mouseCursors, OptionsCheckbox.sourceRectChecked);
+
+            // Inventory Menu
+            public static readonly Sprite ColorToggle = new Sprite(Game1.mouseCursors, new Rectangle(119, 469, 16, 16), scale: Game1.pixelZoom);
+            public static readonly Sprite FillStacks = new Sprite(Game1.mouseCursors, new Rectangle(103, 469, 16, 16), scale: Game1.pixelZoom);
+            public static readonly Sprite Organize = new Sprite(Game1.mouseCursors, new Rectangle(162, 440, 16, 16), scale: Game1.pixelZoom);
+
             // Star Button
-            public static readonly Rectangle ActiveStarIcon = new Rectangle(310, 392, 16, 16);
-            public static readonly Rectangle InactiveStarIcon = new Rectangle(294, 392, 16, 16);
+            public static readonly Sprite ActiveStarIcon =
+                new Sprite(Game1.mouseCursors, new Rectangle(310, 392, 16, 16), scale: Game1.pixelZoom);
 
-            // Fill Stacks
-            public static readonly Rectangle FillStacks = new Rectangle(103, 469, 16, 16);
+            public static readonly Sprite InactiveStarIcon =
+                new Sprite(Game1.mouseCursors, new Rectangle(294, 392, 16, 16), Color.White * 0.5f, Vector2.Zero, scale: Game1.pixelZoom);
 
-            // Organize
-            public static readonly Rectangle Organize = new Rectangle(162, 440, 16, 16);
+            // Trash Can
+            public static readonly IList<Sprite> TrashCan = new List<Sprite>()
+            {
+                new Sprite(Game1.mouseCursors, new Rectangle(564, 102, 18, 26), scale: Game1.pixelZoom),
+                new Sprite(Game1.mouseCursors, new Rectangle(564 + 18, 102, 18, 26), scale: Game1.pixelZoom),
+                new Sprite(Game1.mouseCursors, new Rectangle(564 + 2 * 18, 102, 18, 26), scale: Game1.pixelZoom),
+                new Sprite(Game1.mouseCursors, new Rectangle(564 + 3 * 18, 102, 18, 26), scale: Game1.pixelZoom),
+                new Sprite(Game1.mouseCursors, new Rectangle(564 + 4 * 18, 102, 18, 26), scale:Game1.pixelZoom),
+            };
+
+            public static readonly IList<Sprite> TrashCanLid = new List<Sprite>()
+            {
+                new Sprite(Game1.mouseCursors, new Rectangle(564, 129, 18, 10), Color.White, new Vector2(16, 10), scale: Game1.pixelZoom),
+                new Sprite(Game1.mouseCursors, new Rectangle(564 + 18, 129, 18, 10), Color.White, new Vector2(16, 10), scale: Game1.pixelZoom),
+                new Sprite(Game1.mouseCursors, new Rectangle(564 + 2 * 18, 129, 18, 10), Color.White, new Vector2(16, 10), scale: Game1.pixelZoom),
+                new Sprite(Game1.mouseCursors, new Rectangle(564 + 3 * 18, 129, 18, 10), Color.White, new Vector2(16, 10), scale: Game1.pixelZoom),
+                new Sprite(Game1.mouseCursors, new Rectangle(564 + 4 * 18, 129, 18, 10), Color.White, new Vector2(16, 10), scale: Game1.pixelZoom),
+            };
         }
 
         public static Rectangle GetTile(int x, int y)
         {
             return new Rectangle(
-Game1.tileSize * x,
-Game1.tileSize * y,
-Game1.tileSize,
-Game1.tileSize);
+                Game1.tileSize * x,
+                Game1.tileSize * y,
+                Game1.tileSize,
+                Game1.tileSize);
         }
 
         public static TemporaryAnimatedSprite CreatePoof(int x, int y)
         {
             return new TemporaryAnimatedSprite(
-"TileSheets/animations",
-new Rectangle(0, 320, Game1.tileSize, Game1.tileSize),
-50f,
-8,
-0,
-new Vector2(x - x % Game1.tileSize + 16, y - y % Game1.tileSize + 16),
-false,
-false);
+                "TileSheets/animations",
+                new Rectangle(0, 320, Game1.tileSize, Game1.tileSize),
+                50f,
+                8,
+                0,
+                new Vector2(x - x % Game1.tileSize + 16, y - y % Game1.tileSize + 16),
+                false,
+                false);
+        }
+    }
+    internal class Sprite
+    {
+        /*********
+            ** Fields
+            *********/
+        public Texture2D Texture;
+        public Rectangle SourceRect;
+        public Color Color;
+        public float Rotation;
+        public int Scale;
+        public Vector2 Origin;
+
+        /*********
+            ** Public methods
+            *********/
+        public Sprite(Texture2D texture, int tilePosition, int rotation = 0, int scale = 1)
+            : this(texture, Game1.getSourceRectForStandardTileSheet(texture, tilePosition), Color.White, Vector2.Zero, rotation, scale) { }
+        public Sprite(Texture2D texture, int tilePosition, Color color, int rotation = 0, int scale = 1)
+            : this(texture, Game1.getSourceRectForStandardTileSheet(texture, tilePosition), color, Vector2.Zero, rotation, scale) { }
+        public Sprite(Texture2D texture, Rectangle sourceRect, int rotation = 0, int scale = 1)
+            : this(texture, sourceRect, Color.White, Vector2.Zero, rotation, scale) { }
+        public Sprite(Texture2D texture, Rectangle sourceRect, Color color, Vector2 origin, int rotation = 0, int scale = 1)
+        {
+            Texture = texture;
+            SourceRect = sourceRect;
+            Color = color;
+            Rotation = MathHelper.ToRadians(rotation);
+            Scale = scale;
+            Origin = origin;
+        }
+
+        public void Draw(SpriteBatch b, Rectangle destRect)
+        {
+            b.Draw(
+                Texture,
+                destRect,
+                SourceRect,
+                Color,
+                Rotation,
+                Origin,
+                SpriteEffects.None,
+                1f);
+        }
+        public void Draw(SpriteBatch b, Vector2 pos)
+        {
+            b.Draw(
+                Texture,
+                pos,
+                SourceRect,
+                Color,
+                Rotation,
+                Origin,
+                Scale,
+                SpriteEffects.None,
+                1f);
+        }
+
+        public void Draw(SpriteBatch b, int x, int y, int width, int height)
+        {
+            Draw(b, new Rectangle(x, y, width, height));
+        }
+        public void Draw(SpriteBatch b, int x, int y)
+        {
+            Draw(b, new Vector2(x, y));
         }
     }
 }

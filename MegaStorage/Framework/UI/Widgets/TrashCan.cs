@@ -12,19 +12,21 @@ namespace MegaStorage.Framework.UI.Widgets
         ** Fields
         *********/
         public static readonly Vector2 LidOffset = new Vector2(60, 40);
-        public static Rectangle TrashCanSourceRect =>
-            new Rectangle(564 + Game1.player.trashCanLevel * 18, 102, 18, 26);
-        public static Rectangle LidSourceRect =>
-            new Rectangle(564 + Game1.player.trashCanLevel * 18, 129, 18, 10);
+        public Sprite TrashCanLid;
 
-        private float _lidRotation;
+        private float LidRotation
+        {
+            get => TrashCanLid.Rotation;
+            set => TrashCanLid.Rotation = value;
+        }
 
         /*********
         ** Public methods
         *********/
         public TrashCan(IMenu parentMenu, Vector2 offset)
-            : base("trashCan", parentMenu, offset, Game1.mouseCursors, TrashCanSourceRect, "", Game1.tileSize, 104)
+            : base("trashCan", parentMenu, offset, Sprites.Icons.TrashCan[Game1.player.trashCanLevel], null, Game1.tileSize, 104)
         {
+            TrashCanLid = Sprites.Icons.TrashCanLid[Game1.player.trashCanLevel];
             myID = 5948;
             downNeighborID = 4857;
             leftNeighborID = 23;
@@ -47,16 +49,7 @@ namespace MegaStorage.Framework.UI.Widgets
         protected internal override void Draw(SpriteBatch b, IWidget widget)
         {
             draw(b);
-            b.Draw(
-                Game1.mouseCursors,
-                Position + LidOffset,
-                LidSourceRect,
-                Color.White,
-                _lidRotation,
-                new Vector2(16f, 10f),
-                Game1.pixelZoom,
-                SpriteEffects.None,
-                0.86f);
+            TrashCanLid.Draw(b, Position + LidOffset);
         }
 
         /// <summary>
@@ -79,14 +72,14 @@ namespace MegaStorage.Framework.UI.Widgets
         {
             if (!containsPoint(x, y))
             {
-                _lidRotation = Math.Max(_lidRotation - (float)Math.PI / 48f, 0.0f);
+                LidRotation = Math.Max(LidRotation - (float)Math.PI / 48f, 0.0f);
                 return;
             }
 
-            if (_lidRotation <= 0f)
+            if (LidRotation <= 0f)
                 Game1.playSound("trashcanlid");
 
-            _lidRotation = Math.Min(_lidRotation + (float)Math.PI / 48f, 1.570796f);
+            LidRotation = Math.Min(LidRotation + (float)Math.PI / 48f, 1.570796f);
 
             if (BaseMenu.heldItem is null ||
                 Utility.getTrashReclamationPrice(BaseMenu.heldItem, Game1.player) <= 0)
