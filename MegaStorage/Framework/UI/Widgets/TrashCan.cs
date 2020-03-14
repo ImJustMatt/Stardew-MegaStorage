@@ -17,8 +17,6 @@ namespace MegaStorage.Framework.UI.Widgets
         public static Rectangle LidSourceRect =>
             new Rectangle(564 + Game1.player.trashCanLevel * 18, 129, 18, 10);
 
-        protected internal InterfaceHost ItemGrabMenu => CommonHelper.OfType<InterfaceHost>(ParentMenu.ParentMenu);
-
         private float _lidRotation;
 
         /*********
@@ -96,9 +94,14 @@ namespace MegaStorage.Framework.UI.Widgets
                 return;
             }
 
+            if (Bounds.Contains(x, y))
+            {
+                ItemGrabMenu.hoverAmount = ItemGrabMenu.hoverAmount == -1
+                    ? Utility.getTrashReclamationPrice(ItemGrabMenu.heldItem, Game1.player)
+                    : ItemGrabMenu.hoverAmount;
+            }
+
             base.Hover(x, y, widget);
-            ParentMenu.HoverText = hoverText;
-            ParentMenu.HoverAmount = Utility.getTrashReclamationPrice(ItemGrabMenu.heldItem, Game1.player);
         }
     }
 }

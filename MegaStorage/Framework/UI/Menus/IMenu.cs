@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using StardewValley;
 using System.Collections.Generic;
 
 namespace MegaStorage.Framework.UI.Menus
@@ -15,8 +14,5 @@ namespace MegaStorage.Framework.UI.Menus
         bool FadedBackground { get; }
         IList<IMenu> SubMenus { get; }
         IList<IMenu> Overlays { get; }
-        Item HoverItem { get; set; }
-        string HoverText { get; set; }
-        int HoverAmount { get; set; }
     }
 }

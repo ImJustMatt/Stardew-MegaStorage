@@ -45,6 +45,7 @@ namespace MegaStorage.Framework.UI.Widgets
         public Action<int, int, IWidget> HoverAction { get; set; }
         public int Slot { get; set; }
         protected internal Menus.InventoryMenu InventoryMenu => CommonHelper.OfType<Menus.InventoryMenu>(ParentMenu);
+        protected internal InterfaceHost ItemGrabMenu => CommonHelper.OfType<InterfaceHost>(ParentMenu.ParentMenu);
 
         /*********
         ** Public methods
@@ -112,7 +113,7 @@ namespace MegaStorage.Framework.UI.Widgets
             if (!Bounds.Contains(x, y))
                 return;
 
-            ParentMenu.HoverItem = item;
+            ItemGrabMenu.hoveredItem ??= item;
         }
     }
 }

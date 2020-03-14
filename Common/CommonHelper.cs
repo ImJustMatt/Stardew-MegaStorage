@@ -228,7 +228,7 @@ namespace MegaStorage
                 ? Math.Min(1.1f, cc.scale + 0.05f)
                 : Math.Max(1f, cc.scale - 0.05f);
             if (cc.containsPoint(x, y))
-                widget.ParentMenu.HoverText = cc.hoverText;
+                cc.ItemGrabMenu.hoverText ??= cc.hoverText;
         }
 
         /// <summary>
@@ -245,7 +245,7 @@ namespace MegaStorage
                 ? Math.Min(Game1.pixelZoom * 1.1f, cc.scale + 0.05f)
                 : Math.Max(Game1.pixelZoom * 1f, cc.scale - 0.05f);
             if (cc.containsPoint(x, y))
-                widget.ParentMenu.HoverText = cc.hoverText;
+                cc.ItemGrabMenu.hoverText ??= cc.hoverText;
         }
 
         public static T NonNull<T>(T obj)

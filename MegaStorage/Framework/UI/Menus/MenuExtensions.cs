@@ -49,10 +49,6 @@ namespace MegaStorage.Framework.UI.Menus
             if (!(menu is InterfaceHost interfaceHost))
                 return done;
 
-            interfaceHost.hoveredItem = menu.HoverItem;
-            interfaceHost.hoverText = menu.HoverText;
-            interfaceHost.hoverAmount = menu.HoverAmount;
-
             // Hover Text
             if (!(interfaceHost.hoveredItem is null))
             {
@@ -216,19 +212,18 @@ namespace MegaStorage.Framework.UI.Menus
         public static bool PerformHoverAction(this IMenu menu, int x, int y)
         {
             var clickableMenu = CommonHelper.OfType<IClickableMenu>(menu);
-
-            menu.HoverItem = null;
-            menu.HoverText = null;
-            menu.HoverAmount = -1;
+            if (menu is InterfaceHost interfaceHost)
+            {
+                interfaceHost.hoveredItem = null;
+                interfaceHost.hoverText = null;
+                interfaceHost.hoverAmount = -1;
+            }
 
             // Hover Overlays
             foreach (var overlay in menu.Overlays.Where(m => m.Visible))
             {
                 var clickableOverlay = CommonHelper.OfType<IClickableMenu>(overlay);
                 clickableOverlay.performHoverAction(x, y);
-                menu.HoverItem = overlay.HoverItem;
-                menu.HoverText = overlay.HoverText;
-                menu.HoverAmount = overlay.HoverAmount;
                 return true;
             }
 
@@ -237,11 +232,6 @@ namespace MegaStorage.Framework.UI.Menus
             {
                 var clickableSubMenu = CommonHelper.OfType<IClickableMenu>(subMenu);
                 clickableSubMenu.performHoverAction(x, y);
-                menu.HoverItem ??= subMenu.HoverItem;
-                menu.HoverText ??= subMenu.HoverText;
-                menu.HoverAmount = menu.HoverAmount == -1
-                    ? subMenu.HoverAmount
-                    : menu.HoverAmount;
             }
 
             // Hover Widgets

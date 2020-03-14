@@ -52,9 +52,6 @@ namespace MegaStorage.Framework.UI.Menus
         public bool FadedBackground => false;
         public IList<IMenu> SubMenus { get; } = new List<IMenu>();
         public IList<IMenu> Overlays { get; } = new List<IMenu>();
-        public Item HoverItem { get; set; }
-        public string HoverText { get; set; }
-        public int HoverAmount { get; set; }
         public ItemSlot ItemSlot { get; set; }
         protected internal InterfaceHost ItemGrabMenu => CommonHelper.OfType<InterfaceHost>(ParentMenu);
         protected internal CustomChest ActualChest => CommonHelper.OfType<CustomChest>(ItemGrabMenu.context);

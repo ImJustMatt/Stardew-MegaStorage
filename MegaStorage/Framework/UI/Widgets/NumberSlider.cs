@@ -1,13 +1,12 @@
 ﻿using MegaStorage.Framework.UI.Menus;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using StardewValley;
 using StardewValley.Menus;
 using System;
 
 namespace MegaStorage.Framework.UI.Widgets
 {
-    internal class ClickableTexture : ClickableTextureComponent, IWidget
+    internal class NumberSlider : ClickableComponent, IWidget
     {
         /*********
         ** Fields
@@ -43,34 +42,27 @@ namespace MegaStorage.Framework.UI.Widgets
         public Action<IWidget> RightClickAction { get; set; }
         public Action<int, IWidget> ScrollAction { get; set; }
         public Action<int, int, IWidget> HoverAction { get; set; }
-        public Color Color { get; set; } = Color.White;
-        protected internal Menus.InventoryMenu InventoryMenu => CommonHelper.OfType<Menus.InventoryMenu>(ParentMenu);
-        protected internal InterfaceHost ItemGrabMenu => CommonHelper.OfType<InterfaceHost>(ParentMenu.ParentMenu);
 
         /*********
         ** Public methods
         *********/
-        public ClickableTexture(
-            string name,
+        public NumberSlider(string name,
             IMenu parentMenu,
             Vector2 offset,
-            Texture2D texture,
-            Rectangle sourceRect,
-            string hoverText = null,
-            int width = Game1.tileSize,
-            int height = Game1.tileSize,
-            float scale = Game1.pixelZoom)
-            : base(name,
-                new Rectangle((int)(parentMenu.Position.X + offset.X),
+            string label,
+            int width = 0,
+            int height = 0)
+            : base(new Rectangle((int)(parentMenu.Position.X + offset.X),
                     (int)(parentMenu.Position.Y + offset.Y),
                     width,
                     height),
-                "", hoverText, texture, sourceRect, scale)
+                name,
+                label)
         {
             ParentMenu = parentMenu;
             Offset = offset;
+
             DrawAction = Draw;
-            HoverAction = Hover;
         }
 
         public void GameWindowSizeChanged() =>
@@ -79,17 +71,9 @@ namespace MegaStorage.Framework.UI.Widgets
         /*********
         ** Private methods
         *********/
-        protected internal virtual void Draw(SpriteBatch b, IWidget widget)
+        private void Draw(SpriteBatch b, IWidget widget)
         {
-            draw(b, Color, 0.860000014305115f + bounds.Y / 20000f);
-        }
 
-        protected internal virtual void Hover(int x, int y, IWidget widget)
-        {
-            if (!Bounds.Contains(x, y))
-                return;
-
-            ItemGrabMenu.hoverText = hoverText;
         }
     }
 }
