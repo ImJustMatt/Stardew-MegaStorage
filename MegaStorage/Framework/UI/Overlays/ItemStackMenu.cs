@@ -1,6 +1,7 @@
-﻿using Microsoft.Xna.Framework;
+﻿using MegaStorage.Framework.UI.Menus;
+using Microsoft.Xna.Framework;
 
-namespace MegaStorage.Framework.UI.Menus
+namespace MegaStorage.Framework.UI.Overlays
 {
     internal class ItemStackMenu : BaseOverlay
     {

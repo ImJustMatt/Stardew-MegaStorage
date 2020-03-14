@@ -1,8 +1,9 @@
-﻿using Microsoft.Xna.Framework;
+﻿using MegaStorage.Framework.UI.Menus;
+using Microsoft.Xna.Framework;
 using StardewValley.Menus;
 using System.Collections.Generic;
 
-namespace MegaStorage.Framework.UI.Menus
+namespace MegaStorage.Framework.UI.Overlays
 {
     internal class BaseOverlay : IClickableMenu, IMenu
     {

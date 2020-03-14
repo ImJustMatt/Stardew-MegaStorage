@@ -32,12 +32,15 @@ namespace MegaStorage.Framework.UI.Widgets
             int width = 0,
             int height = 0,
             Align align = Align.Left,
-            SpriteFont font = null)
+            SpriteFont font = null,
+            IWidget forWidget = null)
             : base(name, parentMenu, offset, label, width, height)
         {
-            Font = font ?? Game1.dialogueFont;
             TextAlign = align;
+            Font = font ?? Game1.dialogueFont;
             DrawAction = Draw;
+            if (!(forWidget is null))
+                LeftClickAction = forWidget.LeftClickAction;
         }
 
         /*********

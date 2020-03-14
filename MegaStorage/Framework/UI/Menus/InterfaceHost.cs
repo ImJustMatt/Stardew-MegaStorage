@@ -1,4 +1,5 @@
 ﻿using MegaStorage.Framework.Models;
+using MegaStorage.Framework.UI.Overlays;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;

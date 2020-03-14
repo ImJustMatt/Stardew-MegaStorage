@@ -1,4 +1,5 @@
-﻿using MegaStorage.Framework.UI.Widgets;
+﻿using MegaStorage.Framework.UI.Menus;
+using MegaStorage.Framework.UI.Widgets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
@@ -9,7 +10,7 @@ using System.Globalization;
 using System.Linq;
 using SObject = StardewValley.Object;
 
-namespace MegaStorage.Framework.UI.Menus
+namespace MegaStorage.Framework.UI.Overlays
 {
     internal class ItemPickMenu : BaseOverlay
     {
@@ -148,7 +149,7 @@ namespace MegaStorage.Framework.UI.Menus
                 SelectedChestTab?.name,
                 width - (int)Padding.X * 2,
                 Game1.tileSize,
-                Align.Center);
+                Label.Align.Center);
             allClickableComponents.Add(ChestTabName);
 
             // Left Arrow
