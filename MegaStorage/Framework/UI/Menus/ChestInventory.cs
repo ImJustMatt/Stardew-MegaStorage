@@ -42,7 +42,7 @@ namespace MegaStorage.Framework.UI.Menus
         {
             set
             {
-                _poofReflected ??= MegaStorageMod.Helper.Reflection.GetField<TemporaryAnimatedSprite>(ItemGrabMenu, "poof");
+                _poofReflected ??= MegaStorageMod.Helper.Reflection.GetField<TemporaryAnimatedSprite>(BaseMenu, "poof");
                 _poofReflected.SetValue(value);
             }
         }
@@ -69,8 +69,8 @@ namespace MegaStorage.Framework.UI.Menus
         {
             CustomChest = customChest;
             CustomChest.items.OnElementChanged += SyncItem;
-            ItemGrabMenu.BehaviorFunction = customChest.grabItemFromInventory;
-            ItemGrabMenu.behaviorOnItemGrab = customChest.grabItemFromChest;
+            BaseMenu.BehaviorFunction = customChest.grabItemFromInventory;
+            BaseMenu.behaviorOnItemGrab = customChest.grabItemFromChest;
             SetupWidgets();
             SyncItems();
         }
@@ -81,7 +81,7 @@ namespace MegaStorage.Framework.UI.Menus
 
             if (HeldItem is null)
                 return;
-            ItemGrabMenu.behaviorOnItemGrab?.Invoke(HeldItem, Game1.player);
+            BaseMenu.behaviorOnItemGrab?.Invoke(HeldItem, Game1.player);
 
             if (HeldItem is SObject obj)
             {
@@ -151,7 +151,7 @@ namespace MegaStorage.Framework.UI.Menus
 
             if (HeldItem is null)
                 return;
-            ItemGrabMenu.behaviorOnItemGrab?.Invoke(HeldItem, Game1.player);
+            BaseMenu.behaviorOnItemGrab?.Invoke(HeldItem, Game1.player);
 
             if (HeldItem is SObject obj)
             {
@@ -290,7 +290,7 @@ namespace MegaStorage.Framework.UI.Menus
             colorPickerToggleButton.Events.LeftClick = ClickColorPickerToggleButton;
             colorPickerToggleButton.Events.Hover = WidgetEvents.HoverPixelZoom;
             allClickableComponents.Add(colorPickerToggleButton);
-            ItemGrabMenu.colorPickerToggleButton = colorPickerToggleButton;
+            BaseMenu.colorPickerToggleButton = colorPickerToggleButton;
 
             // Fill Stacks
             var fillStacksButton = new BaseWidget(
@@ -309,7 +309,7 @@ namespace MegaStorage.Framework.UI.Menus
             fillStacksButton.Events.LeftClick = ClickFillStacksButton;
             fillStacksButton.Events.Hover = WidgetEvents.HoverPixelZoom;
             allClickableComponents.Add(fillStacksButton);
-            ItemGrabMenu.fillStacksButton = fillStacksButton;
+            BaseMenu.fillStacksButton = fillStacksButton;
 
             // Organize
             var organizeButton = new BaseWidget(
@@ -328,7 +328,7 @@ namespace MegaStorage.Framework.UI.Menus
             organizeButton.Events.LeftClick = ClickOrganizeButton;
             organizeButton.Events.Hover = WidgetEvents.HoverPixelZoom;
             allClickableComponents.Add(organizeButton);
-            ItemGrabMenu.organizeButton = organizeButton;
+            BaseMenu.organizeButton = organizeButton;
 
             // Chest Tabs
             for (var index = 0; index < Math.Min(7, ModConfig.Instance.ChestTabs.Count); ++index)
@@ -467,8 +467,8 @@ namespace MegaStorage.Framework.UI.Menus
             CustomChest.items.OnElementChanged += SyncItem;
 
             // Update behavior functions
-            ItemGrabMenu.behaviorOnItemGrab = CustomChest.grabItemFromChest;
-            ItemGrabMenu.BehaviorFunction = CustomChest.grabItemFromInventory;
+            BaseMenu.behaviorOnItemGrab = CustomChest.grabItemFromChest;
+            BaseMenu.BehaviorFunction = CustomChest.grabItemFromInventory;
 
             // Reassign top inventory
             actualInventory = CustomChest.items;
@@ -478,13 +478,13 @@ namespace MegaStorage.Framework.UI.Menus
         private void ClickColorPickerToggleButton(IWidget widget)
         {
             Game1.player.showChestColorPicker = !Game1.player.showChestColorPicker;
-            ItemGrabMenu.chestColorPicker.visible = Game1.player.showChestColorPicker;
+            BaseMenu.chestColorPicker.visible = Game1.player.showChestColorPicker;
             Game1.playSound("drumkit6");
         }
 
         private void ClickFillStacksButton(IWidget widget)
         {
-            ItemGrabMenu.FillOutStacks();
+            BaseMenu.FillOutStacks();
             //Game1.player.Items = inventory.actualInventory;
             Game1.playSound("Ship");
         }
@@ -498,8 +498,8 @@ namespace MegaStorage.Framework.UI.Menus
         internal void RightClickChestTab(IWidget widget)
         {
             var chestTab = CommonHelper.OfType<ChestTab>(widget);
-            ItemGrabMenu.ItemPickMenu.SelectedChestTab = chestTab;
-            ItemGrabMenu.ItemPickMenu.Visible = true;
+            BaseMenu.ItemPickMenu.SelectedChestTab = chestTab;
+            BaseMenu.ItemPickMenu.Visible = true;
         }
 
         private void ScrollDown(IWidget widget)

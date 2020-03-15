@@ -45,7 +45,7 @@ namespace MegaStorage.Framework.UI.Menus
             base.receiveLeftClick(x, y, playSound);
 
             if (!(HeldItem is null) && isWithinBounds(x, y))
-                ItemGrabMenu.BehaviorFunction?.Invoke(HeldItem, Game1.player);
+                BaseMenu.BehaviorFunction?.Invoke(HeldItem, Game1.player);
         }
 
         public override void receiveRightClick(int x, int y, bool playSound = true)
@@ -53,7 +53,7 @@ namespace MegaStorage.Framework.UI.Menus
             base.receiveRightClick(x, y, playSound);
 
             if (!(HeldItem is null) && isWithinBounds(x, y))
-                ItemGrabMenu.BehaviorFunction?.Invoke(HeldItem, Game1.player);
+                BaseMenu.BehaviorFunction?.Invoke(HeldItem, Game1.player);
         }
 
         public sealed override void SyncItems()
@@ -86,12 +86,12 @@ namespace MegaStorage.Framework.UI.Menus
             okButton.Events.LeftClick = ClickOkButton;
             okButton.Events.Hover = WidgetEvents.HoverZoom;
             allClickableComponents.Add(okButton);
-            ItemGrabMenu.okButton = okButton;
+            BaseMenu.okButton = okButton;
 
             // Trash Can
             var trashCan = new TrashCan(this, RightWidgetsOffset + new Vector2(width, 68));
             allClickableComponents.Add(trashCan);
-            ItemGrabMenu.trashCan = trashCan;
+            BaseMenu.trashCan = trashCan;
         }
 
         private void SyncItem(NetList<Item, NetRef<Item>> list, int slot, Item oldValue, Item currentItem)
@@ -108,7 +108,7 @@ namespace MegaStorage.Framework.UI.Menus
 
         private void ClickOkButton(IWidget widget)
         {
-            ItemGrabMenu.exitThisMenu();
+            BaseMenu.exitThisMenu();
             if (!(Game1.currentLocation.currentEvent is null))
                 ++Game1.currentLocation.currentEvent.CurrentCommand;
             Game1.playSound("bigDeSelect");

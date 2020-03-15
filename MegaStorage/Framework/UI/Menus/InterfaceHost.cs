@@ -8,12 +8,10 @@ using StardewValley.Menus;
 using StardewValley.Objects;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace MegaStorage.Framework.UI.Menus
 {
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal class InterfaceHost : ItemGrabMenu, IMenu
     {
         /*********
@@ -188,9 +186,6 @@ namespace MegaStorage.Framework.UI.Menus
 
         private void SetupWidgets()
         {
-            if (!(context is CustomChest customChest))
-                return;
-
             // inventory (Clickable Component)
             for (var slot = 0; slot < ItemsToGrabMenu.inventory.Count; ++slot)
             {

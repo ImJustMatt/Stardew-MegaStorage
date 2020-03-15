@@ -1,8 +1,8 @@
 ﻿using MegaStorage.Framework.UI.Menus;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using System.Globalization;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace MegaStorage.Framework.UI.Widgets
 {
@@ -31,7 +31,6 @@ namespace MegaStorage.Framework.UI.Widgets
             Slot = slot;
             scale = Game1.pixelZoom;
             this.item = item;
-            Events.Draw = Draw;
             Events.LeftClick = LeftClick;
             Events.RightClick = RightClick;
         }

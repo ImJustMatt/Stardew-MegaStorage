@@ -33,12 +33,12 @@ namespace MegaStorage.Framework.UI.Menus
         public IList<IMenu> SubMenus { get; } = new List<IMenu>();
         public ItemSlot ItemSlot { get; set; }
 
-        protected internal InterfaceHost ItemGrabMenu => CommonHelper.OfType<InterfaceHost>(ParentMenu);
-        protected internal CustomChest ActualChest => CommonHelper.OfType<CustomChest>(ItemGrabMenu.context);
+        protected internal InterfaceHost BaseMenu => CommonHelper.OfType<InterfaceHost>(ParentMenu);
+        protected internal CustomChest ActualChest => CommonHelper.OfType<CustomChest>(BaseMenu.context);
         protected internal Item HeldItem
         {
-            get => ItemGrabMenu.heldItem;
-            set => ItemGrabMenu.heldItem = value;
+            get => BaseMenu.heldItem;
+            set => BaseMenu.heldItem = value;
         }
 
         /*********
@@ -122,7 +122,7 @@ namespace MegaStorage.Framework.UI.Menus
         {
             ItemSlot = null;
 
-            this.ReceiveRightClick(x, y, playSound && ItemGrabMenu.playRightClickSound);
+            this.ReceiveRightClick(x, y, playSound && BaseMenu.playRightClickSound);
 
             if (ItemSlot is null)
                 return;

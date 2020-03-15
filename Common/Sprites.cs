@@ -4,6 +4,7 @@ using StardewValley;
 using StardewValley.Menus;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MegaStorage
 {
@@ -12,7 +13,7 @@ namespace MegaStorage
         // Dialogue Box
         public static class Menu
         {
-            /*********W
+            /*********
             ** Fields
             *********/
             public static readonly Sprite Background = new Sprite(Game1.menuTexture, GetTile(1, 2));
@@ -170,23 +171,16 @@ namespace MegaStorage
                 new Sprite(Game1.mouseCursors, new Rectangle(294, 392, 16, 16), Color.White * 0.5f, Vector2.Zero, scale: Game1.pixelZoom);
 
             // Trash Can
-            public static readonly IList<Sprite> TrashCan = new List<Sprite>()
-            {
-                new Sprite(Game1.mouseCursors, new Rectangle(564, 102, 18, 26), scale: Game1.pixelZoom),
-                new Sprite(Game1.mouseCursors, new Rectangle(564 + 18, 102, 18, 26), scale: Game1.pixelZoom),
-                new Sprite(Game1.mouseCursors, new Rectangle(564 + 2 * 18, 102, 18, 26), scale: Game1.pixelZoom),
-                new Sprite(Game1.mouseCursors, new Rectangle(564 + 3 * 18, 102, 18, 26), scale: Game1.pixelZoom),
-                new Sprite(Game1.mouseCursors, new Rectangle(564 + 4 * 18, 102, 18, 26), scale:Game1.pixelZoom),
-            };
+            public static readonly IList<Sprite> TrashCan = Enumerable.Range(0, 4)
+                .Select(n =>
+                    new Sprite(Game1.mouseCursors, new Rectangle(564 + 18 * n, 102, 18, 26), scale: Game1.pixelZoom))
+                .ToList();
 
-            public static readonly IList<Sprite> TrashCanLid = new List<Sprite>()
-            {
-                new Sprite(Game1.mouseCursors, new Rectangle(564, 129, 18, 10), Color.White, new Vector2(16, 10), scale: Game1.pixelZoom),
-                new Sprite(Game1.mouseCursors, new Rectangle(564 + 18, 129, 18, 10), Color.White, new Vector2(16, 10), scale: Game1.pixelZoom),
-                new Sprite(Game1.mouseCursors, new Rectangle(564 + 2 * 18, 129, 18, 10), Color.White, new Vector2(16, 10), scale: Game1.pixelZoom),
-                new Sprite(Game1.mouseCursors, new Rectangle(564 + 3 * 18, 129, 18, 10), Color.White, new Vector2(16, 10), scale: Game1.pixelZoom),
-                new Sprite(Game1.mouseCursors, new Rectangle(564 + 4 * 18, 129, 18, 10), Color.White, new Vector2(16, 10), scale: Game1.pixelZoom),
-            };
+            public static readonly IList<Sprite> TrashCanLid = Enumerable.Range(0, 4)
+                .Select(n =>
+                    new Sprite(Game1.mouseCursors, new Rectangle(564 + 18 * n, 129, 18, 10), Color.White,
+                        new Vector2(16, 10), scale: Game1.pixelZoom))
+                .ToList();
         }
 
         public static Rectangle GetTile(int x, int y)
