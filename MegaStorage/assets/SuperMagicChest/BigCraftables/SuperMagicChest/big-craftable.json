@@ -1,4 +1,4 @@
-﻿{
+{
 	"Name": "Super Magic Chest",
 	"Description": "A magical container with mysterious properties.",
 	"Recipe": {
@@ -29,28 +29,28 @@
 	"ReserveExtraIndexCount": 16,
 	"NameLocalization": {
 		//"es": "", //Spanish
-		//"ko": "마법 상자",
-		//"de": "Magishe Truhe", //German
+		"ko": "마법 상자",
+		"de": "Magishe Truhe",
 		//"fr": "", //French
 		//"hu": "", //Hungarian
 		//"it": "", //Italian
 		//"ja": "", //Japanese
 		//"pt": "", //Portuguese
-		//"ru": "", //Russian
+		"ru": "Превосходный магический сундук",
 		//"tr": "", //Turkish
-		//"zh": "魔法宝箱", //Chinese (Simplified)
+		"zh": "魔法宝箱"
 	},
 	"DescriptionLocalization": {
 		//"es": "", //Spanish
-		//"ko": "물건을 보관할 수 있는 마법의 상자.",
-		//"de": "Eine magische Truhe, um alle deine Gegenstände zu lagern.", //German
+		"ko": "물건을 보관할 수 있는 마법의 상자.",
+		"de": "Eine magische Truhe, um alle deine Gegenstände zu lagern.",
 		//"fr": "", //French
 		//"hu": "", //Hungarian
 		//"it": "", //Italian
 		//"ja": "", //Japanese
 		//"pt": "", //Portuguese
-		//"ru": "", //Russian
+		"ru": "Волшебное хранилище с таинственными свойствами.",
 		//"tr": "", //Turkish
-		//"zh": "一个神奇的魔法宝箱，存储容量无限。", //Chinese (Simplified)
+		"zh": "一个神奇的魔法宝箱，存储容量无限。"
 	}
 }
